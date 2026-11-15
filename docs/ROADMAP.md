@@ -166,3 +166,14 @@ Status betyder:
 - [ ] Implementera schemalagd 07:00- och 21:00-fångst med iOS-begränsningar
 - [ ] Visa rapporthistorik och fångsttid i gränssnittet
 - [ ] Verifiera CI för den nya modellen
+
+
+## Uppdatering 2026-11-15 – Rapporternas utlösare
+- [x] Besluta att morgonrapporten utlöses av att Sömnfokus stängs av efter huvudsömnen
+- [x] Besluta att kvällsrapporten använder en fast lokal tid, 21:00 som standard
+- [ ] Implementera tillförlitlig observation av Sömnfokus-status/ändring och återupptagning när appen får körningstid
+- [ ] Kontrollera att huvudsömnen är avslutad och att nattens HealthKit-data hunnit bli tillgängliga
+- [ ] Hantera fördröjda HealthKit-sampel utan att skriva om en redan låst rapport
+- [ ] Skydda mot dubbletter och felaktiga utlösningar vid tupplur eller manuell Fokusändring
+- [ ] Schemalägga kvällsrapportens lokala notis och skapa kvällssnapshot vid säker körningstid
+- [ ] Testa tidszon, sommartid, omstart och flera Fokusväxlingar
