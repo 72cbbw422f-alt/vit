@@ -459,3 +459,13 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Bilderna är lokala appdata och synkas inte via iCloud. Om appen avinstalleras kan de försvinna.
 - Vikt kopplas tills vidare via senast registrerade vikt i viktjournalen; historisk vikt per enskild bild är inte låst ännu.
 - Automatisk vikttext i delningsbild ingår inte i första versionen.
+
+
+## 2026-11-15 – Kvalitetsjustering av viktjournal
+
+- Tog bort den förinställda målvikt på 90 kg som kunde uppfattas som ett rekommenderat eller personligt mål.
+- Målvikt är nu frivillig och anges av användaren själv.
+- Målviktens värde valideras inom samma rimliga inmatningsintervall som viktregistreringen.
+- Om inget mål har angetts visas i stället en tydlig åtgärd för att lägga till ett eget mål.
+- Befintliga sparade målvärden bevaras om de är giltiga.
+- Ändringen inväntar CI-build och behöver därefter provas i appen.
