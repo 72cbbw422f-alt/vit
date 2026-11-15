@@ -34,25 +34,59 @@ struct DashboardView: View {
         }
     }
     private var statusCard: some View {
-        VITALCard {
+        let result = health.snapshot.recoveryResult
+        return VITALCard {
             VStack(alignment: .leading, spacing: 15) {
                 HStack {
-                    Text("DAGENS STATUS").font(.subheadline.weight(.semibold)).tracking(0.6).foregroundStyle(VITALPalette.muted)
+                    Text("NATTENS ÅTERHÄMTNING").font(.subheadline.weight(.semibold)).tracking(0.6).foregroundStyle(VITALPalette.muted)
                     Spacer()
-                    Text("Under uppbyggnad").font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.amber)
-                        .padding(.horizontal, 11).padding(.vertical, 6).background(VITALPalette.amber.opacity(0.13), in: Capsule())
+                    Text(result.score == nil ? "Under uppbyggnad" : "Prototyp")
+                        .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.amber)
+                        .padding(.horizontal, 11).padding(.vertical, 6)
+                        .background(VITALPalette.amber.opacity(0.13), in: Capsule())
                 }
                 HStack(alignment: .firstTextBaseline, spacing: 7) {
-                    Text("—").font(.system(size: 48, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
+                    Text(result.score.map(String.init) ?? "—")
+                        .font(.system(size: 48, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
                     Text("/ 100").font(.title2.weight(.semibold)).foregroundStyle(VITALPalette.teal)
                 }
-                Text("Din personliga återhämtningsbedömning visas när beräkningsunderlaget är klart.")
+                Text(result.explanation)
                     .foregroundStyle(VITALPalette.muted).fixedSize(horizontal: false, vertical: true)
-                RoundedRectangle(cornerRadius: 4).fill(VITALPalette.track).frame(height: 8)
-                HStack { Text("Nattlig återhämtning"); Spacer(); Text("Inväntar data") }
-                    .font(.subheadline).foregroundStyle(VITALPalette.muted)
+                if let score = result.score {
+                    GeometryReader { proxy in
+                        ZStack(alignment: .leading) {
+                            Capsule().fill(VITALPalette.track)
+                            Capsule().fill(VITALPalette.teal).frame(width: proxy.size.width * CGFloat(score) / 100)
+                        }
+                    }.frame(height: 8)
+                    componentRow("Sömn", value: result.sleepComponent)
+                    componentRow("HRV", value: result.hrvComponent)
+                    componentRow("Vilopuls", value: result.restingPulseComponent)
+                } else {
+                    RoundedRectangle(cornerRadius: 4).fill(VITALPalette.track).frame(height: 8)
+                    HStack { Text("Personlig baslinje"); Spacer(); Text(baselineStatus) }
+                        .font(.subheadline).foregroundStyle(VITALPalette.muted)
+                }
+                Text("Experimentell wellness-uppskattning – inte medicinskt validerad.")
+                    .font(.caption2).foregroundStyle(VITALPalette.amber)
             }
         }
+    }
+    private var baselineStatus: String {
+        let days = min(
+            health.snapshot.sleepBaseline?.validDays ?? 0,
+            health.snapshot.hrvBaseline?.validDays ?? 0,
+            health.snapshot.restingHeartRateBaseline?.validDays ?? 0
+        )
+        return "\(days)/14 dagar"
+    }
+    private func componentRow(_ title: String, value: Double?) -> some View {
+        HStack {
+            Text(title).foregroundStyle(VITALPalette.muted)
+            Spacer()
+            Text(value.map { "\(Int($0.rounded())) / 100" } ?? "—")
+                .foregroundStyle(VITALPalette.cloud).monospacedDigit()
+        }.font(.caption.weight(.medium))
     }
     private var metricGrid: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
@@ -69,9 +103,9 @@ struct DashboardView: View {
                     Text("Kroppens energinivå").font(.headline.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
                     Spacer(); Text("—").font(.subheadline.weight(.bold)).foregroundStyle(VITALPalette.muted)
                 }
-                Text("Avvaktar tillräcklig historik").font(.title2.bold()).foregroundStyle(VITALPalette.teal)
+                Text("Avvaktar separat modell").font(.title2.bold()).foregroundStyle(VITALPalette.teal)
                 EnergyChartPlaceholder().frame(height: 132)
-                Text("Historik och eventuell prognos visas separat.").font(.caption).foregroundStyle(VITALPalette.muted)
+                Text("Kroppsbatteriet utvecklas separat från nattens återhämtning.").font(.caption).foregroundStyle(VITALPalette.muted)
             }
         }
     }
@@ -129,7 +163,7 @@ private struct EnergyChartPlaceholder: View {
             ZStack {
                 RoundedRectangle(cornerRadius: 14).fill(VITALPalette.surface)
                 VStack(spacing: 0) {
-                    ForEach(0..<3, id: \\.self) { _ in
+                    ForEach(0..<3, id: \.self) { _ in
                         Rectangle().fill(VITALPalette.track.opacity(0.65)).frame(height: 1)
                         Spacer(minLength: 0)
                     }
