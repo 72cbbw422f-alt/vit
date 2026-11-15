@@ -69,7 +69,7 @@ final class HealthKitStore: ObservableObject {
 
     private func latestSleepDuration() async -> TimeInterval? {
         guard let type = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else { return nil }
-        let start = Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date()
+        let start = Calendar.current.date(byAdding: .hour, value: -36, to: Date()) ?? Date()
         let predicate = HKQuery.predicateForSamples(withStart: start, end: Date())
         return await withCheckedContinuation { continuation in
             let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit,
@@ -80,9 +80,11 @@ final class HealthKitStore: ObservableObject {
                         HKCategoryValueSleepAnalysis.asleepDeep.rawValue,
                         HKCategoryValueSleepAnalysis.asleepREM.rawValue
                     ]
-                    let asleep = (samples as? [HKCategorySample])?.filter { asleepValues.contains($0.value) } ?? []
-                    let seconds = asleep.reduce(0.0) { $0 + $1.endDate.timeIntervalSince($1.startDate) }
-                    continuation.resume(returning: seconds > 0 ? seconds : nil)
+                    let intervals = ((samples as? [HKCategorySample]) ?? [])
+                        .filter { asleepValues.contains($0.value) }
+                        .map { SleepInterval(start: $0.startDate, end: $0.endDate) }
+                    let duration = SleepSessionCalculator.latestSessionDuration(intervals: intervals)
+                    continuation.resume(returning: duration)
                 }
             store.execute(query)
         }
