@@ -83,3 +83,11 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - Dubblettsignaler från Fokus eller appstart får inte skapa flera morgonrapporter samma lokala dag.
 - Kvällsrapporten skapas enligt en fast, användarinställbar lokal tid, med 21:00 som standardförslag.
 - iOS kan begränsa bakgrundskörning. VITAL måste därför kunna slutföra rapportflödet när appen får körningstid och får inte utlova exakt körning vid en viss sekund.
+
+
+## 2026-11-15 – Teknisk utlösningspolicy för morgonrapport
+- Sömnfokus-av behandlas som en av flera möjliga signaler, inte som en garanterad systemhändelse i bakgrunden.
+- HealthKit-sömnuppdatering och appens återgång till aktivt läge är reservsignaler som kan starta samma idempotenta kontroll.
+- En signal får endast godkännas när vald huvudsömn är avslutad, minst tre timmar lång, högst 18 timmar gammal och tillhör rapportens lokala uppvakningsdag.
+- Tre timmar och 18 timmar är initiala produkttrösklar som ska kunna omprövas efter test med verkliga sömnmönster.
+- Rapportarkivets unika nyckel per lokal dag och rapporttyp är sista skyddet mot dubbletter.
