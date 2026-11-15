@@ -1177,10 +1177,12 @@ private struct ProgressPhotosView: View {
                                 }
                                 .onChange(of: pickerItems) { _, items in
                                     guard let item = items.first else { return }
+                                    let selectedDate = photoDate
+                                    let selectedNote = note
                                     Task {
                                         do {
                                             guard let data = try await item.loadTransferable(type: Data.self) else { return }
-                                            try journal.add(data, date: photoDate, note: note)
+                                            try journal.add(data, date: selectedDate, note: selectedNote)
                                             pickerItems = []; note = ""; photoDate = .now; errorMessage = nil
                                         } catch { errorMessage = error.localizedDescription }
                                     }
