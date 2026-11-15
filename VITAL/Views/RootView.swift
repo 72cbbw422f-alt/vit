@@ -599,28 +599,42 @@ private struct HealthOverviewView: View {
         if remindersEnabled { Task { await scheduleReminders() } }
     }
     func setReminders(_ enabled: Bool) {
-        remindersEnabled = enabled
-        UserDefaults.standard.set(enabled, forKey: reminderKey)
+        guard enabled != remindersEnabled else { return }
+        if !enabled {
+            remindersEnabled = false
+            UserDefaults.standard.set(false, forKey: reminderKey)
+            let ids = (0..<13).map { "vital.water.\\($0)" }
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ids)
+            return
+        }
         Task {
             let center = UNUserNotificationCenter.current()
-            if !enabled {
-                center.removePendingNotificationRequests(withIdentifiers: (0..<12).map { "vital.water.\($0)" })
-                return
-            }
-            let settings = await center.notificationSettings()
+            var settings = await center.notificationSettings()
             if settings.authorizationStatus == .notDetermined {
                 _ = try? await center.requestAuthorization(options: [.alert, .sound])
+                settings = await center.notificationSettings()
+            }
+            guard settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional else {
+                await MainActor.run {
+                    remindersEnabled = false
+                    UserDefaults.standard.set(false, forKey: reminderKey)
+                }
+                return
             }
             await scheduleReminders()
+            await MainActor.run {
+                remindersEnabled = true
+                UserDefaults.standard.set(true, forKey: reminderKey)
+            }
         }
     }
     private func scheduleReminders() async {
         let center = UNUserNotificationCenter.current()
         let settings = await center.notificationSettings()
         guard settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional else { return }
-        let ids = (0..<12).map { "vital.water.\($0)" }
+        let ids = (0..<13).map { "vital.water.\\($0)" }
         center.removePendingNotificationRequests(withIdentifiers: ids)
-        for index in 0..<12 {
+        for index in 0..<13 {
             let hour = 8 + index * intervalHours
             if hour >= 21 { break }
             var components = DateComponents()
@@ -629,7 +643,7 @@ private struct HealthOverviewView: View {
             content.title = "Dags att dricka vatten 💧"
             content.body = "Ta en liten vattenpaus och registrera mängden i VITAL."
             content.sound = .default
-            let request = UNNotificationRequest(identifier: "vital.water.\(index)", content: content,
+            let request = UNNotificationRequest(identifier: "vital.water.\\(index)", content: content,
                 trigger: UNCalendarNotificationTrigger(dateMatching: components, repeats: true))
             try? await center.add(request)
         }
