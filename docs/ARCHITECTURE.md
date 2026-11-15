@@ -145,3 +145,6 @@ HealthKitStore registrerar en observerfråga för sömn och begär bakgrundsleve
 
 ## Notisbehörighet och synlig status
 VITAL läser först UNUserNotificationCenter notificationSettings. Systemdialogen begärs endast om behörigheten ännu inte har valts. Vid nekad behörighet tas väntande kvällspåminnelse bort. Dashboarden visar notisstatus separat från HealthKit-bakgrundsleverans; de två funktionerna har olika behörigheter och felorsaker.
+
+## Stabil rapportdag över tidszoner
+Varje ny DailyReportSnapshot lagrar en lokal dagnyckel (`yyyy-MM-dd`) och tidszonsidentifieraren som gällde när rapporten skapades. Arkivets dubblettskydd använder dagnyckeln i stället för att räkna om äldre datum med enhetens nuvarande tidszon. Dashboarden visar datumetiketten från den sparade nyckeln. Äldre arkiv utan dessa fält kan fortfarande avkodas och använder den tidigare datumjämförelsen.
