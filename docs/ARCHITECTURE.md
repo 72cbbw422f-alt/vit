@@ -72,3 +72,10 @@ Blodtryck, träningspass, andningsfrekvens, syremättnad och andra datatyper är
 - `VITAL/Models/SleepSessionCalculator.swift` slår ihop överlappande sömnintervall och grupperar sammanhängande segment.
 - `HealthKitStore.latestSleepDuration()` läser sömnsegment från de senaste 36 timmarna och skickar endast sömnklassade intervall till kalkylatorn.
 - Första prototypen grupperar segment med högst 90 minuters mellanrum. Tröskeln är konfigurerbar och ska valideras mot verkliga data.
+
+
+## Personliga baslinjer
+- `VITAL/Models/PersonalBaselineCalculator.swift` beräknar median från dagliga värden i ett explicit tidsfönster.
+- Flera mätningar samma dag reduceras till en dagsmedian, så tätare samplingsfrekvens inte automatiskt ger större vikt.
+- Minst 14 distinkta dagar krävs. Kalkylatorn är fristående från HealthKit och kan testas med syntetiska fixtures.
+- HealthKitStore-koppling och datainsamling återstår.
