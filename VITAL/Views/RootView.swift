@@ -153,6 +153,7 @@ private struct HealthOverviewView: View {
     @State private var showingWeightEntry = false
     @State private var showingTargetWeightEntry = false
     @State private var showingBloodPressureEntry = false
+    @State private var editingBloodPressure: BloodPressureEntry?
     @State private var showingProgressPhotos = false
     @StateObject private var progressPhotos = ProgressPhotoJournal()
     var body: some View {
@@ -512,6 +513,24 @@ private struct HealthOverviewView: View {
                     }
                     Text("Senast · \(latest.date.formatted(date: .abbreviated, time: .shortened))")
                         .font(.caption).foregroundStyle(VITALPalette.muted)
+                    ForEach(bloodPressure.entries.prefix(5)) { entry in
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("\(entry.systolic)/\(entry.diastolic) mmHg")
+                                    .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
+                                Text(entry.date.formatted(date: .abbreviated, time: .shortened))
+                                    .font(.caption2).foregroundStyle(VITALPalette.muted)
+                            }
+                            Spacer()
+                            Menu {
+                                Button("Redigera", systemImage: "pencil") { editingBloodPressure = entry }
+                                Button("Radera", systemImage: "trash", role: .destructive) { bloodPressure.delete(entry) }
+                            } label: {
+                                Image(systemName: "ellipsis.circle").foregroundStyle(VITALPalette.muted)
+                                    .frame(width: 36, height: 32)
+                            }
+                        }
+                    }
                     if bloodPressure.entries.count > 1 {
                         Chart(Array(bloodPressure.entries.prefix(10).reversed()), id: \.id) { entry in
                             LineMark(x: .value("Mätning", entry.date), y: .value("Systoliskt", entry.systolic))
@@ -537,7 +556,12 @@ private struct HealthOverviewView: View {
             }
         }
         .sheet(isPresented: $showingBloodPressureEntry) {
-            BloodPressureEntrySheet(journal: bloodPressure)
+            BloodPressureEntrySheet(journal: bloodPressure, entry: nil)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(item: $editingBloodPressure) { entry in
+            BloodPressureEntrySheet(journal: bloodPressure, entry: entry)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
@@ -713,10 +737,19 @@ private struct BloodPressureEntry: Codable, Identifiable {
 private struct BloodPressureEntrySheet: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var journal: BloodPressureJournal
-    @State private var systolic = ""
-    @State private var diastolic = ""
-    @State private var pulse = ""
-    @State private var note = ""
+    let entry: BloodPressureEntry?
+    @State private var systolic: String
+    @State private var diastolic: String
+    @State private var pulse: String
+    @State private var note: String
+    init(journal: BloodPressureJournal, entry: BloodPressureEntry?) {
+        self.journal = journal
+        self.entry = entry
+        _systolic = State(initialValue: entry.map { String($0.systolic) } ?? "")
+        _diastolic = State(initialValue: entry.map { String($0.diastolic) } ?? "")
+        _pulse = State(initialValue: entry?.pulse.map(String.init) ?? "")
+        _note = State(initialValue: entry?.note ?? "")
+    }
     private var valid: Bool {
         guard let s = Int(systolic), let d = Int(diastolic) else { return false }
         let pulseIsValid = pulse.isEmpty || (Int(pulse).map { (30...220).contains($0) } ?? false)
@@ -740,13 +773,18 @@ private struct BloodPressureEntrySheet: View {
             }
             .scrollContentBackground(.hidden)
             .background(VITALPalette.surface)
-            .navigationTitle("Ny mätning")
+            .navigationTitle(entry == nil ? "Ny mätning" : "Redigera mätning")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Avbryt") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Spara") {
-                        journal.add(systolic: Int(systolic)!, diastolic: Int(diastolic)!, pulse: Int(pulse), note: note)
+                        guard let s = Int(systolic), let d = Int(diastolic) else { return }
+                        if let entry {
+                            journal.update(entry, systolic: s, diastolic: d, pulse: Int(pulse), note: note)
+                        } else {
+                            journal.add(systolic: s, diastolic: d, pulse: Int(pulse), note: note)
+                        }
                         dismiss()
                     }.disabled(!valid)
                 }
@@ -754,7 +792,6 @@ private struct BloodPressureEntrySheet: View {
         }
     }
 }
-
 
 
 private struct MedicationDose: Codable, Identifiable {
