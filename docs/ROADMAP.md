@@ -67,3 +67,13 @@ Status betyder:
 - [x] Ta bort exempelkurva som kunde förväxlas med verkliga användardata
 - [x] Förtydliga saknade datavärden på dashboarden
 - [ ] Köra och godkänna första CI-builden
+
+
+## Uppdatering 2026-11-15 – Återhämtningsmotor
+- [x] Skapa fristående första version av återhämtningsberäkningen
+- [x] Kräva personlig baslinje och avstå från poäng när data saknas
+- [x] Lägga till fem automatiska enhetstester
+- [x] Dokumentera modellens formler och begränsningar
+- [ ] Hämta och beräkna rullande 30-dagarsbaslinjer via HealthKit
+- [ ] Verifiera sömnperiod och överlappande sömnsegment
+- [ ] Validera modellens viktning innan poängen visas i appen
