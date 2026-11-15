@@ -227,3 +227,10 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Resultatet lagras separat i `HealthSnapshot` och visas i dashboardens kroppsbatterikort.
 - Diagramplatshållaren har tagits bort; UI visar poäng och förklaring endast när modellen har tillräckligt underlag.
 - HealthKit-resultatet är ännu inte validerat på fysisk iPhone. Modellen saknar fortfarande återladdning under vila och dess koefficienter är preliminära.
+
+## 2026-11-15 – Korrekt intervallfiltrering för aktiv energi
+- TimedHealthValue har fått en valfri starttidsstämpel så HealthKit-intervall bevaras.
+- Aktiv energi räknas nu bara när hela samplets tidsintervall ligger efter uppvaknandet och före beräkningstidpunkten.
+- Tester täcker sample som överlappar uppvaknandet, sample helt inom vakenperioden och sample efter aktuell tid.
+- Detta förhindrar att aktiv energi som delvis uppstod under sömn felaktigt belastar dagens kroppsbatteri.
+- Fortsatt prototyp: belastningskoefficienterna och återladdning under vila är inte validerade.
