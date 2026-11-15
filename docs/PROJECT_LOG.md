@@ -178,3 +178,20 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Urvalskärnan är implementerad men ännu inte inkopplad i HealthKitStore eller RecoveryEngine.
 - Vilopuls från HealthKit kan vara aggregerad eller tidsstämplad på ett sätt som inte motsvarar en faktisk mätning under sömnen. Integrationen ska därför först kontrolleras mot HealthKit-data och får inte anta att vilopulssampel alltid finns under sömnperioden.
 - Inga tester eller Xcode-build har körts efter denna ändring.
+
+
+## 2026-11-15 – Koppling av nattliga värden till HealthKit
+
+### Implementerat
+- HealthKitStore hämtar nu tidsstämplade HRV SDNN- och vilopulssampel från ett rullande 36-timmarsfönster.
+- Den senaste grupperade sömnperioden används som tidsfönster för natturvalet.
+- HealthSnapshot håller nu isär senaste HRV/vilopuls för översikten och nattliga HRV/vilopuls för återhämtningsberäkningen.
+- RecoveryEngine får endast nattvärdena. Om HealthKit saknar sampel inom sömnperioden visas ingen återhämtningspoäng.
+- Sömnkalkylatorn kan nu returnera hela senaste sömnperioden, inte bara dess längd.
+- Korrigerat test-fixtures för att uttryckligen passera midnatt.
+
+### Begränsningar
+- HealthKit:s vilopulsdata kan sakna sampel som faktiskt ligger inom sömnperiodens start- och sluttid. Då blir återhämtningsvärdet avsiktligt otillgängligt.
+- Den senaste grupperade sömnperioden kan i vissa fall vara en tupplur. Urvalet av huvudperiod behöver valideras mot verkliga data.
+- 36-timmarsfönstret, sample-tidsstämplar och datatillgänglighet måste verifieras på fysisk iPhone.
+- Ingen Xcode-build eller testkörning har utförts efter integrationen.
