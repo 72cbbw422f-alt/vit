@@ -146,3 +146,20 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - HealthKit-frågorna är ännu inte testade på fysisk iPhone och kan inte verifieras i Linux-testmiljön.
 - HRV-representativitet, sömnens 90-minutersgruppering och valet av längsta session per uppvakningsdag behöver valideras mot verkliga användardata.
 - Återhämtningsmotorn är ännu inte kopplad till dessa värden eller dashboarden; ingen återhämtningspoäng visas.
+
+
+## 2026-11-15 – Återhämtningsmotor kopplad till dashboard
+
+### Implementerat
+- Utökat HealthSnapshot med en beräknad återhämtningsresultat-egenskap.
+- Resultatet använder den lägsta giltiga dagsmängden bland sömn-, HRV- och vilopulsbaslinjerna. En komplett baslinje för en parameter kan inte dölja otillräckligt underlag för en annan.
+- Kopplat den befintliga RecoveryEngine-prototypen till dashboardens statuskort.
+- Dashboarden visar poäng, förklaring och tre komponentvärden när samtliga indata och baslinjer finns.
+- Om data saknas visas ingen poäng; gränssnittet visar i stället hur många baslinjedagar som finns.
+- Kroppsbatteriet hålls fortsatt separat och har ingen påhittad nivå eller kurva.
+
+### Viktiga begränsningar
+- Poängmodellen är fortfarande en teknisk wellness-prototyp och inte medicinskt validerad.
+- Nuvarande HRV/vilopuls-indata är senaste tillgängliga HealthKit-värden, inte ännu en kvalitetssäkrad nattlig datapunkt med gemensam tidsstämpel.
+- Sömnperiodsvalet behöver verifieras mot tupplurar och verkliga data.
+- Ingen Xcode-build eller fysisk enhetstestning har utförts efter UI-integrationen.
