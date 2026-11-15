@@ -115,3 +115,17 @@ Fastställda färger:
 - 90-minutersgränsen är en teknisk grupperingströskel och behöver granskas mot verkliga HealthKit-sömndata.
 - Valet av senaste sömnperiod kan behöva särskild hantering av tupplurar.
 - HealthKit-integrationen är inte testad på iPhone.
+
+
+## 2026-11-15 – Personlig baslinjeberäkning
+
+### Implementerat
+- Skapat `PersonalBaselineCalculator.swift` för att beräkna personlig median från dagliga hälsovärden.
+- Flera mätningar samma kalenderdag reduceras till dagens median och räknas som en giltig dag.
+- Ogiltiga, negativa, icke-finita och värden utanför valt tidsfönster ignoreras.
+- Minst 14 distinkta giltiga dagar krävs innan baslinjen markeras som redo.
+- Registrerat kalkylatorn i både Swift Package och Xcode-projektet.
+- Lagt till fem enhetstester.
+
+### Viktig avgränsning
+Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore hämtar ännu inte 30-dagarsserierna eller matar kalkylatorn. Ingen återhämtningspoäng har därför aktiverats i gränssnittet.
