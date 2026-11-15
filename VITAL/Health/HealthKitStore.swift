@@ -9,6 +9,7 @@ final class HealthKitStore: ObservableObject {
     @Published private(set) var authorizationRequested = false
     @Published private(set) var lastError: String?
     @Published private(set) var morningReport: DailyReportSnapshot?
+    @Published private(set) var eveningReport: DailyReportSnapshot?
     @Published private(set) var reportHistory: [DailyReportSnapshot] = []
     private let store = HKHealthStore()
     private let baselineCalendar = Calendar.current
@@ -126,6 +127,7 @@ final class HealthKitStore: ObservableObject {
         }
         snapshot = updatedSnapshot
         createMorningReportIfEligible(from: updatedSnapshot, sleepSession: sleepSession, capturedAt: now)
+        createEveningReportIfEligible(from: updatedSnapshot, capturedAt: now)
     }
 
 
@@ -136,6 +138,7 @@ final class HealthKitStore: ObservableObject {
         reportArchive = decoded
         reportHistory = Array(decoded.snapshots.reversed())
         morningReport = decoded.snapshot(for: Date(), kind: .morning)
+        eveningReport = decoded.snapshot(for: Date(), kind: .evening)
     }
 
     /// Freeze the first eligible morning snapshot for the local wake-up day.
@@ -173,6 +176,35 @@ final class HealthKitStore: ObservableObject {
         UserDefaults.standard.set(data, forKey: reportArchiveKey)
         reportHistory = Array(reportArchive.snapshots.reversed())
         morningReport = candidate
+    }
+
+    /// Capture the first successful refresh at or after the local evening time.
+    /// iOS does not guarantee that the app is executing at exactly 21:00.
+    private func createEveningReportIfEligible(from healthSnapshot: HealthSnapshot, capturedAt: Date) {
+        let calendar = Calendar.current
+        let decision = EveningReportTriggerPolicy.evaluate(
+            eventDate: capturedAt,
+            reportDay: capturedAt,
+            calendar: calendar
+        )
+        guard decision.shouldCreateSnapshot else { return }
+        let candidate = DailyReportSnapshot(
+            kind: .evening,
+            localDay: calendar.startOfDay(for: capturedAt),
+            capturedAt: capturedAt,
+            recoveryScore: healthSnapshot.recoveryResult.score,
+            bodyBatteryScore: healthSnapshot.bodyBattery?.score,
+            sleepDurationSeconds: healthSnapshot.sleepDuration,
+            hrvMilliseconds: healthSnapshot.hrv,
+            restingHeartRateBPM: healthSnapshot.restingHeartRate,
+            steps: healthSnapshot.steps,
+            activeEnergyKcal: healthSnapshot.activeEnergy
+        )
+        guard reportArchive.appendIfAbsent(candidate, calendar: calendar),
+              let data = try? JSONEncoder().encode(reportArchive) else { return }
+        UserDefaults.standard.set(data, forKey: reportArchiveKey)
+        reportHistory = Array(reportArchive.snapshots.reversed())
+        eveningReport = candidate
     }
 
     private func loadPersonalBaselines(asOf date: Date) async -> (resting: PersonalBaseline, hrv: PersonalBaseline, sleep: PersonalBaseline) {
