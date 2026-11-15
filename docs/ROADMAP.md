@@ -99,3 +99,13 @@ Status betyder:
 - [ ] Säkerställ att HRV och vilopuls avser relevant natt/tidsfönster
 - [ ] Verifiera återhämtningspoängen med verkliga HealthKit-data innan modellen betraktas som färdig
 - [ ] Validera datakvalitet och tidsfönster för varje mätvärde
+
+
+## Uppdatering 2026-11-15 – Nattliga mätvärden
+- [x] Skapa fristående urvalsmodell för tidsstämplade nattliga HRV- och vilopulsvärden
+- [x] Kräva att sampel ligger inom vald sömnperiod
+- [x] Låta saknade nattliga sampel förbli saknade
+- [x] Lägga till fyra automatiska testfall
+- [ ] Koppla urvalsmodellen till HealthKitStore
+- [ ] Verifiera om HealthKit:s vilopulssampel faktiskt kan knytas till sömnperioden
+- [ ] Koppla endast kvalitetssäkrade nattvärden till återhämtningsmotorn
