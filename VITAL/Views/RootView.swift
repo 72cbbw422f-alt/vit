@@ -241,17 +241,15 @@ private struct HealthOverviewView: View {
                 HStack {
                     Text("Målvikt").font(.caption).foregroundStyle(VITALPalette.muted)
                     Spacer()
-                    if let target = weightJournal.targetWeight {
-                        TextField("kg", value: Binding(
-                            get: { weightJournal.targetWeight ?? target },
-                            set: { weightJournal.targetWeight = $0 }
-                        ), format: .number.precision(.fractionLength(1)))
-                            .keyboardType(.decimalPad).multilineTextAlignment(.trailing)
-                            .frame(width: 76).foregroundStyle(VITALPalette.teal)
-                        Text("kg").font(.caption).foregroundStyle(VITALPalette.muted)
-                    } else {
-                        Button("Ange målvikt") { showingTargetWeightEntry = true }
-                            .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.teal)
+                    Button {
+                        showingTargetWeightEntry = true
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(weightJournal.targetWeight.map { String(format: "%.1f kg", $0) } ?? "Ange målvikt")
+                            Image(systemName: "pencil").font(.caption2)
+                        }
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(VITALPalette.teal)
                     }
                 }
                 if let current, let target = weightJournal.targetWeight {
@@ -989,7 +987,11 @@ private struct WeightEntrySheet: View {
 private struct TargetWeightEntrySheet: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var journal: WeightJournal
-    @State private var value = ""
+    @State private var value: String
+    init(journal: WeightJournal) {
+        self.journal = journal
+        _value = State(initialValue: journal.targetWeight.map { String(format: "%.1f", $0) } ?? "")
+    }
     private var parsed: Double? { Double(value.replacingOccurrences(of: ",", with: ".")) }
     var body: some View {
         NavigationStack {
@@ -998,6 +1000,14 @@ private struct TargetWeightEntrySheet: View {
                     TextField("Målvikt i kg", text: $value).keyboardType(.decimalPad)
                     Text("Målvikt är helt valfri. VITAL föreslår inget standardmål.")
                         .font(.footnote).foregroundStyle(.secondary)
+                }
+                if journal.targetWeight != nil {
+                    Section {
+                        Button("Ta bort målvikt", role: .destructive) {
+                            journal.targetWeight = nil
+                            dismiss()
+                        }
+                    }
                 }
             }
             .navigationTitle("Ange målvikt").navigationBarTitleDisplayMode(.inline)
