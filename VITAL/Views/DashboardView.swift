@@ -46,7 +46,7 @@ struct DashboardView: View {
                         .background(VITALPalette.amber.opacity(0.13), in: Capsule())
                 }
                 HStack(alignment: .firstTextBaseline, spacing: 7) {
-                    Text(result.score.map(String.init) ?? "—")
+                    Text(result.score.map { String($0) } ?? "—")
                         .font(.system(size: 48, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
                     Text("/ 100").font(.title2.weight(.semibold)).foregroundStyle(VITALPalette.teal)
                 }
