@@ -478,3 +478,10 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Fotomappen markeras som exkluderad från iOS-enhetens iCloud-säkerhetskopia. Bilderna fortsätter att lagras lokalt i appens dokumentmapp och synkas inte via iCloud.
 - Tog bort en kvarlämnad tom viktvisning i bildjämförelsen.
 - Ändringarna inväntar CI och fysisk verifiering på iPhone.
+
+## 2026-11-15 – Viktjournal: relativ förändring
+
+- Viktjournalen visar nu både absolut förändring i kg och relativ förändring i procent sedan den första manuella registreringen.
+- Beräkningen använder den första sparade vikten som personlig startpunkt och visar inget mål eller rekommenderad takt.
+- Procentvärdet visas bara när det finns minst två giltiga registreringar.
+- Ändringen inväntar CI och ska därefter verifieras med flera historiska datapunkter.
