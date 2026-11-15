@@ -132,3 +132,11 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - HealthKitStore, UserNotifications och DashboardView har uppdaterats för första kvällsrapportflödet.
 - CI för dessa ändringar väntar; inga tester eller simulatorbyggen markeras som godkända ännu.
 - Ingen fysisk iPhone-testning eller IPA-export har utförts.
+
+
+## 2026-11-15 – Kvällsrapportens kärnmodell och Xcode-registrering
+- GitHub Actions run 149, commit `9eda93dbca2917bec0ced2d157a9056c362fb18a`: kärntester godkända efter att EveningReportTriggerPolicy registrerats i Swift Package.
+- GitHub Actions run 150, commit `1cf42062cea11e066623ea7181dfebfa28c053b9`: kärntester och iOS Simulator-build godkända efter Xcode-projektregistrering.
+- GitHub Actions run 151, commit `cc672e9bc26366aaacd618728682cceffc7a50d7`: kärntester och iOS Simulator-build godkända för HealthKitStore-kopplingen av kvällssnapshot.
+- Körningar för daglig notis, scenePhase-refresh och senaste rapportkortet väntar fortfarande.
+- Ingen fysisk iPhone-testning eller IPA-export har utförts.
