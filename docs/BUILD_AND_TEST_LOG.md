@@ -165,3 +165,10 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - GitHub Actions run 191, commit `de89a1a2f935df89f4c77fb0dc500996d32673c0`: kärntester godkända och iOS Simulator target byggd utan fel.
 - Tidigare körningar 182–190 avsåg mellanliggande commits och misslyckades bland annat på ett felaktigt metodargument i dagnyckelns konstruktion. Felet är korrigerat i run 191.
 - Detta verifierar kompilering och tester i CI, inte HealthKit-beteende, notisleverans eller installation på fysisk iPhone.
+
+
+## 2026-11-15 – Första iOS-enhetsarkivet
+- GitHub Actions run 195, commit `7406408bd8fdde701423cd87081bf80dba205f1e`: kärntester, iOS Simulator-build och `archive` för `generic/platform=iOS` godkända.
+- CI-artifakt `VITAL-unsigned-device-archive` skapades och laddades upp. Arkivets innehåll inspekterades: `Products/Applications/VITAL.app/VITAL`, Info.plist och dSYM finns med.
+- Arkivet är osignerat (`CODE_SIGNING_ALLOWED=NO`) och är endast en byggverifiering. Det är inte en signerad IPA och kan inte installeras på iPhone.
+- Signering, provisioning, IPA-export och fysisk enhetstestning återstår.
