@@ -75,7 +75,7 @@ enum MorningReportTriggerPolicy {
         }
         return MorningReportTriggerDecision(
             shouldCreateSnapshot: true,
-            reason: "(triggerDescription); huvudsömnen är avslutad och datans väntetid har passerat."
+            reason: "\(triggerDescription); huvudsömnen är avslutad och datans väntetid har passerat."
         )
     }
 }
