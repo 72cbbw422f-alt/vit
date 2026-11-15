@@ -124,3 +124,12 @@ Blodtryck, träningspass, andningsfrekvens, syremättnad och andra datatyper är
 - För aktiva energisampel måste hela intervallet rymmas inom vakenperioden (start >= wakeTime och end <= asOf).
 - Ögonblicksvärden utan starttid använder sin tidsstämpel som intervallstart.
 - Sampel som överlappar sömn eller ligger efter beräkningstidpunkten utesluts helt; ingen proportionell fördelning görs.
+
+
+## Morgonrapport – utlösningspolicy
+- `MorningReportTriggerPolicy` är en ren kärnmodell som bedömer om en händelse får skapa morgonsnapshot.
+- Källor: avslutat Sömnfokus, uppdaterad sömndata från HealthKit eller att appen blir aktiv.
+- Fokusstatus är en signal; beslutet baseras på HealthKit-huvudsömnens slut och lokala rapportdag.
+- Initiala skydd: minst tre timmars sömn, avslutad sömnperiod, max 18 timmar från uppvaknande och samma lokala kalenderdag.
+- Arkivet `ReportSnapshotArchive` förhindrar fortfarande fler än en morgonrapport per lokal dag.
+- Bakgrundsleverans via `HKObserverQuery` är ännu inte inkopplad. Apples dokumentation anger att bakgrundsleverans kräver HealthKit Background Delivery-entitlement och måste testas på fysisk enhet; simulatorn stöder inte dessa bakgrundsserverfrågor.
