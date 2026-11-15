@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Generate VITAL app icon
+        run: swift Scripts/GenerateAppIcon.swift
       - name: Show Xcode version
         run: xcodebuild -version
       - name: List project schemes
