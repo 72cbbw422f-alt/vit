@@ -14,6 +14,25 @@ struct HealthSnapshot {
 
     static let empty = HealthSnapshot()
 
+    /// Uses the weakest of the three baseline day counts; one metric cannot
+    /// make the overall baseline appear ready when another is incomplete.
+    var recoveryResult: RecoveryResult {
+        let availableDays = min(
+            restingHeartRateBaseline?.validDays ?? 0,
+            hrvBaseline?.validDays ?? 0,
+            sleepBaseline?.validDays ?? 0
+        )
+        return RecoveryEngine.calculate(RecoveryInputs(
+            sleepDurationHours: sleepDuration.map { $0 / 3600 },
+            baselineSleepHours: sleepBaseline?.median,
+            hrvMilliseconds: hrv,
+            baselineHRVMilliseconds: hrvBaseline?.median,
+            restingHeartRateBPM: restingHeartRate,
+            baselineRestingHeartRateBPM: restingHeartRateBaseline?.median,
+            baselineDaysAvailable: availableDays
+        ))
+    }
+
     var sleepText: String {
         guard let sleepDuration else { return "—" }
         let hours = Int(sleepDuration) / 3600
