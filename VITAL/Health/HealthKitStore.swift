@@ -161,10 +161,31 @@ final class HealthKitStore: ObservableObject {
         }
     }
 
-    private func latestSleepDuration() async -> TimeInterval? {
+    private func recentTimedQuantitySamples(
+        _ identifier: HKQuantityTypeIdentifier,
+        unit: HKUnit
+    ) async -> [TimedHealthValue] {
+        guard let type = HKObjectType.quantityType(forIdentifier: identifier) else { return [] }
+        let end = Date()
+        let start = Calendar.current.date(byAdding: .hour, value: -36, to: end) ?? end
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end)
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit,
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)]) { _, samples, _ in
+                    let values = ((samples as? [HKQuantitySample]) ?? []).map {
+                        TimedHealthValue(timestamp: $0.endDate, value: $0.quantity.doubleValue(for: unit))
+                    }
+                    continuation.resume(returning: values)
+                }
+            store.execute(query)
+        }
+    }
+
+    private func latestSleepSession() async -> SleepSession? {
         guard let type = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else { return nil }
-        let start = Calendar.current.date(byAdding: .hour, value: -36, to: Date()) ?? Date()
-        let predicate = HKQuery.predicateForSamples(withStart: start, end: Date())
+        let end = Date()
+        let start = Calendar.current.date(byAdding: .hour, value: -36, to: end) ?? end
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end)
         return await withCheckedContinuation { continuation in
             let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit,
                 sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { _, samples, _ in
@@ -177,7 +198,7 @@ final class HealthKitStore: ObservableObject {
                     let intervals = ((samples as? [HKCategorySample]) ?? [])
                         .filter { asleepValues.contains($0.value) }
                         .map { SleepInterval(start: $0.startDate, end: $0.endDate) }
-                    continuation.resume(returning: SleepSessionCalculator.latestSessionDuration(intervals: intervals))
+                    continuation.resume(returning: SleepSessionCalculator.latestSession(intervals: intervals))
                 }
             store.execute(query)
         }
