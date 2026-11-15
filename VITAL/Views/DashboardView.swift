@@ -12,6 +12,7 @@ struct DashboardView: View {
                 VStack(spacing: 16) {
                     header
                     statusCard
+                    morningReportCard
                     metricGrid
                     energyCard
                     activityCard
@@ -72,7 +73,54 @@ struct DashboardView: View {
             }
         }
     }
-    private var baselineStatus: String {
+    private var morningReportCard: some View {
+        VITALCard {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text("MORGONRAPPORT").font(.subheadline.weight(.semibold)).tracking(0.6)
+                        .foregroundStyle(VITALPalette.muted)
+                    Spacer()
+                    if let report = health.morningReport {
+                        Text(report.capturedAt.formatted(date: .omitted, time: .shortened))
+                            .font(.caption.monospacedDigit()).foregroundStyle(VITALPalette.teal)
+                    } else {
+                        Text("Inväntar huvudsömn").font(.caption).foregroundStyle(VITALPalette.amber)
+                    }
+                }
+                if let report = health.morningReport {
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        Text(report.recoveryScore.map(String.init) ?? "—")
+                            .font(.system(size: 38, weight: .bold, design: .rounded))
+                            .foregroundStyle(VITALPalette.cloud)
+                        Text("/ 100 återhämtning").font(.caption).foregroundStyle(VITALPalette.muted)
+                    }
+                    reportRow("Sömn", value: report.sleepDurationSeconds.map { duration in
+                        let hours = Int(duration) / 3600
+                        let minutes = (Int(duration) % 3600) / 60
+                        return "\(hours) h \(String(format: "%02d", minutes)) min"
+                    } ?? "—")
+                    reportRow("HRV under sömn", value: report.hrvMilliseconds.map { "\(Int($0.rounded())) ms" } ?? "—")
+                    reportRow("Vilopuls under sömn", value: report.restingHeartRateBPM.map { "\(Int($0.rounded())) bpm" } ?? "—")
+                    reportRow("Steg vid rapporttillfället", value: report.steps.map { Int($0).formatted() } ?? "—")
+                    Text("Fryst rapport · värdena ändras inte när ny hälsodata kommer in.")
+                        .font(.caption2).foregroundStyle(VITALPalette.muted)
+                } else {
+                    Text("Rapporten skapas när VITAL har registrerat en avslutad huvudsömn. Den sparas sedan som en oföränderlig ögonblicksbild.")
+                        .font(.caption).foregroundStyle(VITALPalette.muted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+    }
+
+    private func reportRow(_ title: String, value: String) -> some View {
+        HStack {
+            Text(title).foregroundStyle(VITALPalette.muted)
+            Spacer()
+            Text(value).foregroundStyle(VITALPalette.cloud).monospacedDigit()
+        }.font(.caption)
+    }
+\n    private var baselineStatus: String {
         let days = min(
             health.snapshot.sleepBaseline?.validDays ?? 0,
             health.snapshot.hrvBaseline?.validDays ?? 0,
