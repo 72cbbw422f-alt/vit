@@ -504,3 +504,10 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Det förhindrar att metadata råkar hämtas från fält som användaren hunnit ändra medan bilden importeras.
 - Varje bildfil markeras uttryckligen för att undantas från iCloud-säkerhetskopiering.
 - Ändringen inväntar CI.
+
+## 2026-11-15 – Blodtrycksjournal: inmatningskontroll
+
+- Blodtrycksvärden måste nu ha systoliskt värde högre än diastoliskt värde utöver respektive rimliga inmatningsintervall.
+- Valfri puls kontrolleras till 30–220 slag/minut. Ogiltiga värden kan inte sparas.
+- Kontrollen är en datakvalitetsregel, inte en bedömning eller diagnos av blodtrycket.
+- Ändringen inväntar CI och enhetstestning på iPhone.
