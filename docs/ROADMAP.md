@@ -13,8 +13,9 @@ Status betyder:
 - [x] Skapa första dashboard-layouten
 - [x] Skapa första HealthKit-läsaren
 - [x] Skapa Info.plist och HealthKit-entitlement
-- [~] Skapa Xcode-projekt – måste verifieras genom faktisk build
-- [ ] Bygg och kör i simulator
+- [x] Skapa Xcode-projekt och verifiera projektstruktur i CI
+- [x] Bygg iOS Simulator-målet i CI
+- [ ] Starta och prova appen interaktivt i simulator
 - [ ] Bygg och kör på fysisk iPhone
 - [ ] Verifiera HealthKit-behörigheter och verklig dataläsning
 
@@ -40,8 +41,8 @@ Status betyder:
 - [ ] Håll prognos och historik visuellt åtskilda
 
 ## Fas 5 – Rapporter och notiser
-- [ ] Morgonrapport kl. 07:00 som fryst snapshot
-- [ ] Kvällsrapport kl. 21:00
+- [x] Händelsestyrd morgonrapport efter huvudsömn, med väntetid och fryst snapshot
+- [x] Kvällsrapport vid första säkra refresh efter 21:00 och lokal påminnelse
 - [ ] Påminnelser om blodtryck morgon och kväll
 - [ ] Notiser och stöd för Apple Watch där plattformen tillåter
 - [ ] Hantera iOS-begränsningar för bakgrundskörning och schemaläggning
@@ -53,11 +54,12 @@ Status betyder:
 - [ ] Apple Watch-komponenter och relevanta komplikationer/notiser
 
 ## Fas 7 – Kvalitet och release
-- [ ] Enhetstester för beräkningar
+- [x] Enhetstester för kärnberäkningar och rapportpolicyer
 - [ ] Test med saknade, ofullständiga och motstridiga data
 - [ ] Integritet- och behörighetsgranskning
 - [ ] Prestanda- och batteritest
-- [ ] Signerad IPA och verifierad installation
+- [ ] Konfigurera iOS-signering/provisionering och skapa IPA
+- [ ] Verifiera installation och HealthKit-flöde på fysisk iPhone
 - [ ] Releaseanteckningar och versionshistorik
 
 
@@ -226,3 +228,12 @@ Status betyder:
 - [x] Lägga till tester för tidszonsbyte och sommartidsdag
 - [ ] Verifiera tidszonsbyte, omstart och historik på fysisk iPhone
 - [ ] Bekräfta CI för denna ändring
+
+
+## Uppdatering 2026-11-15 – CI och releaseförberedelser
+- [x] GitHub Actions run 191 godkänd: kärntester och iOS Simulator-build
+- [x] Dokumentera tidszonsstabil rapporthistorik och bakåtkompatibel arkivavkodning
+- [ ] Köra appen interaktivt i simulator och granska samtliga skärmar
+- [ ] Konfigurera giltig iOS-signering och provisioning för fysisk enhet
+- [ ] Skapa signerad IPA och verifiera installation på iPhone
+- [ ] Genomföra fysisk HealthKit-, bakgrundsleverans- och notistestning
