@@ -128,9 +128,8 @@ struct DailyReportSnapshot: Codable, Equatable, Identifiable {
         restingHeartRateBPM = try values.decodeIfPresent(Double.self, forKey: .restingHeartRateBPM)
         steps = try values.decodeIfPresent(Double.self, forKey: .steps)
         activeEnergyKcal = try values.decodeIfPresent(Double.self, forKey: .activeEnergyKcal)
-        timeZoneIdentifier = try values.decodeIfPresent(String.self, forKey: .timeZoneIdentifier) ?? "UTC"
-        localDayKey = try values.decodeIfPresent(String.self, forKey: .localDayKey)
-            ?? Self.dayKey(for: localDay, timeZone: TimeZone(identifier: timeZoneIdentifier) ?? TimeZone(secondsFromGMT: 0)!)
+        timeZoneIdentifier = try values.decodeIfPresent(String.self, forKey: .timeZoneIdentifier) ?? ""
+        localDayKey = try values.decodeIfPresent(String.self, forKey: .localDayKey) ?? ""
     }
 
     func encode(to encoder: Encoder) throws {
@@ -151,6 +150,7 @@ struct DailyReportSnapshot: Codable, Equatable, Identifiable {
     }
 
     var localDayDisplayText: String {
+        guard !localDayKey.isEmpty else { return localDay.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated)) }
         let parser = DateFormatter()
         parser.calendar = Calendar(identifier: .gregorian)
         parser.timeZone = TimeZone(secondsFromGMT: 0)
@@ -187,7 +187,7 @@ struct ReportSnapshotArchive: Codable, Equatable {
     ) -> Bool {
         let alreadyExists = snapshots.contains {
             guard $0.kind == candidate.kind else { return false }
-            if !$0.localDayKey.isEmpty && !$0.localDayKey.hasPrefix("0000") {
+            if !$0.localDayKey.isEmpty && !candidate.localDayKey.isEmpty {
                 return $0.localDayKey == candidate.localDayKey
             }
             return calendar.isDate($0.localDay, inSameDayAs: candidate.localDay)
