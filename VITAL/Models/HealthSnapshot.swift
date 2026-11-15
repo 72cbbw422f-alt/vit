@@ -7,6 +7,9 @@ struct HealthSnapshot {
     var steps: Double?
     var activeEnergy: Double?
     var latestWeight: Double?
+    var restingHeartRateBaseline: PersonalBaseline?
+    var hrvBaseline: PersonalBaseline?
+    var sleepBaseline: PersonalBaseline?
     var lastUpdated: Date?
 
     static let empty = HealthSnapshot()
