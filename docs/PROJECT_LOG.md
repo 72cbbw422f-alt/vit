@@ -319,3 +319,9 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Ändrade notisflödet så att befintlig iOS-behörighet läses innan någon systemdialog begärs.
 - Behörighetsfrågan visas endast vid notDetermined. Nekad behörighet visas som status och väntande notis tas bort.
 - Dashboardens statusdel visar nu separat kvällsnotisens behörighet och HealthKit-sömnens bakgrundsleverans.
+
+## 2026-11-15 – Tidszonsstabil rapporthistorik
+- Lade till sparad lokal dagnyckel och tidszonsidentifierare i nya rapport-snapshots.
+- Dubblettskyddet använder nu den ursprungliga rapportdagen i stället för att omtolka historiska datum med aktuell tidszon.
+- Lade till bakåtkompatibel Codable-avkodning för äldre arkiv samt stabil datumetikett i dashboardens historik.
+- Lade till tester för byte mellan tidszoner och svensk sommartidsdag. CI-resultat inväntas.
