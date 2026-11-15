@@ -9,6 +9,7 @@ final class HealthKitStore: ObservableObject {
     @Published private(set) var isAvailable = HKHealthStore.isHealthDataAvailable()
     @Published private(set) var authorizationRequested = false
     @Published private(set) var backgroundSleepDeliveryEnabled = false
+    @Published private(set) var eveningNotificationStatus = "Inte kontrollerad"
     @Published private(set) var lastError: String?
     @Published private(set) var morningReport: DailyReportSnapshot?
     @Published private(set) var eveningReport: DailyReportSnapshot?
@@ -78,14 +79,34 @@ final class HealthKitStore: ObservableObject {
         }
     }
 
-    /// Ask once for notification permission and schedule a daily local reminder.
-    /// The reminder asks the user to open VITAL; it does not claim iOS will run
-    /// the app in the background at exactly 21:00.
+    /// Check notification settings first; request permission only when iOS
+    /// reports that the user has not yet made a choice.
     private func scheduleEveningReportNotification() async {
         let center = UNUserNotificationCenter.current()
         do {
-            let granted = try await center.requestAuthorization(options: [.alert, .sound])
-            guard granted else { return }
+            var settings = await center.notificationSettings()
+            if settings.authorizationStatus == .notDetermined {
+                _ = try await center.requestAuthorization(options: [.alert, .sound])
+                settings = await center.notificationSettings()
+            }
+
+            switch settings.authorizationStatus {
+            case .authorized, .provisional, .ephemeral:
+                eveningNotificationStatus = "Aktiverad"
+            case .denied:
+                eveningNotificationStatus = "Avstängd i iOS"
+                await center.removePendingNotificationRequests(
+                    withIdentifiers: ["vital.evening-report.daily"]
+                )
+                return
+            case .notDetermined:
+                eveningNotificationStatus = "Behörighet ej vald"
+                return
+            @unknown default:
+                eveningNotificationStatus = "Okänd behörighetsstatus"
+                return
+            }
+
             let content = UNMutableNotificationContent()
             content.title = "Dags för kvällsrapporten"
             content.body = "Öppna VITAL för att uppdatera hälsodatan och skapa kvällens rapport."
@@ -101,6 +122,7 @@ final class HealthKitStore: ObservableObject {
             )
             try await center.add(request)
         } catch {
+            eveningNotificationStatus = "Kunde inte schemaläggas"
             lastError = "Kunde inte schemalägga kvällspåminnelsen: \(error.localizedDescription)"
         }
     }
