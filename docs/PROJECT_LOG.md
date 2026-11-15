@@ -332,3 +332,10 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Arkivet laddas upp som ett kortlivat CI-artifakt för inspektion. Det är uttryckligen osignerat och kan inte installeras på iPhone.
 - Syftet är att verifiera att projektet kan arkiveras för iOS-enhet innan Apple Team, certifikat och provisioning finns tillgängliga.
 - Resultatet av arkivsteget inväntas; ingen IPA har skapats.
+
+
+## 2026-11-15 – IPA-flöde för sideload-signering
+- Produktmålet är förtydligat: VITAL ska levereras som osignerad iPhone-IPA för signering via användarens sideload-verktyg, inte som App Store-release.
+- GitHub Actions paketerar nu appbundle från det godkända osignerade iOS-arkivet till `VITAL-unsigned.ipa` med `Payload/VITAL.app` och laddar upp den som separat artefakt.
+- IPA:n är avsiktligt osignerad och måste signeras av AltStore/SideStore eller motsvarande innan installation.
+- CI-resultat för paketeringen inväntas. HealthKit-entitlement och bakgrundsleverans behöver testas efter signering på fysisk iPhone.
