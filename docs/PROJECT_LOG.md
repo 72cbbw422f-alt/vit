@@ -347,3 +347,12 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Produktinriktningen breddas till hälsa/återhämtning, aktivitet, viktutveckling och läkemedelsuppföljning inklusive Wegovy-doslogg, påminnelser och biverkningslogg.
 - En eventuell beräknad semaglutidnivå ska vara tydligt märkt som teoretisk uppskattning, aldrig uppmätt blodnivå eller doseringsrekommendation.
 - Beslut och roadmap uppdaterade; implementationen är ännu inte påbörjad.
+
+
+## 2026-11-15 – Första versionen av måendedagboken
+- Lade till en lokal, beständig måendedagbok i dashboarden.
+- Användaren kan registrera måendet med sju tillstånd, intensitet 1–5 och fri anteckning.
+- Dashboardkortet visar senaste registreringen och en enkel färgkodad sjudagarsöversikt när tillräckligt många registreringar finns.
+- Registreringar sparas lokalt i UserDefaults och lämnar inte enheten i denna implementation.
+- Första versionen är en grundfunktion; längre historik, filter, graf med datumaxel och korrelation mot sömn/vikt/läkemedel återstår.
+- CI-resultat för denna UI-ändring inväntas.
