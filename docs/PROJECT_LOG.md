@@ -422,3 +422,12 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Valbara återkommande påminnelser kl. 08–20 med intervall 1–4 timmar och separat av/på-reglage.
 - Påminnelser använder iOS-notiser och kräver användarens notisbehörighet.
 - Dagsmålet är ett redigerbart produktbeslut att finjustera senare; 2 000 ml är en generell startinställning och inte en individuell medicinsk rekommendation.
+
+
+## 2026-11-15 – Första viktjournalen
+
+- Lagt till manuell viktregistrering med valfri anteckning och lokal beständig lagring.
+- Lagt till redigerbart målvärde och visning av återstående kg till målet.
+- Lagt till historikdiagram baserat enbart på registrerade viktvärden samt förändring sedan första registreringen.
+- Visar aktuell vikt från Apple Hälsa när ingen manuell registrering finns och märker datakällan.
+- Nästa steg: CI-verifiering, bättre startviktsflöde, förändring i procent, datum-/historikdetaljer och verifierad HealthKit-viktserie.
