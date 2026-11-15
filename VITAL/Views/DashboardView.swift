@@ -62,25 +62,22 @@ struct DashboardView: View {
                         .padding(.horizontal, 11).padding(.vertical, 6)
                         .background(VITALPalette.amber.opacity(0.13), in: Capsule())
                 }
-                HStack(alignment: .firstTextBaseline, spacing: 7) {
-                    Text(result.score.map { String($0) } ?? "—")
-                        .font(.system(size: 48, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
-                    Text("/ 100").font(.title2.weight(.semibold)).foregroundStyle(VITALPalette.teal)
+                HStack(spacing: 18) {
+                    ScoreRing(score: result.score, tint: VITALPalette.teal, size: 112)
+                    VStack(alignment: .leading, spacing: 7) {
+                        Text(result.score.map { "\($0)" } ?? "—")
+                            .font(.system(size: 42, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
+                        Text("av 100").font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.teal)
+                        Text(result.explanation)
+                            .font(.caption).foregroundStyle(VITALPalette.muted)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
-                Text(result.explanation)
-                    .foregroundStyle(VITALPalette.muted).fixedSize(horizontal: false, vertical: true)
                 if let score = result.score {
-                    GeometryReader { proxy in
-                        ZStack(alignment: .leading) {
-                            Capsule().fill(VITALPalette.track)
-                            Capsule().fill(VITALPalette.teal).frame(width: proxy.size.width * CGFloat(score) / 100)
-                        }
-                    }.frame(height: 8)
                     componentRow("Sömn", value: result.sleepComponent)
                     componentRow("HRV", value: result.hrvComponent)
                     componentRow("Vilopuls", value: result.restingPulseComponent)
                 } else {
-                    RoundedRectangle(cornerRadius: 4).fill(VITALPalette.track).frame(height: 8)
                     HStack { Text("Personlig baslinje"); Spacer(); Text(baselineStatus) }
                         .font(.subheadline).foregroundStyle(VITALPalette.muted)
                 }
@@ -304,24 +301,18 @@ struct DashboardView: View {
         let battery = health.snapshot.bodyBattery
         return VITALCard {
             VStack(alignment: .leading, spacing: 14) {
-                HStack {
-                    Text("Kroppsbatteri").font(.headline.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
-                    Spacer()
-                    Text(battery?.score.map { String($0) } ?? "—")
-                        .font(.system(size: 32, weight: .bold, design: .rounded))
-                        .foregroundStyle(VITALPalette.teal).monospacedDigit()
-                    Text("/ 100").font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.muted)
-                }
-                if let score = battery?.score {
-                    GeometryReader { proxy in
-                        ZStack(alignment: .leading) {
-                            Capsule().fill(VITALPalette.track)
-                            Capsule().fill(VITALPalette.teal)
-                                .frame(width: proxy.size.width * CGFloat(score) / 100)
+                HStack(alignment: .center, spacing: 16) {
+                    ScoreRing(score: battery?.score, tint: VITALPalette.violet, size: 92)
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("Kroppsbatteri").font(.headline.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
+                        HStack(alignment: .firstTextBaseline, spacing: 5) {
+                            Text(battery?.score.map { String($0) } ?? "—")
+                                .font(.system(size: 34, weight: .bold, design: .rounded))
+                                .foregroundStyle(VITALPalette.violet).monospacedDigit()
+                            Text("/ 100").font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.muted)
                         }
-                    }.frame(height: 9)
-                } else {
-                    RoundedRectangle(cornerRadius: 5).fill(VITALPalette.track).frame(height: 9)
+                    }
+                    Spacer()
                 }
                 Text(battery?.explanation ?? "Kroppsbatteriet väntar på nattens återhämtning och tillräckligt med pulsdata.")
                     .font(.caption).foregroundStyle(VITALPalette.muted)
@@ -546,5 +537,30 @@ private struct MoodCheckInSheet: View {
             }
         }
         .tint(VITALPalette.teal)
+    }
+}
+
+
+private struct ScoreRing: View {
+    let score: Int?
+    let tint: Color
+    var size: CGFloat = 100
+
+    var body: some View {
+        ZStack {
+            Circle().stroke(VITALPalette.track, lineWidth: 10)
+            Circle()
+                .trim(from: 0, to: CGFloat(max(0, min(score ?? 0, 100))) / 100)
+                .stroke(tint.gradient, style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+            if score == nil {
+                Image(systemName: "minus").font(.title2.bold()).foregroundStyle(VITALPalette.muted)
+            } else {
+                Image(systemName: "sparkles").font(.system(size: 17, weight: .semibold)).foregroundStyle(tint)
+            }
+        }
+        .frame(width: size, height: size)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(score.map { "\($0) av 100" } ?? "Inget värde")
     }
 }
