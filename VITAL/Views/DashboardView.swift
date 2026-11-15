@@ -120,7 +120,8 @@ struct DashboardView: View {
             Text(value).foregroundStyle(VITALPalette.cloud).monospacedDigit()
         }.font(.caption)
     }
-\n    private var baselineStatus: String {
+
+    private var baselineStatus: String {
         let days = min(
             health.snapshot.sleepBaseline?.validDays ?? 0,
             health.snapshot.hrvBaseline?.validDays ?? 0,
