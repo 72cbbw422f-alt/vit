@@ -511,3 +511,10 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Valfri puls kontrolleras till 30–220 slag/minut. Ogiltiga värden kan inte sparas.
 - Kontrollen är en datakvalitetsregel, inte en bedömning eller diagnos av blodtrycket.
 - Ändringen inväntar CI och enhetstestning på iPhone.
+
+## 2026-11-15 – Målvikt: säkrare redigering
+
+- Målvikt redigeras nu via en separat dialog i stället för direkt i kortets siffervy.
+- Dialogen fylls med befintligt mål, så värdet kan ändras utan att börja om.
+- Användaren kan ta bort målet uttryckligen. Målvikt förblir frivillig och inget standardvärde föreslås.
+- Ändringen inväntar CI.
