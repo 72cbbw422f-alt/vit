@@ -77,5 +77,8 @@ Blodtryck, träningspass, andningsfrekvens, syremättnad och andra datatyper är
 ## Personliga baslinjer
 - `VITAL/Models/PersonalBaselineCalculator.swift` beräknar median från dagliga värden i ett explicit tidsfönster.
 - Flera mätningar samma dag reduceras till en dagsmedian, så tätare samplingsfrekvens inte automatiskt ger större vikt.
-- Minst 14 distinkta dagar krävs. Kalkylatorn är fristående från HealthKit och kan testas med syntetiska fixtures.
-- HealthKitStore-koppling och datainsamling återstår.
+- Minst 14 distinkta dagar krävs.
+- `HealthKitStore` hämtar nu historiska HRV SDNN- och vilopulssampel för de 30 avslutade kalenderdagarna före idag.
+- Sömnsegment hämtas för samma period, slås ihop till sömnperioder och reduceras till den längsta perioden per lokal uppvakningsdag. Tupplurar summeras alltså inte med nattsömnen.
+- Resultaten sparas i `HealthSnapshot` som tre separata baslinjeobjekt. Detta är datainsamling och baslinjeberäkning; återhämtningsmotorn är ännu inte inkopplad i dashboarden.
+- HealthKit-frågorna kräver verifiering på fysisk iPhone. Om HealthKit inte returnerar data ska baslinjen förbli ej redo.
