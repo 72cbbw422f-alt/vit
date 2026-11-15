@@ -79,3 +79,12 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Testerna har ännu inte körts.
 - Xcode-build och HealthKit-enhetstest har inte körts.
 - Status: Implementerat i källkod; verifiering återstår.
+
+
+## 2026-11-15 – HealthKit nattintegration
+- HealthKitStore uppdaterad för att hämta HRV SDNN och vilopuls med tidsstämplar inom 36 timmar.
+- Återhämtningsmotorn använder separata nattvärden i HealthSnapshot; senaste tillgängliga värden används endast i översiktsmätningarna.
+- Fyra natturvalstester finns. Test-fixtures har korrigerats för datum över midnatt.
+- Testerna har ännu inte körts efter ändringen.
+- Ingen Xcode-build, simulator- eller iPhone-testning har utförts.
+- Status: Integrerad i källkod; teknisk verifiering återstår.
