@@ -73,3 +73,13 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - Den första sparade posten vinner; senare data får inte skriva om rapportens historiska innehåll.
 - Rapporten ska innehålla både fångsttid och lokal rapportdag.
 - Schemaläggning får inte lova exakt bakgrundskörning vid 07:00/21:00. Rapportskapande och användarnotis måste hållas isär.
+
+
+## 2026-11-15 – Händelsestyrd morgonrapport och tidsstyrd kvällsrapport
+- Morgonrapporten ska inte ha en fast klocktid. Den utlöses när användarens Sömnfokus stängs av efter nattens huvudsömn.
+- Sömnfokus-av är en signal att starta rapportflödet, inte ett bevis på att alla HealthKit-sampel redan är tillgängliga.
+- Efter signalen ska VITAL uppdatera/inhämta nattens relevanta HealthKit-data, kontrollera att sömnperioden är avslutad och skapa en fryst morgonsnapshot när datan är tillräcklig.
+- Om data saknas eller fortfarande är ofullständiga ska VITAL inte hitta på värden. Rapporten kan visa saknade värden och uppdateras endast innan den slutliga snapshoten har låsts; när den väl är låst får den inte skrivas om.
+- Dubblettsignaler från Fokus eller appstart får inte skapa flera morgonrapporter samma lokala dag.
+- Kvällsrapporten skapas enligt en fast, användarinställbar lokal tid, med 21:00 som standardförslag.
+- iOS kan begränsa bakgrundskörning. VITAL måste därför kunna slutföra rapportflödet när appen får körningstid och får inte utlova exakt körning vid en viss sekund.
