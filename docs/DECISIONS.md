@@ -46,3 +46,7 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - Återhämtningsmotorn får endast värden vars HealthKit-tidsstämpel ligger inom den valda sömnperioden.
 - Om HealthKit inte lämnar sampel inom sömnperioden visas ingen återhämtningspoäng.
 - Valet av huvudsömnperiod ska kvalitetssäkras separat så att tupplurar inte felaktigt ersätter nattsömnen.
+
+## Sömnperiod – val av huvudsömn (2026-11-15)
+- För nattlig återhämtning väljs den längsta grupperade sömnperioden i det hämtade 36-timmarsfönstret. Vid lika längd väljs den senast avslutade perioden.
+- Detta minskar risken att en kortare tupplur ersätter huvudsömnen. Det är en dokumenterad heuristik, inte en universell regel; den ska verifieras med användarens faktiska HealthKit-data och får inte beskrivas som säker sömnstegsdetektion.
