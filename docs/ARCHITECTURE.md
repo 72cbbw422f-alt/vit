@@ -132,4 +132,4 @@ Blodtryck, träningspass, andningsfrekvens, syremättnad och andra datatyper är
 - Fokusstatus är en signal; beslutet baseras på HealthKit-huvudsömnens slut och lokala rapportdag.
 - Initiala skydd: minst tre timmars sömn, avslutad sömnperiod, max 18 timmar från uppvaknande och samma lokala kalenderdag.
 - Arkivet `ReportSnapshotArchive` förhindrar fortfarande fler än en morgonrapport per lokal dag.
-- Bakgrundsleverans via `HKObserverQuery` är ännu inte inkopplad. Apples dokumentation anger att bakgrundsleverans kräver HealthKit Background Delivery-entitlement och måste testas på fysisk enhet; simulatorn stöder inte dessa bakgrundsserverfrågor.
+- `HealthKitStore` startar en `HKObserverQuery` för `sleepAnalysis` efter HealthKit-auktorisering och begär `.immediate` Background Delivery.\n- Observerarens callback gör en ny HealthKit-refresh och anropar completion-handlern.\n- Entitlement `com.apple.developer.healthkit.background-delivery` finns i `VITAL.entitlements`.\n- Detta observerar ändringar i HealthKit, inte Sleep Focus-status. Bakgrundsleverans måste verifieras på fysisk enhet och kräver korrekt provisionerad entitlement.
