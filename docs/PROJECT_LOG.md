@@ -218,3 +218,12 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 
 ### Viktig begränsning
 - Detta är en första teknisk prototyp, inte en validerad fysiologisk modell. Den räknar endast ned från morgonens återhämtningsvärde; uppladdning under vila och HealthKit-integration återstår. Ingen dashboard ska presentera modellen som färdig innan vidare validering.
+
+
+## 2026-11-15 – HealthKit-koppling för kroppsbatteri
+- Begärt läsbehörighet för puls från Apple Hälsa.
+- Hämtar tidsstämplade pulssampel och aktiv energi i ett rullande 36-timmarsfönster.
+- Kroppsbatteriet beräknas från uppvakningstid för vald huvudsömn, nattens återhämtningspoäng och personlig vilopulsbaslinje.
+- Resultatet lagras separat i `HealthSnapshot` och visas i dashboardens kroppsbatterikort.
+- Diagramplatshållaren har tagits bort; UI visar poäng och förklaring endast när modellen har tillräckligt underlag.
+- HealthKit-resultatet är ännu inte validerat på fysisk iPhone. Modellen saknar fortfarande återladdning under vila och dess koefficienter är preliminära.
