@@ -348,14 +348,25 @@ struct DashboardView: View {
         VITALCard {
             VStack(alignment: .leading, spacing: 13) {
                 Text("Dagens rörelse").font(.headline).foregroundStyle(VITALPalette.cloud)
-                HStack(alignment: .firstTextBaseline) {
-                    Text(health.snapshot.stepsText).font(.system(size: 36, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
-                    Spacer(); Text("Steg").font(.subheadline).foregroundStyle(VITALPalette.muted)
+                HStack(spacing: 20) {
+                    ActivityRing(progress: min((health.snapshot.steps ?? 0) / 8000, 1), hasData: health.snapshot.steps != nil)
+                        .frame(width: 112, height: 112)
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(health.snapshot.stepsText)
+                            .font(.system(size: 34, weight: .bold, design: .rounded))
+                            .foregroundStyle(VITALPalette.cloud).monospacedDigit()
+                            .minimumScaleFactor(0.75).lineLimit(1)
+                        Text("steg idag").font(.subheadline).foregroundStyle(VITALPalette.muted)
+                        Text("Mål 8 000").font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.teal)
+                    }
+                    Spacer(minLength: 0)
                 }
-                ProgressView(value: min((health.snapshot.steps ?? 0) / 8000, 1)).tint(VITALPalette.teal)
                 HStack {
-                    Text("Mål: 8 000 steg"); Spacer()
-                    Text(health.snapshot.steps == nil ? "Inväntar data" : "Från Apple Hälsa")
+                    Label(health.snapshot.steps == nil ? "Inväntar data" : "Apple Hälsa", systemImage: "figure.walk")
+                    Spacer()
+                    if let steps = health.snapshot.steps {
+                        Text("\(Int(min(steps / 8000, 1) * 100)) % av målet")
+                    }
                 }.font(.caption).foregroundStyle(VITALPalette.muted)
                 Divider().overlay(VITALPalette.track)
                 HStack {
@@ -393,13 +404,36 @@ private struct MetricCard: View {
     let value: String
     let detail: String
     let accent: Color
+    private var symbol: String {
+        switch title {
+        case "SÖMN": "moon.stars.fill"
+        case "HRV": "waveform.path.ecg"
+        case "VILOPULS": "heart.fill"
+        default: "bolt.heart.fill"
+        }
+    }
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(title).font(.subheadline.weight(.medium)).foregroundStyle(VITALPalette.muted)
+        VStack(alignment: .leading, spacing: 11) {
+            HStack {
+                Image(systemName: symbol)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(accent)
+                    .frame(width: 30, height: 30)
+                    .background(accent.opacity(0.13), in: RoundedRectangle(cornerRadius: 10))
+                Spacer()
+                Circle().fill(accent.opacity(0.85)).frame(width: 6, height: 6)
+            }
+            Text(title).font(.caption.weight(.semibold)).tracking(0.5).foregroundStyle(VITALPalette.muted)
             Text(value).font(.system(size: 25, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud).lineLimit(1).minimumScaleFactor(0.75)
-            Text(detail).font(.caption).foregroundStyle(accent).lineLimit(2)
-        }.frame(maxWidth: .infinity, minHeight: 112, alignment: .leading).padding(16)
-            .background(VITALPalette.midnight, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+            Text(detail).font(.caption2).foregroundStyle(accent).lineLimit(1)
+        }.frame(maxWidth: .infinity, minHeight: 132, alignment: .leading).padding(15)
+            .background(
+                LinearGradient(colors: [VITALPalette.midnight, VITALPalette.midnight.opacity(0.82)], startPoint: .topLeading, endPoint: .bottomTrailing),
+                in: RoundedRectangle(cornerRadius: 22, style: .continuous)
+            )
+            .overlay(alignment: .top) {
+                RoundedRectangle(cornerRadius: 2).fill(accent.opacity(0.8)).frame(height: 2).padding(.horizontal, 18)
+            }
     }
 }
 
@@ -555,6 +589,31 @@ private struct MoodCheckInSheet: View {
     }
 }
 
+
+private struct ActivityRing: View {
+    let progress: Double
+    let hasData: Bool
+    var body: some View {
+        ZStack {
+            Circle().stroke(VITALPalette.track, lineWidth: 11)
+            Circle()
+                .trim(from: 0, to: hasData ? progress : 0)
+                .stroke(
+                    AngularGradient(colors: [VITALPalette.teal, Color(hex: 0x4FA8C8), VITALPalette.teal], center: .center),
+                    style: StrokeStyle(lineWidth: 11, lineCap: .round)
+                )
+                .rotationEffect(.degrees(-90))
+            VStack(spacing: 2) {
+                Image(systemName: "figure.walk").font(.system(size: 20, weight: .semibold)).foregroundStyle(VITALPalette.teal)
+                Text(hasData ? "\(Int(progress * 100))%" : "—")
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .foregroundStyle(VITALPalette.cloud).monospacedDigit()
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(hasData ? "Stegmål \(Int(progress * 100)) procent" : "Stegdata saknas")
+    }
+}
 
 private struct ScoreRing: View {
     let score: Int?
