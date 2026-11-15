@@ -6,7 +6,7 @@ let package = Package(
     platforms: [.iOS(.v17), .macOS(.v14)],
     products: [.library(name: "VITALCore", targets: ["VITALCore"])],
     targets: [
-        .target(name: "VITALCore", path: "VITAL/Models", sources: ["RecoveryEngine.swift", "SleepSessionCalculator.swift", "PersonalBaselineCalculator.swift", "OvernightMetricSelector.swift", "BodyBatteryEngine.swift", "HealthSnapshot.swift", "MorningReportTriggerPolicy.swift"]),
+        .target(name: "VITALCore", path: "VITAL/Models", sources: ["RecoveryEngine.swift", "SleepSessionCalculator.swift", "PersonalBaselineCalculator.swift", "OvernightMetricSelector.swift", "BodyBatteryEngine.swift", "HealthSnapshot.swift", "MorningReportTriggerPolicy.swift", "EveningReportTriggerPolicy.swift"]),
         .testTarget(name: "VITALCoreTests", dependencies: ["VITALCore"], path: "Tests/VITALCoreTests")
     ]
 )
