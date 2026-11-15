@@ -32,3 +32,12 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Dashboard-dataetiketter: Förbättrade så saknade värden inte felaktigt anges som hämtade.
 - Energidiagram: Illustrativ kurva borttagen; tomt tillstånd visas tills verklig historik finns.
 - Ingen build eller test markeras som godkänd innan CI-resultat finns.
+
+
+## 2026-11-15 – RecoveryEngine unit tests
+- Kommando: `swift test`
+- Miljö: Swift 6.2.1, Linux x86_64.
+- Resultat: 5 tester passerade, 0 fel.
+- Testfall: otillräcklig baslinje, värden lika med personlig baslinje, saknat mätvärde, försämrade komponenter och begränsning till 0–100.
+- En initial testmiss avslöjade felaktig HRV-normalisering; den korrigerades innan den godkända omkörningen.
+- Begränsning: detta test omfattar endast Swift Package-kärnan, inte iOS-appen eller HealthKit.
