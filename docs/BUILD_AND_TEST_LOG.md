@@ -49,3 +49,10 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Resultat: totalt 10 tester passerade, 0 fel (5 RecoveryEngine + 5 SleepSessionCalculator).
 - Testfall sömn: överlappande stadier dubbelräknas inte, intilliggande stadier grupperas, senaste session väljs efter lång vakenperiod, ogiltiga intervall ignoreras och tom lista ger nil.
 - Begränsning: fristående kärnlogik testad; HealthKit-frågan och iOS-appen är inte testade på enheten.
+
+
+## 2026-11-15 – PersonalBaselineCalculator
+- Fem nya enhetstester har lagts till: minimikrav 14 dagar, median, flera värden per dag, ogiltiga/utanför fönster och ogiltigt tidsfönster.
+- Testerna är incheckade men har ännu inte körts i CI efter senaste commit.
+- Tidigare verifierad kärna: 10 tester passerade. Totalt antal definierade tester är nu 15.
+- Väntar på GitHub Actions-resultat för aktuell gren.
