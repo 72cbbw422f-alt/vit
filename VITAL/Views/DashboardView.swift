@@ -14,6 +14,7 @@ struct DashboardView: View {
                     header
                     statusCard
                     morningReportCard
+                    eveningReportCard
                     reportHistoryCard
                     metricGrid
                     energyCard
@@ -113,6 +114,36 @@ struct DashboardView: View {
                         .font(.caption2).foregroundStyle(VITALPalette.muted)
                 } else {
                     Text("Rapporten skapas när VITAL har registrerat en avslutad huvudsömn. Den sparas sedan som en oföränderlig ögonblicksbild.")
+                        .font(.caption).foregroundStyle(VITALPalette.muted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+    }
+
+    private var eveningReportCard: some View {
+        VITALCard {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text("KVÄLLSRAPPORT").font(.subheadline.weight(.semibold)).tracking(0.6)
+                        .foregroundStyle(VITALPalette.muted)
+                    Spacer()
+                    if let report = health.eveningReport {
+                        Text(report.capturedAt.formatted(date: .omitted, time: .shortened))
+                            .font(.caption.monospacedDigit()).foregroundStyle(VITALPalette.teal)
+                    } else {
+                        Text("Kl. 21:00").font(.caption).foregroundStyle(VITALPalette.amber)
+                    }
+                }
+                if let report = health.eveningReport {
+                    reportRow("Steg", value: report.steps.map { Int($0).formatted() } ?? "—")
+                    reportRow("Aktiv energi", value: report.activeEnergyKcal.map { "\(Int($0.rounded())) kcal" } ?? "—")
+                    reportRow("Puls", value: report.restingHeartRateBPM.map { "\(Int($0.rounded())) bpm" } ?? "—")
+                    reportRow("Kroppsbatteri", value: report.bodyBatteryScore.map { "\($0) / 100" } ?? "—")
+                    Text("Fryst rapport · fångad vid första uppdateringen efter kl. 21:00.")
+                        .font(.caption2).foregroundStyle(VITALPalette.muted)
+                } else {
+                    Text("En påminnelse skickas kl. 21:00. Öppna VITAL så hämtas dagens data och kvällsrapporten sparas.")
                         .font(.caption).foregroundStyle(VITALPalette.muted)
                         .fixedSize(horizontal: false, vertical: true)
                 }
