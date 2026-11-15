@@ -134,7 +134,7 @@ final class HealthKitStore: ObservableObject {
         guard let data = UserDefaults.standard.data(forKey: reportArchiveKey),
               let decoded = try? JSONDecoder().decode(ReportSnapshotArchive.self, from: data) else { return }
         reportArchive = decoded
-        reportHistory = decoded.snapshots.reversed()
+        reportHistory = Array(decoded.snapshots.reversed())
         morningReport = decoded.snapshot(for: Date(), kind: .morning)
     }
 
@@ -171,7 +171,7 @@ final class HealthKitStore: ObservableObject {
         guard reportArchive.appendIfAbsent(candidate, calendar: calendar),
               let data = try? JSONEncoder().encode(reportArchive) else { return }
         UserDefaults.standard.set(data, forKey: reportArchiveKey)
-        reportHistory = reportArchive.snapshots.reversed()
+        reportHistory = Array(reportArchive.snapshots.reversed())
         morningReport = candidate
     }
 
