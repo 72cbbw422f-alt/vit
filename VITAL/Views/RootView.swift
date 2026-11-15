@@ -259,12 +259,20 @@ private struct HealthOverviewView: View {
                     Text(remaining >= 0 ? String(format: "%.1f kg till målet", remaining) : String(format: "%.1f kg under målet", abs(remaining)))
                         .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.teal)
                 }
-                if let change = weightJournal.change {
-                    HStack {
-                        Text("Förändring sedan första loggningen").font(.caption).foregroundStyle(VITALPalette.muted)
-                        Spacer()
-                        Text(String(format: "%+.1f kg", change)).font(.caption.weight(.semibold).monospacedDigit())
-                            .foregroundStyle(change <= 0 ? VITALPalette.teal : VITALPalette.amber)
+                if let change = weightJournal.change, let percent = weightJournal.percentageChange {
+                    VStack(alignment: .leading, spacing: 5) {
+                        HStack {
+                            Text("Förändring sedan första loggningen").font(.caption).foregroundStyle(VITALPalette.muted)
+                            Spacer()
+                            Text(String(format: "%+.1f kg", change)).font(.caption.weight(.semibold).monospacedDigit())
+                                .foregroundStyle(change <= 0 ? VITALPalette.teal : VITALPalette.amber)
+                        }
+                        HStack {
+                            Text("Relativ förändring från startvikten").font(.caption).foregroundStyle(VITALPalette.muted)
+                            Spacer()
+                            Text(String(format: "%+.1f %%", percent)).font(.caption.weight(.semibold).monospacedDigit())
+                                .foregroundStyle(percent <= 0 ? VITALPalette.teal : VITALPalette.amber)
+                        }
                     }
                 }
             }
@@ -927,6 +935,10 @@ private struct WeightEntry: Codable, Identifiable {
     var change: Double? {
         guard let first = entries.last, let last = entries.first else { return nil }
         return last.kilograms - first.kilograms
+    }
+    var percentageChange: Double? {
+        guard let first = entries.last, let last = entries.first, first.kilograms > 0 else { return nil }
+        return ((last.kilograms - first.kilograms) / first.kilograms) * 100
     }
     var chartEntries: [WeightEntry] { Array(entries.reversed().suffix(30)) }
 }
