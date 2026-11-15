@@ -119,3 +119,9 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - VITAL ska först läsa iOS aktuella notisbehörighet. Behörighet begärs endast när status är notDetermined; en nekad behörighet ska inte utlösa upprepade systemfrågor.
 - Om användaren nekat notiser visas status i appen och den dagliga kvällspåminnelsen tas bort från väntande notiser.
 - Appen visar separat status för kvällspåminnelsen och HealthKit-bakgrundsleverans så att dessa inte blandas ihop.
+
+## 2026-11-15 – Stabil rapportdag vid tidszonsändring
+- En fryst rapport behåller den lokala kalenderdag och tidszon som gällde när rapporten skapades.
+- Arkivet använder en sparad `yyyy-MM-dd`-nyckel för dubblettskydd och uppslagning; historiska rapporter ska inte flyttas när användaren reser eller ändrar tidszon.
+- Äldre arkiv ska kunna avkodas utan de nya fälten. Sådana poster använder kompatibel reservlogik.
+- Sommar-/vintertid hanteras som kalenderdagar, inte genom antaganden om att varje dygn är 24 timmar.
