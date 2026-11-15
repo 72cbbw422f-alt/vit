@@ -56,10 +56,17 @@ enum SleepSessionCalculator {
         return result.filter { $0.duration > 0 }
     }
 
+    static func latestSession(
+        intervals: [SleepInterval],
+        maximumWakeGap: TimeInterval = 90 * 60
+    ) -> SleepSession? {
+        sessions(intervals: intervals, maximumWakeGap: maximumWakeGap).last
+    }
+
     static func latestSessionDuration(
         intervals: [SleepInterval],
         maximumWakeGap: TimeInterval = 90 * 60
     ) -> TimeInterval? {
-        sessions(intervals: intervals, maximumWakeGap: maximumWakeGap).last?.duration
+        latestSession(intervals: intervals, maximumWakeGap: maximumWakeGap)?.duration
     }
 }
