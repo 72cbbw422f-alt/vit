@@ -1,5 +1,6 @@
 import SwiftUI
 import Charts
+import UserNotifications
 
 struct RootView: View {
     var body: some View {
@@ -141,6 +142,7 @@ private struct ActivityView: View {
 private struct HealthOverviewView: View {
     @EnvironmentObject private var health: HealthKitStore
     @StateObject private var bloodPressure = BloodPressureJournal()
+    @StateObject private var waterTracker = WaterTrackerStore()
     @State private var showingBloodPressureEntry = false
     var body: some View {
         NavigationStack {
@@ -171,6 +173,7 @@ private struct HealthOverviewView: View {
                                 }
                             }
                         }
+                        waterTrackerCard
                         bloodPressureCard
                         VITALCard {
                             VStack(alignment: .leading, spacing: 12) {
@@ -191,6 +194,86 @@ private struct HealthOverviewView: View {
             }
             .toolbar(.hidden, for: .navigationBar)
         }
+    }
+
+    private var waterTrackerCard: some View {
+        VITALCard {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack {
+                    Label("Vatten", systemImage: "drop.fill")
+                        .font(.headline).foregroundStyle(VITALPalette.cloud)
+                    Spacer()
+                    Text("\(waterTracker.total) / \(waterTracker.goal) ml")
+                        .font(.caption.weight(.semibold).monospacedDigit()).foregroundStyle(VITALPalette.teal)
+                }
+                HStack(alignment: .center, spacing: 18) {
+                    ZStack {
+                        Circle().stroke(VITALPalette.track, lineWidth: 12)
+                        Circle().trim(from: 0, to: waterTracker.progress)
+                            .stroke(AngularGradient(colors: [VITALPalette.teal, Color(hex: 0x58A9D6)], center: .center),
+                                    style: StrokeStyle(lineWidth: 12, lineCap: .round))
+                            .rotationEffect(.degrees(-90))
+                        VStack(spacing: 2) {
+                            Image(systemName: "drop.fill").font(.title2).foregroundStyle(VITALPalette.teal)
+                            Text("\(Int(waterTracker.progress * 100))%")
+                                .font(.headline.monospacedDigit()).foregroundStyle(VITALPalette.cloud)
+                        }
+                    }.frame(width: 104, height: 104)
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("\(max(0, waterTracker.goal - waterTracker.total)) ml")
+                            .font(.system(size: 25, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
+                        Text("kvar till dagsmålet").font(.caption).foregroundStyle(VITALPalette.muted)
+                        Text("Dagsmål \(waterTracker.goal) ml").font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.teal)
+                    }
+                    Spacer(minLength: 0)
+                }
+                HStack(spacing: 9) {
+                    waterAddButton(150, label: "150 ml")
+                    waterAddButton(250, label: "250 ml")
+                    waterAddButton(500, label: "500 ml")
+                    Button { waterTracker.undo() } label: {
+                        Image(systemName: "arrow.uturn.backward").frame(width: 40, height: 42)
+                    }.buttonStyle(.plain).foregroundStyle(VITALPalette.muted)
+                        .background(VITALPalette.surfaceRaised, in: RoundedRectangle(cornerRadius: 12))
+                        .disabled(waterTracker.total == 0)
+                }
+                HStack {
+                    Label(waterTracker.remindersEnabled ? "Påminnelser på" : "Påminnelser av",
+                          systemImage: "bell.badge")
+                        .font(.caption.weight(.medium)).foregroundStyle(VITALPalette.muted)
+                    Spacer()
+                    Toggle("Påminnelser", isOn: Binding(
+                        get: { waterTracker.remindersEnabled },
+                        set: { waterTracker.setReminders($0) }
+                    )).labelsHidden().tint(VITALPalette.teal)
+                }
+                if waterTracker.remindersEnabled {
+                    HStack {
+                        Text("Påminn var").font(.caption).foregroundStyle(VITALPalette.muted)
+                        Spacer()
+                        Picker("Intervall", selection: Binding(
+                            get: { waterTracker.intervalHours },
+                            set: { waterTracker.setInterval($0) }
+                        )) {
+                            Text("1 timme").tag(1)
+                            Text("1,5 timme").tag(2)
+                            Text("2 timmar").tag(3)
+                            Text("3 timmar").tag(4)
+                        }.pickerStyle(.menu).tint(VITALPalette.teal)
+                    }
+                }
+            }
+        }
+    }
+    private func waterAddButton(_ amount: Int, label: String) -> some View {
+        Button { waterTracker.add(amount) } label: {
+            VStack(spacing: 4) {
+                Image(systemName: "plus").font(.caption.weight(.bold))
+                Text(label).font(.caption.weight(.semibold))
+            }.frame(maxWidth: .infinity).frame(height: 42)
+        }
+        .buttonStyle(.plain).foregroundStyle(VITALPalette.teal)
+        .background(VITALPalette.teal.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
     }
 
     private var bloodPressureCard: some View {
@@ -246,6 +329,85 @@ private struct HealthOverviewView: View {
             BloodPressureEntrySheet(journal: bloodPressure)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
+        }
+    }
+}
+
+@MainActor private final class WaterTrackerStore: ObservableObject {
+    @Published private(set) var total: Int = 0
+    @Published private(set) var remindersEnabled = false
+    @Published private(set) var intervalHours = 2
+    let goal = 2000
+    private var additions: [Int] = []
+    private let dateKey = "vital.water.day"
+    private let entriesKey = "vital.water.entries"
+    private let reminderKey = "vital.water.reminders"
+    private let intervalKey = "vital.water.interval"
+    init() {
+        let today = Calendar.current.startOfDay(for: .now)
+        let savedDay = UserDefaults.standard.object(forKey: dateKey) as? Date
+        if savedDay.map({ Calendar.current.isDate($0, inSameDayAs: today) }) != true {
+            UserDefaults.standard.set(today, forKey: dateKey)
+            UserDefaults.standard.set([Int](), forKey: entriesKey)
+        }
+        additions = UserDefaults.standard.array(forKey: entriesKey) as? [Int] ?? []
+        total = additions.reduce(0, +)
+        remindersEnabled = UserDefaults.standard.bool(forKey: reminderKey)
+        intervalHours = UserDefaults.standard.integer(forKey: intervalKey)
+        if intervalHours == 0 { intervalHours = 2 }
+        if remindersEnabled { Task { await scheduleReminders() } }
+    }
+    var progress: Double { min(Double(total) / Double(goal), 1) }
+    func add(_ amount: Int) {
+        additions.append(amount); persist()
+    }
+    func undo() {
+        guard !additions.isEmpty else { return }
+        additions.removeLast(); persist()
+    }
+    private func persist() {
+        total = additions.reduce(0, +)
+        UserDefaults.standard.set(additions, forKey: entriesKey)
+    }
+    func setInterval(_ value: Int) {
+        intervalHours = value
+        UserDefaults.standard.set(value, forKey: intervalKey)
+        if remindersEnabled { Task { await scheduleReminders() } }
+    }
+    func setReminders(_ enabled: Bool) {
+        remindersEnabled = enabled
+        UserDefaults.standard.set(enabled, forKey: reminderKey)
+        Task {
+            let center = UNUserNotificationCenter.current()
+            if !enabled {
+                center.removePendingNotificationRequests(withIdentifiers: (0..<12).map { "vital.water.\($0)" })
+                return
+            }
+            let settings = await center.notificationSettings()
+            if settings.authorizationStatus == .notDetermined {
+                _ = try? await center.requestAuthorization(options: [.alert, .sound])
+            }
+            await scheduleReminders()
+        }
+    }
+    private func scheduleReminders() async {
+        let center = UNUserNotificationCenter.current()
+        let settings = await center.notificationSettings()
+        guard settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional else { return }
+        let ids = (0..<12).map { "vital.water.\($0)" }
+        center.removePendingNotificationRequests(withIdentifiers: ids)
+        for index in 0..<12 {
+            let hour = 8 + index * intervalHours
+            if hour >= 21 { break }
+            var components = DateComponents()
+            components.hour = hour; components.minute = 0
+            let content = UNMutableNotificationContent()
+            content.title = "Dags att dricka vatten 💧"
+            content.body = "Ta en liten vattenpaus och registrera mängden i VITAL."
+            content.sound = .default
+            let request = UNNotificationRequest(identifier: "vital.water.\(index)", content: content,
+                trigger: UNCalendarNotificationTrigger(dateMatching: components, repeats: true))
+            try? await center.add(request)
         }
     }
 }
