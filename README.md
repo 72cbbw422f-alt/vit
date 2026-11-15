@@ -32,5 +32,6 @@ Project history, decisions, roadmap, architecture, and build/test status are mai
 - [Roadmap](docs/ROADMAP.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Build and test log](docs/BUILD_AND_TEST_LOG.md)
+- [Recovery model](docs/RECOVERY_MODEL.md)
 
 Update the relevant documentation whenever code, design, behavior, requirements, or test status changes.
