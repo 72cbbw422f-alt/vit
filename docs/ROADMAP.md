@@ -59,3 +59,11 @@ Status betyder:
 - [ ] Prestanda- och batteritest
 - [ ] Signerad IPA och verifierad installation
 - [ ] Releaseanteckningar och versionshistorik
+
+
+## Uppdatering 2026-11-15 – Byggprocess
+- [x] Lägga till delad Xcode-scheme
+- [x] Lägga till macOS-baserad GitHub Actions-build
+- [x] Ta bort exempelkurva som kunde förväxlas med verkliga användardata
+- [x] Förtydliga saknade datavärden på dashboarden
+- [ ] Köra och godkänna första CI-builden
