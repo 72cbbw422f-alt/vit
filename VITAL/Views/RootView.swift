@@ -32,13 +32,15 @@ private struct InsightsView: View {
                                 if recoveryReports.isEmpty {
                                     EmptyChartState(symbol: "chart.xyaxis.line", title: "Ingen trend ännu", detail: "Morgonrapporter med giltiga återhämtningsvärden visas här när de finns.")
                                 } else {
-                                    Chart(Array(recoveryReports.enumerated()), id: \.element.id) { index, report in
-                                        BarMark(
-                                            x: .value("Dag", index),
-                                            y: .value("Återhämtning", report.recoveryScore ?? 0)
-                                        )
-                                        .foregroundStyle(VITALPalette.teal.gradient)
-                                        .cornerRadius(5)
+                                    Chart {
+                                        ForEach(Array(recoveryReports.enumerated()), id: \.element.id) { item in
+                                            BarMark(
+                                                x: .value("Dag", item.offset),
+                                                y: .value("Återhämtning", item.element.recoveryScore ?? 0)
+                                            )
+                                            .foregroundStyle(VITALPalette.teal.gradient)
+                                            .cornerRadius(5)
+                                        }
                                     }
                                     .chartYScale(domain: 0...100)
                                     .chartXAxis(.hidden)
@@ -199,7 +201,7 @@ private struct InsightMetric: View {
             VStack(alignment: .leading, spacing: 10) {
                 Image(systemName: symbol).font(.title3).foregroundStyle(tint)
                 Text(title).font(.caption.weight(.medium)).foregroundStyle(VITALPalette.muted)
-                Text(value).font(.title2.bold().rounded()).foregroundStyle(VITALPalette.cloud).minimumScaleFactor(0.7).lineLimit(1)
+                Text(value).font(.system(.title2, design: .rounded).bold()).foregroundStyle(VITALPalette.cloud).minimumScaleFactor(0.7).lineLimit(1)
             }
         }
     }
