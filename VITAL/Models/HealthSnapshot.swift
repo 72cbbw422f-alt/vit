@@ -13,6 +13,7 @@ struct HealthSnapshot {
     var hrvBaseline: PersonalBaseline?
     var sleepBaseline: PersonalBaseline?
     var lastUpdated: Date?
+    var bodyBattery: BodyBatteryResult?
 
     static let empty = HealthSnapshot()
 
