@@ -91,3 +91,11 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - En signal får endast godkännas när vald huvudsömn är avslutad, minst tre timmar lång, högst 18 timmar gammal och tillhör rapportens lokala uppvakningsdag.
 - Tre timmar och 18 timmar är initiala produkttrösklar som ska kunna omprövas efter test med verkliga sömnmönster.
 - Rapportarkivets unika nyckel per lokal dag och rapporttyp är sista skyddet mot dubbletter.
+
+
+## 2026-11-15 – Kvällsrapportens faktiska fångsttid
+- Kvällsrapportens standardgräns är kl. 21:00 lokal tid.
+- VITAL skapar den frysta snapshoten vid första lyckade HealthKit-uppdateringen från kl. 21:00 och framåt, inte genom att anta att iOS kör appen exakt 21:00.
+- En daglig lokal notis påminner kl. 21:00 om att öppna VITAL. Notisen är en påminnelse, inte en garanti för bakgrundskörning eller rapportskapande.
+- När appen återgår till förgrunden uppdateras HealthKit och rapportflödet kontrolleras igen.
+- Fångsttiden som visas är den faktiska tidpunkten då VITAL skapade rapporten.
