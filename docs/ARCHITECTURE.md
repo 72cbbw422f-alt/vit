@@ -52,3 +52,10 @@ Blodtryck, träningspass, andningsfrekvens, syremättnad och andra datatyper är
 - Håll kroppsbatteriets löpande tillstånd separat från nattlig återhämtning.
 - Låt UI visa datakälla, tidsstämpel och datatillgänglighet.
 - Ge inte UI ansvar för att hitta på eller uppskatta saknade mätvärden.
+
+
+## CI och Xcode-projekt
+- Delad scheme finns i `VITAL.xcodeproj/xcshareddata/xcschemes/VITAL.xcscheme`.
+- GitHub Actions-workflow finns i `.github/workflows/ios-build.yml`.
+- Workflow kör på macOS och bygger appmålet mot iOS Simulator med kodsignering avstängd.
+- Denna CI-build verifierar kompilering och projektkonfiguration, inte HealthKit-funktionalitet på en fysisk enhet.
