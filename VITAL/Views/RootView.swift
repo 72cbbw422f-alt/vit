@@ -213,7 +213,7 @@ private struct HealthValueTile: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title).font(.caption).foregroundStyle(VITALPalette.muted)
-            Text(value).font(.title2.bold().rounded()).foregroundStyle(tint).minimumScaleFactor(0.7).lineLimit(1)
+            Text(value).font(.system(.title2, design: .rounded).bold()).foregroundStyle(tint).minimumScaleFactor(0.7).lineLimit(1)
         }.frame(maxWidth: .infinity, alignment: .leading).padding(14)
             .background(VITALPalette.surfaceRaised, in: RoundedRectangle(cornerRadius: 16))
     }
