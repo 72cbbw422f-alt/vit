@@ -36,6 +36,20 @@ jobs:
             -archivePath "$RUNNER_TEMP/VITAL-unsigned.xcarchive" \
             CODE_SIGNING_ALLOWED=NO \
             archive
+      - name: Package unsigned IPA for sideload signing
+        run: |
+          mkdir -p "$RUNNER_TEMP/ipa/Payload"
+          cp -R "$RUNNER_TEMP/VITAL-unsigned.xcarchive/Products/Applications/VITAL.app" "$RUNNER_TEMP/ipa/Payload/VITAL.app"
+          test -d "$RUNNER_TEMP/ipa/Payload/VITAL.app"
+          (cd "$RUNNER_TEMP/ipa" && /usr/bin/zip -qry "$RUNNER_TEMP/VITAL-unsigned.ipa" Payload)
+          test -s "$RUNNER_TEMP/VITAL-unsigned.ipa"
+      - name: Upload unsigned IPA for sideload signing
+        uses: actions/upload-artifact@v4
+        with:
+          name: VITAL-unsigned-IPA
+          path: ${{ runner.temp }}/VITAL-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 7
       - name: Upload unsigned archive for inspection
         uses: actions/upload-artifact@v4
         with:
