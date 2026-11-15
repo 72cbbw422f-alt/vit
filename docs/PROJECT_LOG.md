@@ -234,3 +234,17 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Tester täcker sample som överlappar uppvaknandet, sample helt inom vakenperioden och sample efter aktuell tid.
 - Detta förhindrar att aktiv energi som delvis uppstod under sömn felaktigt belastar dagens kroppsbatteri.
 - Fortsatt prototyp: belastningskoefficienterna och återladdning under vila är inte validerade.
+
+## 2026-11-15 – Fryst modell för dagsrapporter
+
+### Implementerat
+- Lagt till DailyReportSnapshot med separata rapporttyper för morgon och kväll.
+- Rapporten lagrar poäng och hälsovärden som konkreta värden tillsammans med lokal rapportdag och fångsttid.
+- Lagt till ReportSnapshotArchive som bara accepterar den första rapporten av en viss typ per lokal kalenderdag. Senare HealthKit-värden kan därmed inte skriva om morgonrapporten.
+- Morgon och kväll är oberoende poster och kan sparas samma dag.
+- Modellen stöder Codable så den kan lagras lokalt i nästa integrationssteg.
+- Lagt till fem tester som täcker låsning, separata rapporttyper, ny lokal dag och serialisering.
+
+### Avgränsning
+- Detta är kärnmodell och testad arkivpolicy. Beständig lagring, schemaläggning, notiser och UI-historik är ännu inte inkopplade.
+- iOS kan inte garantera att appkod körs exakt klockan 07:00 eller 21:00 när appen är avstängd eller suspenderad. Nästa steg måste kombinera schemalagda notiser med en säker fångstpolicy när appen får körningstid; en notis i sig får inte påstå att en rapport har uppdaterats om ingen snapshot faktiskt skapats.
