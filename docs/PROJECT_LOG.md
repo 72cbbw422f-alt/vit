@@ -265,3 +265,12 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - HealthKit Background Delivery-entitlement har lagts till i appens entitlements.
 - Observerhändelsen är en datakälla/uppdateringssignal, inte en direkt avläsning av Sömnfokus-status.
 - Måste verifieras med signerad entitlement och fysisk iPhone; simulatorn stöder inte HealthKit background server queries.
+
+
+## 2026-11-15 – Första kopplingen för fryst morgonrapport
+- HealthKitStore laddar nu rapportarkivet från UserDefaults och utvärderar morgonrapport efter varje lyckad HealthKit-uppdatering.
+- Rapporten skapas endast när MorningReportTriggerPolicy godkänner en avslutad huvudsömn på minst tre timmar inom tidsfönstret.
+- Första rapporten för lokal kalenderdag sparas som DailyReportSnapshot. ReportSnapshotArchive.appendIfAbsent förhindrar att senare HealthKit-uppdateringar skriver över den.
+- Saknade värden förblir nil; rapporten hittar inte på HRV, vilopuls, återhämtning eller aktivitetsvärden.
+- MorningReport publiceras som aktuell dags rapport i HealthKitStore. Visning, historikvy, kvällsrapport och fysisk iPhone-verifiering återstår.
+- CI för denna ändring är ännu inte bekräftad vid loggtillfället.
