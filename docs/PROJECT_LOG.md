@@ -74,3 +74,24 @@ Fastställda färger:
 - GitHub Actions-builden måste köras och resultatet granskas.
 - Ingen simulator- eller enhetstestning har ännu utförts.
 - Xcode-projektets struktur är uppsatt men får inte betraktas som verifierad förrän CI-builden passerat.
+
+
+## 2026-11-15 – Första återhämtningsmotorn och enhetstester
+
+### Implementerat
+- Skapat `RecoveryEngine.swift` som fristående, deterministisk beräkningsmodell.
+- Modellen använder sömn, HRV SDNN och vilopuls mot personlig 30-dagarsreferens.
+- Prototypen kräver minst 14 giltiga baslinjedagar och returnerar ingen poäng vid saknade värden.
+- Skapat Swift Package för att testa beräkningslogik separat från HealthKit och SwiftUI.
+- Lagt till fem enhetstester och dokumenterat modellens formler och begränsningar.
+
+### Testresultat
+- Körning med Swift 6.2.1 på Linux x86_64.
+- Fem tester körda, noll fel efter korrigering av HRV-normaliseringen.
+- Första testkörningen upptäckte att HRV-baslinjen gav 50 i stället för 100 poäng. Formeln korrigerades och samtliga fem tester passerade.
+- Detta verifierar endast fristående beräkningskod, inte iOS/Xcode-bygget eller HealthKit-datainsamlingen.
+
+### Kvar
+- 30-dagarsbaslinjer hämtas ännu inte från HealthKit.
+- Återhämtningsmotorn är ännu inte kopplad till dashboarden.
+- Prototypens vikter och skalningar är inte medicinskt validerade.
