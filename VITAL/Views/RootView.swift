@@ -140,6 +140,8 @@ private struct ActivityView: View {
 
 private struct HealthOverviewView: View {
     @EnvironmentObject private var health: HealthKitStore
+    @StateObject private var bloodPressure = BloodPressureJournal()
+    @State private var showingBloodPressureEntry = false
     var body: some View {
         NavigationStack {
             ZStack {
@@ -169,6 +171,7 @@ private struct HealthOverviewView: View {
                                 }
                             }
                         }
+                        bloodPressureCard
                         VITALCard {
                             VStack(alignment: .leading, spacing: 12) {
                                 Label("Sömn", systemImage: "moon.stars.fill").font(.headline).foregroundStyle(VITALPalette.cloud)
@@ -187,6 +190,144 @@ private struct HealthOverviewView: View {
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
+        }
+    }
+
+    private var bloodPressureCard: some View {
+        VITALCard {
+            VStack(alignment: .leading, spacing: 13) {
+                HStack {
+                    Label("Blodtryck", systemImage: "heart.text.square")
+                        .font(.headline).foregroundStyle(VITALPalette.cloud)
+                    Spacer()
+                    Button { showingBloodPressureEntry = true } label: {
+                        Label("Lägg till", systemImage: "plus")
+                            .font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.teal)
+                    }
+                }
+                if let latest = bloodPressure.entries.first {
+                    HStack(alignment: .firstTextBaseline, spacing: 5) {
+                        Text("\(latest.systolic)/\(latest.diastolic)")
+                            .font(.system(size: 34, weight: .bold, design: .rounded))
+                            .foregroundStyle(VITALPalette.cloud).monospacedDigit()
+                        Text("mmHg").font(.caption).foregroundStyle(VITALPalette.muted)
+                        Spacer()
+                        if let pulse = latest.pulse {
+                            Text("\(pulse) bpm").font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.teal)
+                        }
+                    }
+                    Text("Senast · \(latest.date.formatted(date: .abbreviated, time: .shortened))")
+                        .font(.caption).foregroundStyle(VITALPalette.muted)
+                    if bloodPressure.entries.count > 1 {
+                        Chart(Array(bloodPressure.entries.prefix(10).reversed()), id: \.id) { entry in
+                            LineMark(x: .value("Mätning", entry.date), y: .value("Systoliskt", entry.systolic))
+                                .foregroundStyle(VITALPalette.teal).symbol(Circle())
+                            LineMark(x: .value("Mätning", entry.date), y: .value("Diastoliskt", entry.diastolic))
+                                .foregroundStyle(VITALPalette.violet).symbol(Circle())
+                        }
+                        .chartLegend(position: .bottom)
+                        .chartYAxisLabel("mmHg")
+                        .frame(height: 150)
+                    }
+                    ShareLink(item: bloodPressure.doctorSummary) {
+                        Label("Dela sammanställning med läkaren", systemImage: "square.and.arrow.up")
+                            .font(.subheadline.weight(.semibold)).frame(maxWidth: .infinity)
+                            .padding(.vertical, 11)
+                            .background(VITALPalette.teal.opacity(0.13), in: RoundedRectangle(cornerRadius: 13))
+                    }.foregroundStyle(VITALPalette.teal)
+                } else {
+                    EmptyChartState(symbol: "heart.text.square", title: "Ingen blodtryckshistorik", detail: "Lägg in dina mätningar för att följa utvecklingen över tid.")
+                }
+                Text("Registrerade värden är en loggbok, inte en diagnos.")
+                    .font(.caption2).foregroundStyle(VITALPalette.muted)
+            }
+        }
+        .sheet(isPresented: $showingBloodPressureEntry) {
+            BloodPressureEntrySheet(journal: bloodPressure)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
+    }
+}
+
+private struct BloodPressureEntry: Codable, Identifiable {
+    let id: UUID
+    let date: Date
+    let systolic: Int
+    let diastolic: Int
+    let pulse: Int?
+    let note: String
+    init(date: Date = .now, systolic: Int, diastolic: Int, pulse: Int?, note: String) {
+        self.id = UUID(); self.date = date; self.systolic = systolic
+        self.diastolic = diastolic; self.pulse = pulse; self.note = note
+    }
+}
+@MainActor private final class BloodPressureJournal: ObservableObject {
+    @Published private(set) var entries: [BloodPressureEntry] = []
+    private let key = "vital.bloodPressureJournal.v1"
+    init() {
+        if let data = UserDefaults.standard.data(forKey: key),
+           let decoded = try? JSONDecoder().decode([BloodPressureEntry].self, from: data) {
+            entries = decoded.sorted { $0.date > $1.date }
+        }
+    }
+    func add(systolic: Int, diastolic: Int, pulse: Int?, note: String) {
+        entries.append(BloodPressureEntry(systolic: systolic, diastolic: diastolic, pulse: pulse, note: note))
+        entries.sort { $0.date > $1.date }
+        if let data = try? JSONEncoder().encode(entries) { UserDefaults.standard.set(data, forKey: key) }
+    }
+    var doctorSummary: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "sv_SE")
+        formatter.dateStyle = .medium; formatter.timeStyle = .short
+        let lines = entries.prefix(100).map { entry in
+            let pulse = entry.pulse.map { " · Puls \($0) bpm" } ?? ""
+            let note = entry.note.isEmpty ? "" : " · \(entry.note)"
+            return "\(formatter.string(from: entry.date)): \(entry.systolic)/\(entry.diastolic) mmHg\(pulse)\(note)"
+        }
+        return (["VITAL – BLODTRYCKSLOGG", "Registrerade mätningar (nyaste först)", ""] + lines).joined(separator: "\n")
+    }
+}
+private struct BloodPressureEntrySheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject var journal: BloodPressureJournal
+    @State private var systolic = ""
+    @State private var diastolic = ""
+    @State private var pulse = ""
+    @State private var note = ""
+    private var valid: Bool {
+        guard let s = Int(systolic), let d = Int(diastolic) else { return false }
+        return (60...260).contains(s) && (30...160).contains(d)
+    }
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Blodtryck") {
+                    TextField("Systoliskt (övre)", text: $systolic).keyboardType(.numberPad)
+                    TextField("Diastoliskt (undre)", text: $diastolic).keyboardType(.numberPad)
+                    TextField("Puls (valfritt)", text: $pulse).keyboardType(.numberPad)
+                }
+                Section("Anteckning") {
+                    TextField("T.ex. morgon, kväll eller efter vila", text: $note, axis: .vertical)
+                }
+                Section {
+                    Text("Ange värdena från mätaren. Skriv gärna om mätningen gjordes sittande efter vila eller om något särskilt påverkade den.")
+                        .font(.footnote).foregroundStyle(.secondary)
+                }
+            }
+            .scrollContentBackground(.hidden)
+            .background(VITALPalette.surface)
+            .navigationTitle("Ny mätning")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Avbryt") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Spara") {
+                        journal.add(systolic: Int(systolic)!, diastolic: Int(diastolic)!, pulse: Int(pulse), note: note)
+                        dismiss()
+                    }.disabled(!valid || (!pulse.isEmpty && Int(pulse) == nil))
+                }
+            }
         }
     }
 }
