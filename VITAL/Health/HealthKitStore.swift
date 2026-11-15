@@ -8,9 +8,12 @@ final class HealthKitStore: ObservableObject {
     @Published private(set) var isAvailable = HKHealthStore.isHealthDataAvailable()
     @Published private(set) var authorizationRequested = false
     @Published private(set) var lastError: String?
+    @Published private(set) var morningReport: DailyReportSnapshot?
     private let store = HKHealthStore()
     private let baselineCalendar = Calendar.current
     private var sleepObserverQuery: HKObserverQuery?
+    private let reportArchiveKey = "vital.dailyReportArchive.v1"
+    private var reportArchive = ReportSnapshotArchive()
 
     func requestAccessAndRefresh() async {
         guard isAvailable else {
@@ -27,6 +30,7 @@ final class HealthKitStore: ObservableObject {
             lastError = "Kunde inte läsa in alla hälsodatatyper."
             return
         }
+        loadReportArchive()
         do {
             try await store.requestAuthorization(toShare: [], read: [sleep, resting, hrv, heartRate, steps, energy, weight])
             authorizationRequested = true
@@ -120,9 +124,55 @@ final class HealthKitStore: ObservableObject {
             ))
         }
         snapshot = updatedSnapshot
+        createMorningReportIfEligible(from: updatedSnapshot, sleepSession: sleepSession, capturedAt: now)
     }
 
-\n    /// Restore frozen report history from local storage.\n    private func loadReportArchive() {\n        guard let data = UserDefaults.standard.data(forKey: reportArchiveKey),\n              let decoded = try? JSONDecoder().decode(ReportSnapshotArchive.self, from: data) else { return }\n        reportArchive = decoded\n        morningReport = decoded.snapshot(for: Date(), kind: .morning)\n    }\n\n    /// Freeze the first eligible morning snapshot for the local wake-up day.\n    /// Missing measurements remain nil; subsequent HealthKit refreshes cannot rewrite it.\n    private func createMorningReportIfEligible(\n        from healthSnapshot: HealthSnapshot,\n        sleepSession: SleepSession?,\n        capturedAt: Date\n    ) {\n        let calendar = Calendar.current\n        let decision = MorningReportTriggerPolicy.evaluate(\n            source: .healthKitSleepUpdated,\n            eventDate: capturedAt,\n            mainSleep: sleepSession,\n            reportDay: capturedAt,\n            calendar: calendar\n        )\n        guard decision.shouldCreateSnapshot else { return }\n        let day = calendar.startOfDay(for: sleepSession!.end)\n        let candidate = DailyReportSnapshot(\n            kind: .morning,\n            localDay: day,\n            capturedAt: capturedAt,\n            recoveryScore: healthSnapshot.recoveryResult.score,\n            bodyBatteryScore: healthSnapshot.bodyBattery?.score,\n            sleepDurationSeconds: healthSnapshot.sleepDuration,\n            hrvMilliseconds: healthSnapshot.overnightHRV,\n            restingHeartRateBPM: healthSnapshot.overnightRestingHeartRate,\n            steps: healthSnapshot.steps,\n            activeEnergyKcal: healthSnapshot.activeEnergy\n        )\n        guard reportArchive.appendIfAbsent(candidate, calendar: calendar),\n              let data = try? JSONEncoder().encode(reportArchive) else { return }\n        UserDefaults.standard.set(data, forKey: reportArchiveKey)\n        morningReport = candidate\n    }\n\n    private func loadPersonalBaselines(asOf date: Date) async -> (resting: PersonalBaseline, hrv: PersonalBaseline, sleep: PersonalBaseline) {
+
+    /// Restore frozen report history from local storage.
+    private func loadReportArchive() {
+        guard let data = UserDefaults.standard.data(forKey: reportArchiveKey),
+              let decoded = try? JSONDecoder().decode(ReportSnapshotArchive.self, from: data) else { return }
+        reportArchive = decoded
+        morningReport = decoded.snapshot(for: Date(), kind: .morning)
+    }
+
+    /// Freeze the first eligible morning snapshot for the local wake-up day.
+    /// Missing measurements remain nil; subsequent HealthKit refreshes cannot rewrite it.
+    private func createMorningReportIfEligible(
+        from healthSnapshot: HealthSnapshot,
+        sleepSession: SleepSession?,
+        capturedAt: Date
+    ) {
+        let calendar = Calendar.current
+        let decision = MorningReportTriggerPolicy.evaluate(
+            source: .healthKitSleepUpdated,
+            eventDate: capturedAt,
+            mainSleep: sleepSession,
+            reportDay: capturedAt,
+            calendar: calendar
+        )
+        guard decision.shouldCreateSnapshot else { return }
+        guard let sleepSession else { return }
+        let day = calendar.startOfDay(for: sleepSession.end)
+        let candidate = DailyReportSnapshot(
+            kind: .morning,
+            localDay: day,
+            capturedAt: capturedAt,
+            recoveryScore: healthSnapshot.recoveryResult.score,
+            bodyBatteryScore: healthSnapshot.bodyBattery?.score,
+            sleepDurationSeconds: healthSnapshot.sleepDuration,
+            hrvMilliseconds: healthSnapshot.overnightHRV,
+            restingHeartRateBPM: healthSnapshot.overnightRestingHeartRate,
+            steps: healthSnapshot.steps,
+            activeEnergyKcal: healthSnapshot.activeEnergy
+        )
+        guard reportArchive.appendIfAbsent(candidate, calendar: calendar),
+              let data = try? JSONEncoder().encode(reportArchive) else { return }
+        UserDefaults.standard.set(data, forKey: reportArchiveKey)
+        morningReport = candidate
+    }
+
+    private func loadPersonalBaselines(asOf date: Date) async -> (resting: PersonalBaseline, hrv: PersonalBaseline, sleep: PersonalBaseline) {
         let today = baselineCalendar.startOfDay(for: date)
         let start = baselineCalendar.date(byAdding: .day, value: -30, to: today) ?? today
         let end = today
