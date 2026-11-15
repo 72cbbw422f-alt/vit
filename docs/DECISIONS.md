@@ -113,3 +113,9 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - VITAL ska inte anta att HealthKit-bakgrundsleverans är aktiverad bara för att en observerfråga har registrerats.
 - Resultatet från enableBackgroundDelivery sparas som status i HealthKitStore. Fel eller nekad aktivering exponeras via appens felstatus.
 - Bakgrundsleverans är fortfarande beroende av entitlement, signering/provisionering och iOS schemaläggning; den är inte en garanti för omedelbar körning.
+
+
+## 2026-11-15 – Separat hantering av notisbehörighet
+- VITAL ska först läsa iOS aktuella notisbehörighet. Behörighet begärs endast när status är notDetermined; en nekad behörighet ska inte utlösa upprepade systemfrågor.
+- Om användaren nekat notiser visas status i appen och den dagliga kvällspåminnelsen tas bort från väntande notiser.
+- Appen visar separat status för kvällspåminnelsen och HealthKit-bakgrundsleverans så att dessa inte blandas ihop.
