@@ -21,7 +21,7 @@ Native iOS health and recovery app built with SwiftUI and HealthKit.
 Initial SwiftUI source, design tokens, four-tab navigation, dashboard layout, and read-only HealthKit data layer.
 
 ## Build status
-The Xcode project file, target configuration, signing, and device build are still required before an installable IPA can be produced.
+The Xcode project and iOS Simulator build are configured and have passed GitHub Actions CI, including the core unit tests. This does not yet produce an iPhone-installable app. The project currently has no configured Apple Development Team, signing certificate, or provisioning profile. A signed device archive and IPA export still require valid Apple signing assets; installation and HealthKit/background-delivery behavior must then be verified on a physical iPhone.
 
 ## Documentation
 
