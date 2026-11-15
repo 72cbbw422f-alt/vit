@@ -137,3 +137,7 @@ Blodtryck, träningspass, andningsfrekvens, syremättnad och andra datatyper är
 
 ## Morgonrapport – dataväntan
 Morgonrapportens triggerpolicy kräver att huvudsömnen är avslutad och att minst 20 minuter har passerat från sömnperiodens sluttid. HealthKit-uppdateringar och appens återgång till aktivt läge kan kontrollera policyn igen. Väntetiden garanterar inte att alla sampel har levererats; saknade värden förblir nil när snapshoten till slut låses. Rapportarkivet gör därefter snapshoten oföränderlig per lokal dag och rapporttyp.
+
+
+## HealthKit-bakgrundsleverans
+HealthKitStore registrerar en observerfråga för sömn och begär bakgrundsleverans. Resultatet från enableBackgroundDelivery sparas i backgroundSleepDeliveryEnabled. Fel och nekad aktivering förs vidare till lastError i stället för att tyst ignoreras. Statusen bevisar inte att framtida observerhändelser levereras i tid; fysisk enhet och korrekt entitlement/provisionering krävs för verifiering.
