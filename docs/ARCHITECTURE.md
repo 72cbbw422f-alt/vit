@@ -89,3 +89,11 @@ Blodtryck, träningspass, andningsfrekvens, syremättnad och andra datatyper är
 - Modellen returnerar median och antal giltiga sampel per mätvärde.
 - Den gör inget antagande om att nattliga sampel måste finnas. Saknade värden förblir nil.
 - Modellen är ännu inte ansluten till HealthKitStore eller RecoveryEngine. Integrationen inväntar verifiering av HealthKit:s faktiska tidsstämplar, särskilt för vilopuls.
+
+
+## HealthKit – nattlig återhämtning
+- HealthKitStore hämtar tidsstämplade HRV SDNN- och vilopulssampel från de senaste 36 timmarna.
+- Den senaste grupperade sömnperioden väljs och används som explicit tidsfönster för `OvernightMetricSelector`.
+- `HealthSnapshot.hrv` och `restingHeartRate` är senaste tillgängliga värden för översikten. Separata fält, `overnightHRV` och `overnightRestingHeartRate`, används av RecoveryEngine.
+- Saknade nattliga sampel lämnas nil. Senaste dagvärdet får inte ersätta nattvärdet.
+- Valet av senaste sömnperiod kan fortfarande fånga en tupplur. Det behöver valideras och eventuellt ersättas med urval av huvudperiod.
