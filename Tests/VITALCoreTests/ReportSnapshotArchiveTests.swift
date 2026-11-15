@@ -12,7 +12,8 @@ final class ReportSnapshotArchiveTests: XCTestCase {
         kind: DailyReportKind = .morning,
         localDay: Date,
         capturedAt: Date,
-        recoveryScore: Int?
+        recoveryScore: Int?,
+        calendar: Calendar? = nil
     ) -> DailyReportSnapshot {
         DailyReportSnapshot(
             kind: kind,
@@ -24,7 +25,8 @@ final class ReportSnapshotArchiveTests: XCTestCase {
             hrvMilliseconds: 48,
             restingHeartRateBPM: 54,
             steps: 1200,
-            activeEnergyKcal: 340
+            activeEnergyKcal: 340,
+            calendar: calendar ?? self.calendar
         )
     }
 
@@ -73,6 +75,35 @@ final class ReportSnapshotArchiveTests: XCTestCase {
             snapshot(localDay: nextDay, capturedAt: nextDay, recoveryScore: 76), calendar: calendar
         ))
         XCTAssertEqual(archive.snapshots.count, 2)
+    }
+
+    func testArchivedDayKeyDoesNotChangeWhenCurrentTimeZoneChanges() {
+        let stockholmDay = calendar.date(from: DateComponents(year: 2026, month: 11, day: 15))!
+        let original = snapshot(localDay: stockholmDay, capturedAt: stockholmDay,
+                                recoveryScore: 81, calendar: calendar)
+        var archive = ReportSnapshotArchive()
+        XCTAssertTrue(archive.appendIfAbsent(original, calendar: calendar))
+
+        var losAngeles = Calendar(identifier: .gregorian)
+        losAngeles.timeZone = TimeZone(identifier: "America/Los_Angeles")!
+        let sameInstantDifferentLocalDay = snapshot(
+            localDay: stockholmDay, capturedAt: stockholmDay.addingTimeInterval(3600),
+            recoveryScore: 60, calendar: losAngeles
+        )
+
+        XCTAssertNotEqual(original.localDayKey, sameInstantDifferentLocalDay.localDayKey)
+        XCTAssertTrue(archive.appendIfAbsent(sameInstantDifferentLocalDay, calendar: losAngeles))
+        XCTAssertEqual(archive.snapshots.count, 2)
+        XCTAssertEqual(archive.snapshots.first?.localDayKey, "2026-11-15")
+    }
+
+    func testDayKeySurvivesDaylightSavingTimeBoundary() {
+        let springDay = calendar.date(from: DateComponents(year: 2026, month: 3, day: 29))!
+        let candidate = snapshot(localDay: springDay, capturedAt: springDay, recoveryScore: 77)
+        var archive = ReportSnapshotArchive()
+        XCTAssertTrue(archive.appendIfAbsent(candidate, calendar: calendar))
+        XCTAssertEqual(archive.snapshots.first?.localDayKey, "2026-03-29")
+        XCTAssertEqual(archive.snapshots.first?.timeZoneIdentifier, "Europe/Stockholm")
     }
 
     func testArchiveRoundTripsThroughCodable() throws {
