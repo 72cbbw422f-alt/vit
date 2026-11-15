@@ -491,3 +491,9 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Varje sparad bild markeras också individuellt som exkluderad från iCloud-säkerhetskopiering, utöver att bildmappen har samma policy.
 - Integritetstexten förklarar nu uttryckligen att bilderna inte ingår i iCloud-säkerhetskopior och därför kan gå förlorade om appen eller enheten försvinner.
 - Ändringen inväntar CI.
+
+## 2026-11-15 – Vattenpåminnelser: behörighet och tidsfönster
+
+- Påminnelseväxeln slås nu bara på efter att iOS har bekräftat notisbehörighet. Om behörighet saknas återställs inställningen till av.
+- Schemaläggningen täcker nu hela det avsedda dagfönstret 08–20, beroende på valt intervall.
+- Ändringen inväntar CI och fysisk kontroll av notiser på enheten.
