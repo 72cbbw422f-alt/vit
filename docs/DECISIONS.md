@@ -107,3 +107,9 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - Om appen inte får körningstid när väntetiden passerar skapas rapporten vid nästa HealthKit-uppdatering eller när appen blir aktiv.
 - När väntetiden passerat får fortfarande saknade mätvärden vara nil. Rapporten låses då med tillgängliga värden och skrivs aldrig om.
 - 20 minuter är en initial produktheuristik som ska utvärderas mot verklig synkronisering på fysisk iPhone.
+
+
+## 2026-11-15 – Synlig status för HealthKit-bakgrundsleverans
+- VITAL ska inte anta att HealthKit-bakgrundsleverans är aktiverad bara för att en observerfråga har registrerats.
+- Resultatet från enableBackgroundDelivery sparas som status i HealthKitStore. Fel eller nekad aktivering exponeras via appens felstatus.
+- Bakgrundsleverans är fortfarande beroende av entitlement, signering/provisionering och iOS schemaläggning; den är inte en garanti för omedelbar körning.
