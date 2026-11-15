@@ -10,6 +10,7 @@ final class HealthKitStore: ObservableObject {
     @Published private(set) var lastError: String?
     private let store = HKHealthStore()
     private let baselineCalendar = Calendar.current
+    private var sleepObserverQuery: HKObserverQuery?
 
     func requestAccessAndRefresh() async {
         guard isAvailable else {
@@ -29,9 +30,37 @@ final class HealthKitStore: ObservableObject {
         do {
             try await store.requestAuthorization(toShare: [], read: [sleep, resting, hrv, heartRate, steps, energy, weight])
             authorizationRequested = true
+            await startSleepObservation()
             await refresh()
         } catch {
             lastError = error.localizedDescription
+        }
+    }
+
+
+    /// Observe sleep-analysis changes and request background delivery.
+    /// The observer is a data-change signal, not a direct Sleep Focus listener.
+    private func startSleepObservation() async {
+        guard sleepObserverQuery == nil,
+              let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else { return }
+
+        let query = HKObserverQuery(sampleType: sleepType, predicate: nil) { [weak self] _, completion, error in
+            guard error == nil else {
+                completion()
+                return
+            }
+            Task { @MainActor [weak self] in
+                await self?.refresh()
+                completion()
+            }
+        }
+        sleepObserverQuery = query
+        store.execute(query)
+
+        await withCheckedContinuation { continuation in
+            store.enableBackgroundDelivery(for: sleepType, frequency: .immediate) { _, _ in
+                continuation.resume()
+            }
         }
     }
 
