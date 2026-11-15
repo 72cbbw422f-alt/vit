@@ -550,6 +550,7 @@ private struct HealthOverviewView: View {
     @Published private(set) var intervalHours = 2
     let goal = 2000
     private var additions: [Int] = []
+    private var reminderGeneration = 0
     private let dateKey = "vital.water.day"
     private let entriesKey = "vital.water.entries"
     private let reminderKey = "vital.water.reminders"
@@ -566,7 +567,11 @@ private struct HealthOverviewView: View {
         remindersEnabled = UserDefaults.standard.bool(forKey: reminderKey)
         intervalHours = UserDefaults.standard.integer(forKey: intervalKey)
         if intervalHours == 0 { intervalHours = 2 }
-        if remindersEnabled { Task { await scheduleReminders() } }
+        if remindersEnabled {
+            reminderGeneration += 1
+            let generation = reminderGeneration
+            Task { await scheduleReminders(generation: generation) }
+        }
     }
     var progress: Double { min(Double(total) / Double(goal), 1) }
     func refreshDay() {
@@ -598,10 +603,12 @@ private struct HealthOverviewView: View {
     }
     func setReminders(_ enabled: Bool) {
         guard enabled != remindersEnabled else { return }
+        reminderGeneration += 1
+        let generation = reminderGeneration
         if !enabled {
             remindersEnabled = false
             UserDefaults.standard.set(false, forKey: reminderKey)
-            let ids = (0..<13).map { index in "vital.water.\(index)" }
+            let ids = (0..<13).map { index in "vital.water.\\(index)" }
             UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ids)
             return
         }
@@ -612,27 +619,27 @@ private struct HealthOverviewView: View {
                 _ = try? await center.requestAuthorization(options: [.alert, .sound])
                 settings = await center.notificationSettings()
             }
+            guard generation == reminderGeneration else { return }
             guard settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional else {
-                await MainActor.run {
-                    remindersEnabled = false
-                    UserDefaults.standard.set(false, forKey: reminderKey)
-                }
+                remindersEnabled = false
+                UserDefaults.standard.set(false, forKey: reminderKey)
                 return
             }
-            await scheduleReminders()
-            await MainActor.run {
-                remindersEnabled = true
-                UserDefaults.standard.set(true, forKey: reminderKey)
-            }
+            await scheduleReminders(generation: generation)
+            guard generation == reminderGeneration else { return }
+            remindersEnabled = true
+            UserDefaults.standard.set(true, forKey: reminderKey)
         }
     }
-    private func scheduleReminders() async {
+    private func scheduleReminders(generation: Int) async {
         let center = UNUserNotificationCenter.current()
         let settings = await center.notificationSettings()
+        guard generation == reminderGeneration else { return }
         guard settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional else { return }
-        let ids = (0..<13).map { index in "vital.water.\(index)" }
+        let ids = (0..<13).map { index in "vital.water.\\(index)" }
         center.removePendingNotificationRequests(withIdentifiers: ids)
         for index in 0..<13 {
+            guard generation == reminderGeneration else { return }
             let hour = 8 + index * intervalHours
             if hour >= 21 { break }
             var components = DateComponents()
@@ -641,7 +648,7 @@ private struct HealthOverviewView: View {
             content.title = "Dags att dricka vatten 💧"
             content.body = "Ta en liten vattenpaus och registrera mängden i VITAL."
             content.sound = .default
-            let request = UNNotificationRequest(identifier: "vital.water.\(index)", content: content,
+            let request = UNNotificationRequest(identifier: "vital.water.\\(index)", content: content,
                 trigger: UNCalendarNotificationTrigger(dateMatching: components, repeats: true))
             try? await center.add(request)
         }
