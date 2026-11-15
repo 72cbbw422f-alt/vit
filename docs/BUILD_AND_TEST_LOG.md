@@ -120,3 +120,15 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Denna körning verifierar arkivkopplingen i HealthKitStore före den senaste dashboardvyn.
 - Därefter har dashboarden fått en vy för fryst morgonrapport; CI för den och efterföljande dokumentationsändringar inväntas.
 - Ingen fysisk iPhone-testning eller IPA-export har utförts.
+
+
+## 2026-11-15 – Dashboardrapport och historik
+- GitHub Actions run 142, commit `4cfcde466347648c8b0b9bfb8e1def62963dd4cd`: kärntester och iOS Simulator-build godkända efter korrigering av en bokstavlig escaped newline i DashboardView.swift.
+- GitHub Actions run 143, commit `7f082516a50247c4f569f41b4af0d57e1fe2d2be`: kärntester godkända; hela körningen slutfördes senare med godkänt resultat.
+- Rapporthistorikens senaste ändringar, inklusive Array-materialisering, väntar på efterföljande CI.
+
+## 2026-11-15 – Kvällsrapport
+- EveningReportTriggerPolicy och sex tester har lagts till.
+- HealthKitStore, UserNotifications och DashboardView har uppdaterats för första kvällsrapportflödet.
+- CI för dessa ändringar väntar; inga tester eller simulatorbyggen markeras som godkända ännu.
+- Ingen fysisk iPhone-testning eller IPA-export har utförts.
