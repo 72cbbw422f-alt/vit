@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DashboardView: View {
     @EnvironmentObject private var health: HealthKitStore
+    @Environment(\.scenePhase) private var scenePhase
     private var dateTitle: String {
         Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide)).uppercased()
     }
@@ -23,6 +24,11 @@ struct DashboardView: View {
         }
         .task { if !health.authorizationRequested { await health.requestAccessAndRefresh() } }
         .refreshable { await health.refresh() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                Task { await health.refresh() }
+            }
+        }
     }
     private var header: some View {
         HStack {
