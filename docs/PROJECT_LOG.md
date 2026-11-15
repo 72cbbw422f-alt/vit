@@ -129,3 +129,20 @@ Fastställda färger:
 
 ### Viktig avgränsning
 Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore hämtar ännu inte 30-dagarsserierna eller matar kalkylatorn. Ingen återhämtningspoäng har därför aktiverats i gränssnittet.
+
+
+## 2026-11-15 – HealthKit-historik och personliga baslinjer
+
+### Implementerat
+- Kopplat HealthKitStore till historiska mätserier för HRV SDNN och vilopuls.
+- Hämtar 30 avslutade lokala kalenderdagar; dagens ofullständiga data ingår inte i baslinjen.
+- Lagt till historisk sömnhämtning. Överlappande sömnstadier slås ihop och sessioner grupperas enligt befintlig 90-minutersregel.
+- Sömnens dagliga representant är den längsta sömnperioden per lokal uppvakningsdag. Separata tupplurar adderas inte.
+- Utökat sömnkalkylatorn så den kan returnera samtliga grupperade sessioner, inte bara den senaste.
+- Utökat HealthSnapshot med separata baslinjer för sömn, HRV och vilopuls.
+
+### Avgränsningar
+- Baslinjerna kräver fortfarande minst 14 giltiga dagar per mätvärde.
+- HealthKit-frågorna är ännu inte testade på fysisk iPhone och kan inte verifieras i Linux-testmiljön.
+- HRV-representativitet, sömnens 90-minutersgruppering och valet av längsta session per uppvakningsdag behöver valideras mot verkliga användardata.
+- Återhämtningsmotorn är ännu inte kopplad till dessa värden eller dashboarden; ingen återhämtningspoäng visas.
