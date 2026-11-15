@@ -147,3 +147,10 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Lagt till test för att rapport inte får skapas efter 19 minuter och 59 sekunder, men får skapas vid 20 minuter.
 - Källkod och test är incheckade; CI-resultat för dessa commits inväntas.
 - Ingen fysisk iPhone-testning eller HealthKit-synkroniseringsmätning är utförd.
+
+
+## 2026-11-15 – CI för morgonrapportens väntetid
+- GitHub Actions run 163, commit `16b4c8f6ee36c77d07b2d665c8fdfd49a27eb262`: kärntesterna föll eftersom den äldre testfixturen fortfarande förväntade omedelbar rapport vid 15 minuter efter uppvaknande. Detta var ett förväntat testkontraktsfel efter införandet av 20-minutersgränsen.
+- Uppdaterade testfixturen och lade till separat gränstest för 19 minuter och 20 minuter.
+- GitHub Actions run 164, commit `0faa3689e68f3b9d1fc9da9a472039be1b70871d`: kärntester godkända och hela workflow-körningen slutförd med godkänt resultat.
+- Senare dokumentations- och HealthKit-felhanteringsändringar har egna CI-körningar i kö/pågående; de är ännu inte verifierade.
