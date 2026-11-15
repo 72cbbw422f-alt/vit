@@ -16,9 +16,9 @@ final class MorningReportTriggerPolicyTests: XCTestCase {
         SleepSession(start: date(14, 22, 30), end: date(15, 6, 30))
     }
 
-    func testSleepFocusEndTriggersOnlyAfterCompletedMainSleep() {
+    func testSleepFocusEndTriggersAfterSettlingInterval() {
         let result = MorningReportTriggerPolicy.evaluate(
-            source: .sleepFocusEnded, eventDate: date(15, 6, 45),
+            source: .sleepFocusEnded, eventDate: date(15, 6, 50),
             mainSleep: mainSleep, reportDay: date(15, 0), calendar: calendar
         )
         XCTAssertTrue(result.shouldCreateSnapshot)
@@ -48,10 +48,19 @@ final class MorningReportTriggerPolicyTests: XCTestCase {
         XCTAssertFalse(result.shouldCreateSnapshot)
     }
 
+    func testWaitsForHealthDataSettlingIntervalAfterWake() {
+        let result = MorningReportTriggerPolicy.evaluate(
+            source: .healthKitSleepUpdated, eventDate: date(15, 6, 49),
+            mainSleep: mainSleep, reportDay: date(15, 0), calendar: calendar
+        )
+        XCTAssertFalse(result.shouldCreateSnapshot)
+        XCTAssertTrue(result.reason.contains("20 minuter"))
+    }
+
     func testShortNapDoesNotTriggerMorningReport() {
         let nap = SleepSession(start: date(15, 13), end: date(15, 14, 30))
         let result = MorningReportTriggerPolicy.evaluate(
-            source: .healthKitSleepUpdated, eventDate: date(15, 14, 35),
+            source: .healthKitSleepUpdated, eventDate: date(15, 14, 55),
             mainSleep: nap, reportDay: date(15, 0), calendar: calendar
         )
         XCTAssertFalse(result.shouldCreateSnapshot)
