@@ -171,8 +171,8 @@ Status betyder:
 ## Uppdatering 2026-11-15 – Rapporternas utlösare
 - [x] Besluta att Sömnfokus-av är en möjlig morgonsignal efter huvudsömnen
 - [x] Besluta att kvällsrapporten använder en fast lokal tid, 21:00 som standard
-- [x] Skapa testbar policy med Sömnfokus, HealthKit-sömnuppdatering och appaktivitet som signaler\n- [ ] Implementera HealthKit Observer Query och Background Delivery-entitlement
-- [x] Kontrollera avslutad huvudsömn, minsta sömnlängd, maxålder och lokal rapportdag i kärnmodellen\n- [ ] Verifiera HealthKit-datans tillgänglighet och timing på fysisk iPhone
+- [x] Skapa testbar policy med Sömnfokus, HealthKit-sömnuppdatering och appaktivitet som signaler\n- [x] Implementera HealthKit Observer Query för sleepAnalysis och begära Background Delivery\n- [x] Lägga till Background Delivery-entitlement i appens entitlements
+- [x] Kontrollera avslutad huvudsömn, minsta sömnlängd, maxålder och lokal rapportdag i kärnmodellen\n- [ ] Verifiera provisionerad Background Delivery-entitlement, HealthKit-datans timing och observer-callback på fysisk iPhone
 - [ ] Hantera fördröjda HealthKit-sampel utan att skriva om en redan låst rapport
 - [ ] Skydda mot dubbletter och felaktiga utlösningar vid tupplur eller manuell Fokusändring
 - [ ] Schemalägga kvällsrapportens lokala notis och skapa kvällssnapshot vid säker körningstid
