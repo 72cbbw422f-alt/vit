@@ -58,3 +58,19 @@ Fastställda färger:
 3. Korrigera alla compiler- och runtime-fel.
 4. Förfina dashboarden mot användarens skärmbilder.
 5. Implementera datamodell och beräkningsspecifikation för återhämtning och kroppsbatteri.
+
+
+## 2026-11-15 – Byggbarhetsarbete och datatydlighet
+
+### Genomfört
+- Lagt till en delad Xcode-scheme för appmålet VITAL.
+- Lagt till GitHub Actions-workflow på macOS för att lista scheme och bygga iOS Simulator utan kodsignering.
+- Förtydligat dashboardens saknade datastatus för sömn, HRV och vilopuls.
+- Tagit bort den illustrativa energikurvan så att appen inte visar en påhittad tidsserie som om den vore användarens data.
+- Ersatt kurvan med ett tomt diagramläge som förklarar att historik krävs.
+- Ersatt nollställd återhämtningsprogress med en neutral tom statusindikator.
+
+### Kvar att verifiera
+- GitHub Actions-builden måste köras och resultatet granskas.
+- Ingen simulator- eller enhetstestning har ännu utförts.
+- Xcode-projektets struktur är uppsatt men får inte betraktas som verifierad förrän CI-builden passerat.
