@@ -356,3 +356,10 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Registreringar sparas lokalt i UserDefaults och lämnar inte enheten i denna implementation.
 - Första versionen är en grundfunktion; längre historik, filter, graf med datumaxel och korrelation mot sömn/vikt/läkemedel återstår.
 - CI-resultat för denna UI-ändring inväntas.
+
+
+## 2026-11-15 – Mer grafisk dashboard
+- Återhämtningskortet och kroppsbatteriet använder nu cirkulära visuella mätare i stället för enbart horisontella staplar och text.
+- Måendedagboken har redan en färgkodad trendvy för de senaste registreringarna.
+- Målet är att fortsätta med riktiga historiska grafer för vikt, aktivitet och läkemedelslogg när respektive datamodell finns; inga syntetiska datapunkter används.
+- CI verifiering av UI-ändringen inväntas.
