@@ -27,3 +27,19 @@ jobs:
             -destination 'generic/platform=iOS Simulator' \
             CODE_SIGNING_ALLOWED=NO \
             build
+      - name: Archive unsigned iOS device build (validation only)
+        run: |
+          xcodebuild \
+            -project VITAL.xcodeproj \
+            -scheme VITAL \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/VITAL-unsigned.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
+            archive
+      - name: Upload unsigned archive for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: VITAL-unsigned-device-archive
+          path: ${{ runner.temp }}/VITAL-unsigned.xcarchive
+          if-no-files-found: error
+          retention-days: 7
