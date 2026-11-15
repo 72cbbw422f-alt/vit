@@ -187,3 +187,14 @@ Status betyder:
 - [ ] Förbättra hantering av fördröjda/partiella HealthKit-data före låsning
 - [ ] Lägga till fullständig rapporthistorik
 - [ ] Verifiera flödet på fysisk iPhone med riktiga HealthKit-data
+
+
+## Uppdatering 2026-11-15 – Kvällsrapportens första implementation
+- [x] Skapa testbar lokal tidsregel med 21:00 som standard
+- [x] Skapa fryst kvällssnapshot vid första lyckade refresh efter 21:00
+- [x] Använd samma arkiv och dubblettskydd som morgonrapporten
+- [x] Schemalägga daglig lokal påminnelse kl. 21:00 efter notistillstånd
+- [x] Kontrollera rapportflödet när appen återgår till förgrunden
+- [ ] Verifiera kvällsrapport, notistillstånd, tidszon och sommartid på fysisk iPhone
+- [ ] Lägga till inställning för anpassad kvällstid
+- [ ] Slutföra CI för kvällsrapportens nya modell och HealthKit-koppling
