@@ -16,6 +16,8 @@ jobs:
         run: xcodebuild -version
       - name: List project schemes
         run: xcodebuild -list -project VITAL.xcodeproj
+      - name: Run core unit tests
+        run: swift test
       - name: Build iOS Simulator target
         run: |
           xcodebuild \
