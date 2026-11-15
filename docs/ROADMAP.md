@@ -205,3 +205,8 @@ Status betyder:
 - [x] Lägga till test som stoppar för tidig rapport och godkänner rapport efter väntetiden
 - [ ] Verifiera HealthKit-synkroniseringens faktiska fördröjning på fysisk iPhone
 - [ ] Utvärdera 20-minutersheuristiken mot verkliga användardata
+
+
+## Uppdatering 2026-11-15 – HealthKit-bakgrundsstatus
+- [x] Hantera resultatet från enableBackgroundDelivery och exponera aktiveringsstatus
+- [ ] Verifiera entitlement och bakgrundsleverans med signerad app på fysisk iPhone
