@@ -77,3 +77,11 @@ Status betyder:
 - [ ] Hämta och beräkna rullande 30-dagarsbaslinjer via HealthKit
 - [ ] Verifiera sömnperiod och överlappande sömnsegment
 - [ ] Validera modellens viktning innan poängen visas i appen
+
+
+## Uppdatering 2026-11-15 – Sömnperioder
+- [x] Slå ihop överlappande sömnintervall för att undvika dubbelräkning
+- [x] Gruppera sömnstadier till sömnperioder med en första 90-minutersgräns
+- [x] Lägg till fem tester för sömnperiodsberäkningen
+- [ ] Validera grupperingströskeln mot verkliga HealthKit-data och tupplurar
+- [ ] Verifiera sömnresultat på fysisk iPhone
