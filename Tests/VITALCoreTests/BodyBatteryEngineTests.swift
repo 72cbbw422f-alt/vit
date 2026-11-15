@@ -60,6 +60,24 @@ final class BodyBatteryEngineTests: XCTestCase {
         XCTAssertEqual(result.activeEnergyKcal, 0)
     }
 
+
+    func testActiveEnergyMustBelongEntirelyToAwakeWindow() {
+        let result = BodyBatteryEngine.calculate(BodyBatteryInputs(
+            wakeTime: wake, asOf: wake.addingTimeInterval(3600),
+            overnightRecoveryScore: 90, restingHeartRateBaselineBPM: 60,
+            heartRateSamples: samples([70, 70, 70, 70, 70], spacing: 900),
+            activeEnergySamples: [
+                TimedHealthValue(timestamp: wake.addingTimeInterval(300), value: 250,
+                                 startTimestamp: wake.addingTimeInterval(-300)),
+                TimedHealthValue(timestamp: wake.addingTimeInterval(1800), value: 100,
+                                 startTimestamp: wake.addingTimeInterval(1200)),
+                TimedHealthValue(timestamp: wake.addingTimeInterval(4000), value: 500,
+                                 startTimestamp: wake.addingTimeInterval(3700))
+            ]
+        ))
+        XCTAssertEqual(result.activeEnergyKcal, 100, accuracy: 0.001)
+    }
+
     private func samples(_ values: [Double], spacing: TimeInterval = 900) -> [TimedHealthValue] {
         values.enumerated().map {
             TimedHealthValue(timestamp: wake.addingTimeInterval(Double($0.offset) * spacing), value: $0.element)
