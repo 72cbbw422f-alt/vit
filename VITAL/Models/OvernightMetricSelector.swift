@@ -5,7 +5,13 @@ struct TimedHealthValue {
     let value: Double
     /// Start of the source interval when HealthKit provides one (notably active energy).
     /// Nil keeps compatibility with instantaneous or test samples.
-    let startTimestamp: Date? = nil
+    let startTimestamp: Date?
+
+    init(timestamp: Date, value: Double, startTimestamp: Date? = nil) {
+        self.timestamp = timestamp
+        self.value = value
+        self.startTimestamp = startTimestamp
+    }
 }
 
 struct OvernightMetrics {
