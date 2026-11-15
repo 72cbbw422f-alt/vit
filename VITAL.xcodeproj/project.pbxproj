@@ -23,7 +23,9 @@
     A10000000000000000000094 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalBaselineCalculator.swift; sourceTree = "<group>"; };
     A10000000000000000000096 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvernightMetricSelector.swift; sourceTree = "<group>"; };
     A10000000000000000000098 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyBatteryEngine.swift; sourceTree = "<group>"; };
-    A10000000000000000000100 = { isa = PBXBuildFile; fileRef = A10000000000000000000098; };\n    A10000000000000102 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningReportTriggerPolicy.swift; sourceTree = \"<group>\"; };\n    A10000000000000103 = { isa = PBXBuildFile; fileRef = A10000000000000102; };
+    A10000000000000000000100 = { isa = PBXBuildFile; fileRef = A10000000000000000000098; };
+    A10000000000000102 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningReportTriggerPolicy.swift; sourceTree = "<group>"; };
+    A10000000000000103 = { isa = PBXBuildFile; fileRef = A10000000000000102; };
     A10000000000000000000043 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitStore.swift; sourceTree = "<group>"; };
     A10000000000000000000044 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
     A10000000000000000000045 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
