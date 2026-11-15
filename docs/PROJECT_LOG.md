@@ -163,3 +163,18 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Nuvarande HRV/vilopuls-indata är senaste tillgängliga HealthKit-värden, inte ännu en kvalitetssäkrad nattlig datapunkt med gemensam tidsstämpel.
 - Sömnperiodsvalet behöver verifieras mot tupplurar och verkliga data.
 - Ingen Xcode-build eller fysisk enhetstestning har utförts efter UI-integrationen.
+
+
+## 2026-11-15 – Tidsstämplad urvalslogik för nattvärden
+
+### Implementerat
+- Skapat `OvernightMetricSelector.swift` som väljer HRV- och vilopulsvärden endast när deras tidsstämpel ligger inom den valda sömnperioden.
+- Beräkningen använder medianen av giltiga värden inom perioden och redovisar antal sampel.
+- Ogiltiga, negativa och icke-finita värden ignoreras.
+- Om nattliga sampel saknas returneras nil. Dagtidsvärden får inte ersätta nattvärden i återhämtningsberäkningen.
+- Lagt till fyra enhetstester och registrerat modellen i Swift Package samt Xcode-projektet.
+
+### Avgränsning
+- Urvalskärnan är implementerad men ännu inte inkopplad i HealthKitStore eller RecoveryEngine.
+- Vilopuls från HealthKit kan vara aggregerad eller tidsstämplad på ett sätt som inte motsvarar en faktisk mätning under sömnen. Integrationen ska därför först kontrolleras mot HealthKit-data och får inte anta att vilopulssampel alltid finns under sömnperioden.
+- Inga tester eller Xcode-build har körts efter denna ändring.
