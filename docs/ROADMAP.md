@@ -1,0 +1,61 @@
+# VITAL 3.0 – Roadmap
+
+Status betyder:
+- [x] Inlagt i repository
+- [ ] Återstår
+- [~] Påbörjat men inte verifierat/färdigt
+
+## Fas 1 – Appgrund
+- [x] Skapa arbetsgrenen `vital-3.0`
+- [x] Skapa SwiftUI-startpunkt
+- [x] Skapa designfärger och grundläggande kortkomponent
+- [x] Skapa fyra flikar
+- [x] Skapa första dashboard-layouten
+- [x] Skapa första HealthKit-läsaren
+- [x] Skapa Info.plist och HealthKit-entitlement
+- [~] Skapa Xcode-projekt – måste verifieras genom faktisk build
+- [ ] Bygg och kör i simulator
+- [ ] Bygg och kör på fysisk iPhone
+- [ ] Verifiera HealthKit-behörigheter och verklig dataläsning
+
+## Fas 2 – Dashboard
+- [ ] Matcha referensbildernas layout, marginaler, typografi och kortproportioner
+- [ ] Byt ut graflinjeplatshållare mot riktiga tidsserier
+- [ ] Lägg till tom-, laddnings- och felstater
+- [ ] Säkerställ tillgänglighet och dynamisk textstorlek
+- [ ] Lägg till uppdatering och tydlig senaste uppdateringstid
+
+## Fas 3 – Hälsodata
+- [ ] Verifiera sömnsammanställning utan dubbelräkning av överlappande sömnsegment
+- [ ] Läs HRV SDNN med korrekt enhet och tidsfönster
+- [ ] Läs vilopuls, steg, aktiv energi, vikt och blodtryck där tillgängligt
+- [ ] Definiera datakvalitet, källor och färskhet för varje mätvärde
+- [ ] Lägg till historiska tidsserier
+
+## Fas 4 – Återhämtning och energi
+- [ ] Specificera nattligt återhämtningsvärde
+- [ ] Specificera dynamiskt kroppsbatteri separat
+- [ ] Definiera personlig baslinje, datakrav och hantering av saknade värden
+- [ ] Validera modeller mot verkliga data och visa förklaringar
+- [ ] Håll prognos och historik visuellt åtskilda
+
+## Fas 5 – Rapporter och notiser
+- [ ] Morgonrapport kl. 07:00 som fryst snapshot
+- [ ] Kvällsrapport kl. 21:00
+- [ ] Påminnelser om blodtryck morgon och kväll
+- [ ] Notiser och stöd för Apple Watch där plattformen tillåter
+- [ ] Hantera iOS-begränsningar för bakgrundskörning och schemaläggning
+
+## Fas 6 – Insikter och Apple Watch
+- [ ] Vecko- och månadsrapporter
+- [ ] Personliga trender och avvikelseförklaringar
+- [ ] AI-baserade insikter med tydlig källredovisning
+- [ ] Apple Watch-komponenter och relevanta komplikationer/notiser
+
+## Fas 7 – Kvalitet och release
+- [ ] Enhetstester för beräkningar
+- [ ] Test med saknade, ofullständiga och motstridiga data
+- [ ] Integritet- och behörighetsgranskning
+- [ ] Prestanda- och batteritest
+- [ ] Signerad IPA och verifierad installation
+- [ ] Releaseanteckningar och versionshistorik
