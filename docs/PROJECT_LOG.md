@@ -282,3 +282,13 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Historiklistan använder samma lokala arkiv som den frysta morgonrapporten; ingen separat kopia skapas.
 - En dashboard-build misslyckades först på en bokstavlig escaped newline i Swift-filen. Den är korrigerad i commit `4cfcde466347648c8b0b9bfb8e1def62963dd4cd`; ny CI körs för senare commits.
 - Senaste rapporthistorikändringarna inväntar fullständig CI-verifiering.
+
+
+## 2026-11-15 – Kvällsrapportens första implementation
+- Ny EveningReportTriggerPolicy använder 21:00 lokal tid som standard och kräver att händelsen tillhör rapportens lokala dag.
+- HealthKitStore skapar en fryst kvällssnapshot vid första lyckade refresh efter 21:00. Samma arkiv och appendIfAbsent skyddar mot dubbletter och överskrivning.
+- Daglig lokal notis schemaläggs kl. 21:00 om användaren beviljar notistillstånd. Notisen instruerar användaren att öppna VITAL; den lovar inte att iOS kör appen i bakgrunden.
+- Dashboardens scenePhase-hantering uppdaterar HealthKit när appen återgår till förgrunden.
+- Sex enhetstester täcker före/vid/efter 21:00, lokal rapportdag, anpassad timme och ogiltig tid.
+- CI för kvällsrapportens modell, HealthKit-koppling och notisflöde är ännu inte bekräftad.
+- Fysisk iPhone-testning och signerad IPA-export återstår.
