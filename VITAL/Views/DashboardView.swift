@@ -13,6 +13,7 @@ struct DashboardView: View {
                     header
                     statusCard
                     morningReportCard
+                    reportHistoryCard
                     metricGrid
                     energyCard
                     activityCard
@@ -108,6 +109,37 @@ struct DashboardView: View {
                     Text("Rapporten skapas när VITAL har registrerat en avslutad huvudsömn. Den sparas sedan som en oföränderlig ögonblicksbild.")
                         .font(.caption).foregroundStyle(VITALPalette.muted)
                         .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+    }
+
+    private var reportHistoryCard: some View {
+        let history = Array(health.reportHistory.prefix(5))
+        return Group {
+            if !history.isEmpty {
+                VITALCard {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("TIDIGARE RAPPORTER")
+                            .font(.subheadline.weight(.semibold)).tracking(0.6)
+                            .foregroundStyle(VITALPalette.muted)
+                        ForEach(history) { report in
+                            HStack(spacing: 12) {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(report.kind == .morning ? "Morgonrapport" : "Kvällsrapport")
+                                        .font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
+                                    Text(report.localDay.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated)))
+                                        .font(.caption).foregroundStyle(VITALPalette.muted)
+                                }
+                                Spacer()
+                                Text(report.recoveryScore.map { "\($0) / 100" } ?? "—")
+                                    .font(.headline.monospacedDigit()).foregroundStyle(VITALPalette.teal)
+                            }
+                            if report.id != history.last?.id {
+                                Divider().overlay(VITALPalette.track)
+                            }
+                        }
+                    }
                 }
             }
         }
