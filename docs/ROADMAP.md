@@ -85,3 +85,13 @@ Status betyder:
 - [x] Lägg till fem tester för sömnperiodsberäkningen
 - [ ] Validera grupperingströskeln mot verkliga HealthKit-data och tupplurar
 - [ ] Verifiera sömnresultat på fysisk iPhone
+
+
+## Uppdatering 2026-11-15 – Personlig baslinje
+- [x] Implementera medianbaserad personlig baslinje
+- [x] Räkna högst en giltig dag per kalenderdag
+- [x] Ignorera ogiltiga och utanför-fönstret-värden
+- [x] Kräva minst 14 giltiga dagar
+- [x] Lägga till fem tester för baslinjekalkylatorn
+- [ ] Hämta 30-dagarsserier från HealthKit och koppla in kalkylatorn
+- [ ] Validera datakvalitet och tidsfönster för varje mätvärde
