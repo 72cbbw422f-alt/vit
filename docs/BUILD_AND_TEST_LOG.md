@@ -101,3 +101,9 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Detta verifierar källkodsläget före korrigeringen av aktiva energisampels intervallgränser.
 - Korrigeringen och dess nya regressionstest är incheckade; CI för dessa commits är ännu pågående.
 - Ingen fysisk iPhone-testning, HealthKit-auktorisering eller IPA-export är utförd.
+
+## 2026-11-15 – CI-fel och korrigering av sample-initiering
+- GitHub Actions runs 102–109 föll i `Run core unit tests` eftersom den syntetiserade Swift-initieraren inte exponerade `startTimestamp` som förväntat när egenskapen hade standardvärde.
+- Felet var i test-/modellens initieringsgränssnitt, inte i iOS Simulator-bygget (det steget hoppades över efter testfelet).
+- `TimedHealthValue` har nu en explicit initierare med valfri `startTimestamp` och standardvärdet nil.
+- Korrigeringen är incheckad i commit `dc752f30f416249a2ed12ed0787e1b62c0a885f7`; ny CI-körning inväntas.
