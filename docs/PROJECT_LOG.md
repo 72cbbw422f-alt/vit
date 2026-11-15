@@ -95,3 +95,23 @@ Fastställda färger:
 - 30-dagarsbaslinjer hämtas ännu inte från HealthKit.
 - Återhämtningsmotorn är ännu inte kopplad till dashboarden.
 - Prototypens vikter och skalningar är inte medicinskt validerade.
+
+
+## 2026-11-15 – Sömnperioder och dubbelräkning
+
+### Implementerat
+- Skapat `SleepSessionCalculator.swift` som slår ihop överlappande sömnintervall och därmed undviker att sömnstadier från flera källor summeras dubbelt.
+- Sömnsegment som ligger intill varandra eller har högst 90 minuters mellanrum grupperas i samma sömnperiod.
+- HealthKit-läsaren hämtar nu sömnsegment från ett 36-timmarsfönster och beräknar varaktigheten för den senaste grupperade perioden i stället för att summera alla sömnsegment under 24 timmar.
+- Lagt till fem tester för överlapp, intilliggande segment, senaste period, ogiltiga intervall och tom data.
+
+### Testresultat
+- Första testkörningen visade fel i testernas datum-fixtures över midnatt, inte i intervallalgoritmen.
+- Testdatumen korrigerades till explicita kalenderdagar.
+- Därefter passerade samtliga 10 tester: fem för återhämtning och fem för sömnperioder.
+- Körmiljö: Swift 6.2.1 på Linux x86_64.
+
+### Kvar att verifiera
+- 90-minutersgränsen är en teknisk grupperingströskel och behöver granskas mot verkliga HealthKit-sömndata.
+- Valet av senaste sömnperiod kan behöva särskild hantering av tupplurar.
+- HealthKit-integrationen är inte testad på iPhone.
