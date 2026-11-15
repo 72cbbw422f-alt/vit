@@ -38,11 +38,17 @@ Slutpoängen avrundas till heltal.
 - Överlappande sömnsegment måste hanteras innan HealthKit-koppling.
 - Modellen får inte ensam ge medicinska råd eller träningsinstruktioner.
 
+## Integrationsstatus och databegränsningar
+- Dashboarden använder det lägsta antalet giltiga dagar bland sömn, HRV och vilopuls. Alla tre baslinjer måste nå 14 dagar.
+- Nuvarande HealthKit-läsare använder senaste tillgängliga HRV- och vilopulsvärde, inte en verifierad nattlig mätning med gemensam tidsstämpel. Det måste förbättras innan poängen betraktas som en stabil nattlig bedömning.
+- Sömnvärdet är den senaste grupperade sömnperioden inom ett 36-timmarsfönster. Tupplurar kan fortfarande påverka valet och ska verifieras mot verkliga data.
+- Poängen visas som prototyp och ska inte tolkas som medicinskt mått eller kliniskt validerad återhämtning.
+
 ## Status
 - [x] Ren beräkningsfunktion
 - [x] Saknade värden och otillräcklig baslinje hanteras
 - [x] Fem enhetstester
-- [ ] Beräkna 30-dagarsbaslinje från HealthKit
+- [x] Beräkna 30-dagarsbaslinje från HealthKit
 - [ ] Definiera nattens sömnperiod och eliminera dubbelräkning
 - [ ] Granska vikter mot verkliga data
-- [ ] Koppla till UI efter verifiering
+- [x] Koppla prototypen till dashboarden med tydlig varning om att den inte är medicinskt validerad
