@@ -12,12 +12,12 @@ struct MorningReportTriggerDecision: Equatable {
 }
 
 /// Determines whether an observed event is a credible wake-up trigger.
-/// Focus changes are only hints: the main sleep session must already be
-/// complete, recent, long enough to exclude ordinary naps, and end on the
-/// local calendar day for which the report is being created.
+/// A short settling interval gives HealthKit time to deliver additional
+/// overnight samples before the immutable report is captured.
 enum MorningReportTriggerPolicy {
     static let minimumMainSleepDuration: TimeInterval = 3 * 60 * 60
     static let maximumWakeAge: TimeInterval = 18 * 60 * 60
+    static let minimumDataSettlingInterval: TimeInterval = 20 * 60
 
     static func evaluate(
         source: MorningReportTriggerSource,
@@ -51,6 +51,12 @@ enum MorningReportTriggerPolicy {
                 reason: "Uppvaknandet ligger utanför rapportens giltiga tidsfönster."
             )
         }
+        guard eventDate.timeIntervalSince(mainSleep.end) >= minimumDataSettlingInterval else {
+            return MorningReportTriggerDecision(
+                shouldCreateSnapshot: false,
+                reason: "Väntar 20 minuter efter uppvaknandet så att nattdata hinner synkroniseras."
+            )
+        }
         guard calendar.isDate(mainSleep.end, inSameDayAs: reportDay) else {
             return MorningReportTriggerDecision(
                 shouldCreateSnapshot: false,
@@ -69,7 +75,7 @@ enum MorningReportTriggerPolicy {
         }
         return MorningReportTriggerDecision(
             shouldCreateSnapshot: true,
-            reason: "\(triggerDescription); huvudsömnen är avslutad."
+            reason: "(triggerDescription); huvudsömnen är avslutad och datans väntetid har passerat."
         )
     }
 }
