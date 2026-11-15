@@ -485,3 +485,9 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Beräkningen använder den första sparade vikten som personlig startpunkt och visar inget mål eller rekommenderad takt.
 - Procentvärdet visas bara när det finns minst två giltiga registreringar.
 - Ändringen inväntar CI och ska därefter verifieras med flera historiska datapunkter.
+
+## 2026-11-15 – Förtydligad lagring av framstegsbilder
+
+- Varje sparad bild markeras också individuellt som exkluderad från iCloud-säkerhetskopiering, utöver att bildmappen har samma policy.
+- Integritetstexten förklarar nu uttryckligen att bilderna inte ingår i iCloud-säkerhetskopior och därför kan gå förlorade om appen eller enheten försvinner.
+- Ändringen inväntar CI.
