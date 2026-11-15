@@ -5,17 +5,23 @@ struct SleepInterval {
     let end: Date
 }
 
+struct SleepSession {
+    let start: Date
+    let end: Date
+    var duration: TimeInterval { end.timeIntervalSince(start) }
+}
+
 enum SleepSessionCalculator {
-    /// Merges overlapping asleep-stage intervals and groups sleep segments separated
-    /// by no more than the configured wake gap. Returns the duration of the latest group.
-    static func latestSessionDuration(
+    /// Merges overlapping asleep-stage intervals and groups segments separated
+    /// by no more than the configured wake gap.
+    static func sessions(
         intervals: [SleepInterval],
         maximumWakeGap: TimeInterval = 90 * 60
-    ) -> TimeInterval? {
+    ) -> [SleepSession] {
         let valid = intervals
             .filter { $0.end > $0.start }
             .sorted { $0.start < $1.start }
-        guard let first = valid.first else { return nil }
+        guard let first = valid.first else { return [] }
 
         var merged: [SleepInterval] = []
         var currentStart = first.start
@@ -32,8 +38,8 @@ enum SleepSessionCalculator {
         }
         merged.append(SleepInterval(start: currentStart, end: currentEnd))
 
-        var sessions: [SleepInterval] = []
-        guard let firstMerged = merged.first else { return nil }
+        var result: [SleepSession] = []
+        guard let firstMerged = merged.first else { return [] }
         currentStart = firstMerged.start
         currentEnd = firstMerged.end
 
@@ -41,15 +47,19 @@ enum SleepSessionCalculator {
             if interval.start.timeIntervalSince(currentEnd) <= maximumWakeGap {
                 currentEnd = interval.end
             } else {
-                sessions.append(SleepInterval(start: currentStart, end: currentEnd))
+                result.append(SleepSession(start: currentStart, end: currentEnd))
                 currentStart = interval.start
                 currentEnd = interval.end
             }
         }
-        sessions.append(SleepInterval(start: currentStart, end: currentEnd))
+        result.append(SleepSession(start: currentStart, end: currentEnd))
+        return result.filter { $0.duration > 0 }
+    }
 
-        guard let latest = sessions.last else { return nil }
-        let duration = latest.end.timeIntervalSince(latest.start)
-        return duration > 0 ? duration : nil
+    static func latestSessionDuration(
+        intervals: [SleepInterval],
+        maximumWakeGap: TimeInterval = 90 * 60
+    ) -> TimeInterval? {
+        sessions(intervals: intervals, maximumWakeGap: maximumWakeGap).last?.duration
     }
 }
