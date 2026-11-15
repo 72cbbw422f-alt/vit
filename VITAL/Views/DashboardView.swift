@@ -3,6 +3,8 @@ import SwiftUI
 struct DashboardView: View {
     @EnvironmentObject private var health: HealthKitStore
     @Environment(\.scenePhase) private var scenePhase
+    @StateObject private var moodJournal = MoodJournalStore()
+    @State private var showingMoodCheckIn = false
     private var dateTitle: String {
         Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide)).uppercased()
     }
@@ -13,6 +15,7 @@ struct DashboardView: View {
                 VStack(spacing: 16) {
                     header
                     statusCard
+                    moodJournalCard
                     morningReportCard
                     eveningReportCard
                     reportHistoryCard
@@ -25,6 +28,11 @@ struct DashboardView: View {
         }
         .task { if !health.authorizationRequested { await health.requestAccessAndRefresh() } }
         .refreshable { await health.refresh() }
+        .sheet(isPresented: $showingMoodCheckIn) {
+            MoodCheckInSheet(journal: moodJournal)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+        }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 Task { await health.refresh() }
@@ -81,6 +89,84 @@ struct DashboardView: View {
             }
         }
     }
+    private var moodJournalCard: some View {
+        let latest = moodJournal.entries.last
+        let recent = Array(moodJournal.entries.suffix(7))
+        return VITALCard {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack {
+                    Label("Hur mår du?", systemImage: "face.smiling")
+                        .font(.headline.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
+                    Spacer()
+                    Button("Registrera") { showingMoodCheckIn = true }
+                        .font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.teal)
+                }
+                if let latest {
+                    HStack(spacing: 12) {
+                        Image(systemName: latest.mood.symbol)
+                            .font(.system(size: 25, weight: .semibold))
+                            .foregroundStyle(latest.mood.color)
+                            .frame(width: 54, height: 54)
+                            .background(latest.mood.color.opacity(0.14), in: Circle())
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(latest.mood.title).font(.title3.bold()).foregroundStyle(VITALPalette.cloud)
+                            Text("Senast registrerat · \(latest.date.formatted(date: .abbreviated, time: .shortened))")
+                                .font(.caption).foregroundStyle(VITALPalette.muted)
+                        }
+                        Spacer()
+                        VStack(alignment: .trailing, spacing: 2) {
+                            Text("\(latest.intensity)/5").font(.title2.bold().monospacedDigit()).foregroundStyle(latest.mood.color)
+                            Text("intensitet").font(.caption2).foregroundStyle(VITALPalette.muted)
+                        }
+                    }
+                    if recent.count > 1 {
+                        HStack(alignment: .bottom, spacing: 8) {
+                            ForEach(recent) { entry in
+                                VStack(spacing: 5) {
+                                    RoundedRectangle(cornerRadius: 5)
+                                        .fill(entry.mood.color.gradient)
+                                        .frame(height: CGFloat(entry.mood.level) * 13 + 8)
+                                    Text(entry.date.formatted(.dateTime.weekday(.narrow)))
+                                        .font(.caption2).foregroundStyle(VITALPalette.muted)
+                                }
+                                .frame(maxWidth: .infinity)
+                            }
+                        }
+                        .frame(height: 92, alignment: .bottom)
+                        .padding(.horizontal, 4)
+                        Text("Utveckling senaste registreringarna · högre stapel = bättre mående")
+                            .font(.caption2).foregroundStyle(VITALPalette.muted)
+                    } else {
+                        Text("Registrera ditt mående flera dagar i rad för att börja se din utveckling här.")
+                            .font(.caption).foregroundStyle(VITALPalette.muted)
+                    }
+                    if !latest.note.isEmpty {
+                        Text("”\(latest.note)”").font(.subheadline).italic().foregroundStyle(VITALPalette.muted)
+                            .lineLimit(2)
+                    }
+                } else {
+                    HStack(spacing: 12) {
+                        Image(systemName: "face.smiling")
+                            .font(.system(size: 28)).foregroundStyle(VITALPalette.teal)
+                            .frame(width: 54, height: 54)
+                            .background(VITALPalette.teal.opacity(0.12), in: Circle())
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Börja följa ditt mående").font(.headline).foregroundStyle(VITALPalette.cloud)
+                            Text("En kort daglig check-in bygger din personliga måendekurva.")
+                                .font(.caption).foregroundStyle(VITALPalette.muted)
+                        }
+                    }
+                    Button { showingMoodCheckIn = true } label: {
+                        Label("Hur mår du idag?", systemImage: "plus.circle.fill")
+                            .font(.subheadline.weight(.semibold)).frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(VITALPalette.teal.opacity(0.14), in: RoundedRectangle(cornerRadius: 14))
+                    }.foregroundStyle(VITALPalette.teal)
+                }
+            }
+        }
+    }
+
     private var morningReportCard: some View {
         VITALCard {
             VStack(alignment: .leading, spacing: 12) {
@@ -308,5 +394,157 @@ private struct MetricCard: View {
             Text(detail).font(.caption).foregroundStyle(accent).lineLimit(2)
         }.frame(maxWidth: .infinity, minHeight: 112, alignment: .leading).padding(16)
             .background(VITALPalette.midnight, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
+}
+
+
+private enum MoodState: String, Codable, CaseIterable, Identifiable {
+    case great, good, okay, low, stressed, sick, pain
+
+    var id: String { rawValue }
+    var title: String {
+        switch self {
+        case .great: "Full av energi"
+        case .good: "Bra"
+        case .okay: "Okej"
+        case .low: "Låg / nedstämd"
+        case .stressed: "Stressad"
+        case .sick: "Sjuk"
+        case .pain: "Smärta / värk"
+        }
+    }
+    var symbol: String {
+        switch self {
+        case .great: "sun.max.fill"
+        case .good: "face.smiling.fill"
+        case .okay: "face.neutral"
+        case .low: "cloud.fill"
+        case .stressed: "bolt.heart.fill"
+        case .sick: "cross.case.fill"
+        case .pain: "bandage.fill"
+        }
+    }
+    var level: Int {
+        switch self {
+        case .great: 5
+        case .good: 4
+        case .okay: 3
+        case .low, .stressed: 2
+        case .sick, .pain: 1
+        }
+    }
+    var color: Color {
+        switch self {
+        case .great: .green
+        case .good: VITALPalette.teal
+        case .okay: VITALPalette.violet
+        case .low: .orange
+        case .stressed: .yellow
+        case .sick, .pain: .red
+        }
+    }
+}
+
+private struct MoodEntry: Codable, Identifiable {
+    var id = UUID()
+    var date: Date
+    var mood: MoodState
+    var intensity: Int
+    var note: String
+}
+
+@MainActor
+private final class MoodJournalStore: ObservableObject {
+    @Published private(set) var entries: [MoodEntry] = []
+    private let key = "vital.moodJournal.v1"
+
+    init() {
+        if let data = UserDefaults.standard.data(forKey: key),
+           let saved = try? JSONDecoder().decode([MoodEntry].self, from: data) {
+            entries = saved.sorted { $0.date < $1.date }
+        }
+    }
+
+    func add(mood: MoodState, intensity: Int, note: String) {
+        let entry = MoodEntry(date: .now, mood: mood, intensity: intensity, note: note)
+        entries.append(entry)
+        entries.sort { $0.date < $1.date }
+        if let data = try? JSONEncoder().encode(entries) {
+            UserDefaults.standard.set(data, forKey: key)
+        }
+    }
+}
+
+private struct MoodCheckInSheet: View {
+    @ObservedObject var journal: MoodJournalStore
+    @Environment(\.dismiss) private var dismiss
+    @State private var selectedMood: MoodState = .good
+    @State private var intensity = 3
+    @State private var note = ""
+
+    private let columns = [GridItem(.flexible()), GridItem(.flexible())]
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                VITALPalette.surface.ignoresSafeArea()
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 20) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Hur mår du idag?").font(.title2.bold()).foregroundStyle(VITALPalette.cloud)
+                            Text("Din registrering sparas privat på den här enheten och hjälper dig att följa mönster över tid.")
+                                .font(.subheadline).foregroundStyle(VITALPalette.muted)
+                        }
+                        LazyVGrid(columns: columns, spacing: 10) {
+                            ForEach(MoodState.allCases) { mood in
+                                Button { selectedMood = mood } label: {
+                                    HStack(spacing: 10) {
+                                        Image(systemName: mood.symbol).foregroundStyle(mood.color)
+                                        Text(mood.title).font(.subheadline.weight(.semibold))
+                                            .foregroundStyle(VITALPalette.cloud).multilineTextAlignment(.leading)
+                                        Spacer(minLength: 0)
+                                        if selectedMood == mood { Image(systemName: "checkmark.circle.fill").foregroundStyle(VITALPalette.teal) }
+                                    }
+                                    .padding(13).frame(minHeight: 66)
+                                    .background(VITALPalette.midnight, in: RoundedRectangle(cornerRadius: 15))
+                                    .overlay(RoundedRectangle(cornerRadius: 15).stroke(selectedMood == mood ? VITALPalette.teal : mood.color.opacity(0.25), lineWidth: selectedMood == mood ? 2 : 1))
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Text("Hur starkt känns det?").font(.headline).foregroundStyle(VITALPalette.cloud)
+                                Spacer()
+                                Text("\(intensity)/5").font(.headline.monospacedDigit()).foregroundStyle(VITALPalette.teal)
+                            }
+                            Slider(value: Binding(get: { Double(intensity) }, set: { intensity = Int($0) }), in: 1...5, step: 1).tint(VITALPalette.teal)
+                            HStack { Text("Milt"); Spacer(); Text("Måttligt"); Spacer(); Text("Mycket starkt") }
+                                .font(.caption2).foregroundStyle(VITALPalette.muted)
+                        }
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Anteckningar").font(.headline).foregroundStyle(VITALPalette.cloud)
+                            TextField("T.ex. pigg efter bra sömn, huvudvärk eller illamående…", text: $note, axis: .vertical)
+                                .lineLimit(3...5).padding(12)
+                                .background(VITALPalette.midnight, in: RoundedRectangle(cornerRadius: 14))
+                                .foregroundStyle(VITALPalette.cloud)
+                        }
+                        Button {
+                            journal.add(mood: selectedMood, intensity: intensity, note: note.trimmingCharacters(in: .whitespacesAndNewlines))
+                            dismiss()
+                        } label: {
+                            Text("Spara dagens mående").font(.headline).frame(maxWidth: .infinity).padding(.vertical, 15)
+                                .background(VITALPalette.teal, in: RoundedRectangle(cornerRadius: 15))
+                                .foregroundStyle(VITALPalette.midnight)
+                        }
+                    }.padding(20)
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) { Button("Avbryt") { dismiss() }.foregroundStyle(VITALPalette.teal) }
+                ToolbarItem(placement: .principal) { Text("Måendedagbok").font(.headline).foregroundStyle(VITALPalette.cloud) }
+            }
+        }
+        .tint(VITALPalette.teal)
     }
 }
