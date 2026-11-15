@@ -497,3 +497,10 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Påminnelseväxeln slås nu bara på efter att iOS har bekräftat notisbehörighet. Om behörighet saknas återställs inställningen till av.
 - Schemaläggningen täcker nu hela det avsedda dagfönstret 08–20, beroende på valt intervall.
 - Ändringen inväntar CI och fysisk kontroll av notiser på enheten.
+
+## 2026-11-15 – Fotohistorik: säkrare import
+
+- Fotodatum och anteckning fångas nu när användaren väljer bilden, innan den asynkrona bildhämtningen startar.
+- Det förhindrar att metadata råkar hämtas från fält som användaren hunnit ändra medan bilden importeras.
+- Varje bildfil markeras uttryckligen för att undantas från iCloud-säkerhetskopiering.
+- Ändringen inväntar CI.
