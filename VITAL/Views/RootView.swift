@@ -1,6 +1,8 @@
 import SwiftUI
 import Charts
 import UserNotifications
+import PhotosUI
+import UIKit
 
 struct RootView: View {
     var body: some View {
@@ -150,6 +152,8 @@ private struct HealthOverviewView: View {
     @State private var showingDoseReminder = false
     @State private var showingWeightEntry = false
     @State private var showingBloodPressureEntry = false
+    @State private var showingProgressPhotos = false
+    @StateObject private var progressPhotos = ProgressPhotoJournal()
     var body: some View {
         NavigationStack {
             ZStack {
@@ -171,6 +175,7 @@ private struct HealthOverviewView: View {
                         waterTrackerCard
                         medicationCard
                         bloodPressureCard
+                        progressPhotosCard
                         VITALCard {
                             VStack(alignment: .leading, spacing: 12) {
                                 Label("Sömn", systemImage: "moon.stars.fill").font(.headline).foregroundStyle(VITALPalette.cloud)
@@ -430,6 +435,36 @@ private struct HealthOverviewView: View {
         }
         .buttonStyle(.plain).foregroundStyle(VITALPalette.teal)
         .background(VITALPalette.teal.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var progressPhotosCard: some View {
+        VITALCard {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Label("Framstegsbilder", systemImage: "photo.on.rectangle.angled")
+                        .font(.headline).foregroundStyle(VITALPalette.cloud)
+                    Spacer()
+                    Text("\(progressPhotos.photos.count) bilder")
+                        .font(.caption).foregroundStyle(VITALPalette.muted)
+                }
+                HStack(spacing: 12) {
+                    Image(systemName: "lock.fill").font(.title2).foregroundStyle(VITALPalette.teal)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Din privata bildhistorik").font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
+                        Text("Bilderna lagras lokalt i VITAL och läggs inte automatiskt i Bilder.")
+                            .font(.caption).foregroundStyle(VITALPalette.muted)
+                    }
+                }
+                Button { showingProgressPhotos = true } label: {
+                    Label("Öppna framstegsbilder", systemImage: "arrow.up.right.square")
+                        .font(.subheadline.weight(.semibold)).frame(maxWidth: .infinity).padding(.vertical, 12)
+                        .background(VITALPalette.teal.opacity(0.14), in: RoundedRectangle(cornerRadius: 12))
+                }.buttonStyle(.plain).foregroundStyle(VITALPalette.teal)
+            }
+        }
+        .sheet(isPresented: $showingProgressPhotos) {
+            ProgressPhotosView(journal: progressPhotos, weightJournal: weightJournal)
+        }
     }
 
     private var bloodPressureCard: some View {
@@ -943,4 +978,276 @@ private func pageHeader(_ title: String, subtitle: String) -> some View {
         Text(title).font(.system(size: 34, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
         Text(subtitle).font(.subheadline).foregroundStyle(VITALPalette.muted)
     }.frame(maxWidth: .infinity, alignment: .leading).padding(.bottom, 4)
+}
+
+
+// MARK: - Private progress photo journal
+
+private struct ProgressPhoto: Codable, Identifiable {
+    let id: UUID
+    let fileName: String
+    let date: Date
+    let note: String
+    init(fileName: String, date: Date, note: String) {
+        id = UUID(); self.fileName = fileName; self.date = date; self.note = note
+    }
+}
+
+@MainActor private final class ProgressPhotoJournal: ObservableObject {
+    @Published private(set) var photos: [ProgressPhoto] = []
+    private let key = "vital.progressPhotos.v1"
+    private var folder: URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("VITALProgressPhotos", isDirectory: true)
+    }
+    init() {
+        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        if let data = UserDefaults.standard.data(forKey: key),
+           let saved = try? JSONDecoder().decode([ProgressPhoto].self, from: data) {
+            photos = saved.filter { FileManager.default.fileExists(atPath: folder.appendingPathComponent($0.fileName).path) }
+                .sorted { $0.date > $1.date }
+        }
+    }
+    func imageURL(for photo: ProgressPhoto) -> URL { folder.appendingPathComponent(photo.fileName) }
+    func add(_ data: Data, date: Date, note: String) throws {
+        guard let image = UIImage(data: data), let jpeg = image.jpegData(compressionQuality: 0.88) else {
+            throw PhotoError.invalidImage
+        }
+        let name = UUID().uuidString + ".jpg"
+        try jpeg.write(to: folder.appendingPathComponent(name), options: .atomic)
+        photos.append(ProgressPhoto(fileName: name, date: date, note: note))
+        photos.sort { $0.date > $1.date }
+        persist()
+    }
+    func delete(_ photo: ProgressPhoto) {
+        try? FileManager.default.removeItem(at: imageURL(for: photo))
+        photos.removeAll { $0.id == photo.id }
+        persist()
+    }
+    private func persist() {
+        if let data = try? JSONEncoder().encode(photos) { UserDefaults.standard.set(data, forKey: key) }
+    }
+    enum PhotoError: LocalizedError {
+        case invalidImage
+        var errorDescription: String? { "Bilden kunde inte läsas. Välj en annan bild." }
+    }
+}
+
+private struct ProgressPhotosView: View {
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject var journal: ProgressPhotoJournal
+    @ObservedObject var weightJournal: WeightJournal
+    @State private var pickerItems: [PhotosPickerItem] = []
+    @State private var selectedIDs: Set<UUID> = []
+    @State private var photoDate = Date.now
+    @State private var note = ""
+    @State private var errorMessage: String?
+    @State private var showingGuide = false
+    @State private var showingComparison = false
+
+    private var selectedPhotos: [ProgressPhoto] {
+        journal.photos.filter { selectedIDs.contains($0.id) }.sorted { $0.date < $1.date }
+    }
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                VITALPalette.surface.ignoresSafeArea()
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        VITALCard {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Label("Privat fotohistorik", systemImage: "lock.fill")
+                                    .font(.headline).foregroundStyle(VITALPalette.teal)
+                                Text("Följ förändringen över tid. Bilderna sparas bara på den här enheten i VITAL.")
+                                    .font(.subheadline).foregroundStyle(VITALPalette.muted)
+                                DatePicker("Fotodatum", selection: $photoDate, displayedComponents: .date)
+                                    .tint(VITALPalette.teal)
+                                TextField("Anteckning (valfritt)", text: $note)
+                                    .textFieldStyle(.roundedBorder)
+                                PhotosPicker(selection: $pickerItems, maxSelectionCount: 1, matching: .images) {
+                                    Label("Lägg till framstegsbild", systemImage: "plus.circle.fill")
+                                        .font(.headline).frame(maxWidth: .infinity).padding(.vertical, 13)
+                                        .background(VITALPalette.teal, in: RoundedRectangle(cornerRadius: 14))
+                                        .foregroundStyle(VITALPalette.surface)
+                                }
+                                .onChange(of: pickerItems) { _, items in
+                                    guard let item = items.first else { return }
+                                    Task {
+                                        do {
+                                            guard let data = try await item.loadTransferable(type: Data.self) else { return }
+                                            try journal.add(data, date: photoDate, note: note)
+                                            pickerItems = []; note = ""; photoDate = .now; errorMessage = nil
+                                        } catch { errorMessage = error.localizedDescription }
+                                    }
+                                }
+                                if let errorMessage {
+                                    Text(errorMessage).font(.caption).foregroundStyle(VITALPalette.amber)
+                                }
+                            }
+                        }
+                        VITALCard {
+                            VStack(alignment: .leading, spacing: 10) {
+                                HStack {
+                                    Text("Jämför två bilder").font(.headline).foregroundStyle(VITALPalette.cloud)
+                                    Spacer()
+                                    Text("\(selectedIDs.count)/2 valda").font(.caption).foregroundStyle(VITALPalette.teal)
+                                }
+                                Text("Markera två bilder i historiken för att jämföra dem sida vid sida.")
+                                    .font(.caption).foregroundStyle(VITALPalette.muted)
+                                Button {
+                                    showingComparison = true
+                                } label: {
+                                    Label("Jämför valda bilder", systemImage: "arrow.left.arrow.right")
+                                        .frame(maxWidth: .infinity).padding(.vertical, 11)
+                                        .background(VITALPalette.teal.opacity(0.14), in: RoundedRectangle(cornerRadius: 12))
+                                }
+                                .buttonStyle(.plain).foregroundStyle(VITALPalette.teal)
+                                .disabled(selectedIDs.count != 2)
+                                .opacity(selectedIDs.count == 2 ? 1 : 0.45)
+                            }
+                        }
+                        HStack {
+                            Text("Bildhistorik").font(.title3.bold()).foregroundStyle(VITALPalette.cloud)
+                            Spacer()
+                            Button { showingGuide = true } label: {
+                                Label("Fotoguide", systemImage: "camera.aperture").font(.caption.weight(.semibold))
+                            }.foregroundStyle(VITALPalette.teal)
+                        }
+                        if journal.photos.isEmpty {
+                            EmptyChartState(symbol: "camera", title: "Inga bilder ännu", detail: "Lägg till din första bild när du vill börja följa utvecklingen.")
+                        } else {
+                            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                                ForEach(journal.photos) { photo in
+                                    ProgressPhotoTile(photo: photo, journal: journal,
+                                                      selected: selectedIDs.contains(photo.id)) {
+                                        if selectedIDs.contains(photo.id) { selectedIDs.remove(photo.id) }
+                                        else if selectedIDs.count < 2 { selectedIDs.insert(photo.id) }
+                                        else { selectedIDs = [photo.id] }
+                                    } onDelete: {
+                                        selectedIDs.remove(photo.id); journal.delete(photo)
+                                    }
+                                }
+                            }
+                        }
+                        if let latestWeight = weightJournal.latest {
+                            Text("Senast registrerade vikt: \(latestWeight.kilograms, specifier: "%.1f") kg · \(latestWeight.date.formatted(date: .abbreviated, time: .omitted))")
+                                .font(.caption).foregroundStyle(VITALPalette.muted)
+                        }
+                        Text("VITAL synkroniserar inte bilderna med iCloud och delar dem inte automatiskt. Om appen raderas kan de lokalt sparade bilderna försvinna.")
+                            .font(.caption2).foregroundStyle(VITALPalette.muted)
+                    }.padding(VITALSpacing.page).padding(.bottom, 28)
+                }
+            }
+            .navigationTitle("Framstegsbilder").navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Klar") { dismiss() } } }
+            .sheet(isPresented: $showingGuide) {
+                NavigationStack {
+                    List {
+                        Label("Använd samma plats och bakgrund varje gång.", systemImage: "location")
+                        Label("Håll kameran på samma höjd och avstånd.", systemImage: "camera")
+                        Label("Försök använda liknande ljus och kläder.", systemImage: "sun.max")
+                        Label("Ta bilder framifrån, från sidan och bakifrån om du vill.", systemImage: "person.crop.rectangle")
+                        Label("Välj ett intervall som känns rimligt för dig – bilderna är till för din egen uppföljning.", systemImage: "calendar")
+                    }
+                    .navigationTitle("Fotoguide")
+                    .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Stäng") { showingGuide = false } } }
+                }
+                .presentationDetents([.medium, .large])
+            }
+            .sheet(isPresented: $showingComparison) {
+                ProgressPhotoComparison(photos: selectedPhotos, journal: journal)
+            }
+        }
+        .tint(VITALPalette.teal)
+    }
+}
+
+private struct ProgressPhotoTile: View {
+    let photo: ProgressPhoto
+    @ObservedObject var journal: ProgressPhotoJournal
+    let selected: Bool
+    let onSelect: () -> Void
+    let onDelete: () -> Void
+    var body: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Button(action: onSelect) {
+                ZStack(alignment: .topTrailing) {
+                    if let image = UIImage(contentsOfFile: journal.imageURL(for: photo).path) {
+                        Image(uiImage: image).resizable().scaledToFill().frame(height: 190).frame(maxWidth: .infinity).clipped()
+                    } else {
+                        RoundedRectangle(cornerRadius: 12).fill(VITALPalette.surfaceRaised).frame(height: 190)
+                            .overlay(Image(systemName: "photo").foregroundStyle(VITALPalette.muted))
+                    }
+                    Image(systemName: selected ? "checkmark.circle.fill" : "circle")
+                        .font(.title2).symbolRenderingMode(.palette)
+                        .foregroundStyle(selected ? VITALPalette.teal : .white, VITALPalette.surface)
+                        .padding(9)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 13))
+                .overlay(RoundedRectangle(cornerRadius: 13).stroke(selected ? VITALPalette.teal : VITALPalette.track, lineWidth: selected ? 2 : 1))
+            }.buttonStyle(.plain)
+            Text(photo.date.formatted(date: .abbreviated, time: .omitted))
+                .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
+            if !photo.note.isEmpty {
+                Text(photo.note).font(.caption2).foregroundStyle(VITALPalette.muted).lineLimit(2)
+            }
+            Button(role: .destructive, action: onDelete) {
+                Label("Radera", systemImage: "trash").font(.caption)
+            }.buttonStyle(.plain).foregroundStyle(VITALPalette.amber)
+        }
+    }
+}
+
+private struct ProgressPhotoComparison: View {
+    @Environment(\.dismiss) private var dismiss
+    let photos: [ProgressPhoto]
+    @ObservedObject var journal: ProgressPhotoJournal
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                VITALPalette.surface.ignoresSafeArea()
+                if photos.count == 2 {
+                    VStack(spacing: 14) {
+                        HStack(spacing: 10) {
+                            comparisonImage(photos[0])
+                            comparisonImage(photos[1])
+                        }
+                        HStack {
+                            comparisonDate(photos[0])
+                            Spacer()
+                            comparisonDate(photos[1])
+                        }
+                        let days = Calendar.current.dateComponents([.day], from: photos[0].date, to: photos[1].date).day ?? 0
+                        Text("\(max(0, days)) dagar mellan bilderna")
+                            .font(.headline).foregroundStyle(VITALPalette.teal)
+                        Text("Jämförelsen visar bilderna sida vid sida utan automatisk retuschering eller förändring.")
+                            .font(.caption).foregroundStyle(VITALPalette.muted).multilineTextAlignment(.center)
+                    }.padding(VITALSpacing.page)
+                }
+            }
+            .navigationTitle("Jämför utveckling").navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Klar") { dismiss() } } }
+        }
+    }
+    private func comparisonImage(_ photo: ProgressPhoto) -> some View {
+        Group {
+            if let image = UIImage(contentsOfFile: journal.imageURL(for: photo).path) {
+                Image(uiImage: image).resizable().scaledToFit()
+            } else {
+                ContentUnavailableView("Bilden saknas", systemImage: "photo")
+            }
+        }
+        .frame(maxWidth: .infinity).frame(height: 420)
+        .background(VITALPalette.surfaceRaised, in: RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+    private func comparisonDate(_ photo: ProgressPhoto) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(photo.date.formatted(date: .abbreviated, time: .omitted))
+                .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
+            if let weight = nil as Double? {
+                Text("\(weight, specifier: "%.1f") kg").font(.caption2).foregroundStyle(VITALPalette.muted)
+            }
+        }
+    }
 }
