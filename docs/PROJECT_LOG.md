@@ -339,3 +339,11 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - GitHub Actions paketerar nu appbundle från det godkända osignerade iOS-arkivet till `VITAL-unsigned.ipa` med `Payload/VITAL.app` och laddar upp den som separat artefakt.
 - IPA:n är avsiktligt osignerad och måste signeras av AltStore/SideStore eller motsvarande innan installation.
 - CI-resultat för paketeringen inväntas. HealthKit-entitlement och bakgrundsleverans behöver testas efter signering på fysisk iPhone.
+
+
+## 2026-11-15 – Produktomfattning breddas till helhetslösning
+- Efter första iPhone-testet identifierades behov av fler HealthKit-datakategorier och en samlad vikt- och läkemedelsjournal.
+- Nuvarande HealthKitStore begär läsning av sju typer: sömn, vilopuls, HRV, puls, steg, aktiv energi och kroppsvikt. Detta förklarar det begränsade urvalet i Apples behörighetsdialog.
+- Produktinriktningen breddas till hälsa/återhämtning, aktivitet, viktutveckling och läkemedelsuppföljning inklusive Wegovy-doslogg, påminnelser och biverkningslogg.
+- En eventuell beräknad semaglutidnivå ska vara tydligt märkt som teoretisk uppskattning, aldrig uppmätt blodnivå eller doseringsrekommendation.
+- Beslut och roadmap uppdaterade; implementationen är ännu inte påbörjad.
