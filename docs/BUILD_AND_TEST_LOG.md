@@ -113,3 +113,10 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - GitHub Actions run 111, dokumentationscommit `b22ccb533636cfe591d7967cb7a2f084a7bd286c`: båda stegen godkända.
 - Regressionstestet för aktiv energi verifierar att endast ett sampel helt inom vakenperioden räknas; överlappande och framtida sampel utesluts.
 - Ingen fysisk iPhone-testning, HealthKit-auktorisering eller IPA-export är utförd.
+
+
+## 2026-11-15 – HealthKit-triggerad morgonrapport: första CI-verifiering
+- GitHub Actions run 137, commit `c03f16a46b22b15158f3596b74e32464c4551988`: kärntester och iOS Simulator-build godkända.
+- Denna körning verifierar arkivkopplingen i HealthKitStore före den senaste dashboardvyn.
+- Därefter har dashboarden fått en vy för fryst morgonrapport; CI för den och efterföljande dokumentationsändringar inväntas.
+- Ingen fysisk iPhone-testning eller IPA-export har utförts.
