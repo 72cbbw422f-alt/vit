@@ -938,7 +938,7 @@ private struct WeightEntrySheet: View {
 
 
 private struct TargetWeightEntrySheet: View {
-    @Environment(\\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss
     @ObservedObject var journal: WeightJournal
     @State private var value = ""
     private var parsed: Double? { Double(value.replacingOccurrences(of: ",", with: ".")) }
