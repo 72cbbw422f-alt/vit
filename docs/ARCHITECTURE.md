@@ -102,3 +102,11 @@ Blodtryck, träningspass, andningsfrekvens, syremättnad och andra datatyper är
 - `SleepSessionCalculator.primarySession` väljer den längsta grupperade sömnperioden i det aktuella HealthKit-fönstret; vid lika längd väljs den senast avslutade.
 - HealthKitStore använder denna period för urval av nattliga HRV- och vilopulsvärden.
 - Urvalet är en heuristik. Det identifierar inte säkert nattsömn och måste verifieras mot verkliga data. `latestSession` finns kvar för anrop som uttryckligen behöver den senast avslutade perioden.
+
+
+## Kroppsbatteri
+- `BodyBatteryEngine` är fristående från `RecoveryEngine`.
+- Indata: morgonens återhämtningspoäng, personlig vilopulsbaslinje, tidsstämplade pulssampel, tidsstämplade aktiva energisampel samt uppvakningstid och beräkningstid.
+- Pulslast integreras endast mellan sampel med högst 15 minuters mellanrum. Minst tre sampel över minst 30 minuter krävs.
+- Aktiv energi summeras inom vakenperioden. Saknat underlag ger nil-poäng.
+- Prototypen minskar från morgonens värde och modellerar ännu inte återhämtning under vila. HealthKit-frågor och UI-integration är nästa steg.
