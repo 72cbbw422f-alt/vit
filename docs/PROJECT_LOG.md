@@ -412,3 +412,13 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Lagt till delbar textbaserad sammanställning med upp till 100 mätningar för att kunna lämna till läkare.
 - Validerar rimliga inmatningsintervall och markerar att loggen inte är diagnostik.
 - Nästa steg: komplettera med import/läsning av blodtryck från Apple Hälsa när sådana mätningar finns, samt testa export och graf på fysisk iPhone.
+
+
+## 2026-11-15 – Vattenlogg med påminnelser
+
+- Lagt till en grafisk vattenlogg i Hälsa med cirkulär måluppföljning, 2 000 ml initialt dagsmål och snabbregistrering för 150, 250 och 500 ml.
+- Stöd för ångra senaste registrering.
+- Dagens summering sparas lokalt och nollställs automatiskt vid ny kalenderdag.
+- Valbara återkommande påminnelser kl. 08–20 med intervall 1–4 timmar och separat av/på-reglage.
+- Påminnelser använder iOS-notiser och kräver användarens notisbehörighet.
+- Dagsmålet är ett redigerbart produktbeslut att finjustera senare; 2 000 ml är en generell startinställning och inte en individuell medicinsk rekommendation.
