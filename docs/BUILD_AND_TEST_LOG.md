@@ -88,3 +88,9 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Testerna har ännu inte körts efter ändringen.
 - Ingen Xcode-build, simulator- eller iPhone-testning har utförts.
 - Status: Integrerad i källkod; teknisk verifiering återstår.
+
+## 2026-11-15 – CI-status efter nattintegration
+- GitHub Actions run 72, commit `0226746e416419f421f5e220d0adfe53293d8304`.
+- `Run core unit tests`: Godkänd.
+- `Build iOS Simulator target`: Underkänd.
+- Ingen IPA skapad. Simulatorbygget är inte godkänt; felorsaken är ännu inte fastställd från tillgängliga loggar.
