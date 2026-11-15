@@ -281,6 +281,16 @@ struct DashboardView: View {
                     Label("Datainsamling", systemImage: "heart.text.square").foregroundStyle(VITALPalette.cloud)
                     Spacer(); Text(health.isAvailable ? "Apple Hälsa" : "Ej tillgängligt").font(.subheadline).foregroundStyle(VITALPalette.teal)
                 }
+                HStack {
+                    Label("Sömn i bakgrunden", systemImage: "moon.zzz").foregroundStyle(VITALPalette.cloud)
+                    Spacer(); Text(health.backgroundSleepDeliveryEnabled ? "Aktiverad" : "Ej bekräftad")
+                        .font(.caption).foregroundStyle(health.backgroundSleepDeliveryEnabled ? VITALPalette.teal : VITALPalette.amber)
+                }
+                HStack {
+                    Label("Kvällspåminnelse", systemImage: "bell").foregroundStyle(VITALPalette.cloud)
+                    Spacer(); Text(health.eveningNotificationStatus)
+                        .font(.caption).foregroundStyle(health.eveningNotificationStatus == "Aktiverad" ? VITALPalette.teal : VITALPalette.amber)
+                }
                 if let error = health.lastError { Text(error).font(.caption).foregroundStyle(VITALPalette.amber) }
             }
         }
