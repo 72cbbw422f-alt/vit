@@ -120,3 +120,17 @@ Status betyder:
 - [x] Införa heuristik som väljer längsta sömnperioden framför en senare kort tupplur
 - [ ] Validera huvudsömnheuristiken mot verkliga HealthKit-data, skiftarbete och fragmenterad sömn
 - [ ] Köra samtliga enhetstester och Xcode-build
+
+
+## Uppdatering 2026-11-15 – Kroppsbatteri prototyp
+- [x] Skapa separat deterministisk beräkningsmotor för kroppsbatteriet
+- [x] Starta från nattens återhämtningspoäng, separat från daglig belastning
+- [x] Beräkna pulsbelastning från tidsstämplade sampel med max 15 minuters lucka
+- [x] Ta med aktiv energi som separat belastningskomponent
+- [x] Avstå från poäng vid otillräcklig pulstäckning eller saknad baslinje
+- [x] Lägga till fyra tester för modellens grundfall och datakvalitet
+- [ ] Köra och godkänna CI för kroppsbatterimodellen
+- [ ] Hämta tidsstämplade puls- och energisampel från HealthKit
+- [ ] Integrera resultat och datakvalitet i dashboarden
+- [ ] Utveckla och validera återladdning under vila
+- [ ] Kalibrera belastningskoefficienter mot verkliga data
