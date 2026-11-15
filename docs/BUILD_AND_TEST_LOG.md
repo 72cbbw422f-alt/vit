@@ -56,3 +56,10 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Testerna är incheckade men har ännu inte körts i CI efter senaste commit.
 - Tidigare verifierad kärna: 10 tester passerade. Totalt antal definierade tester är nu 15.
 - Väntar på GitHub Actions-resultat för aktuell gren.
+
+
+## 2026-11-15 – HealthKit-historik
+- Källkod uppdaterad för att hämta 30 avslutade kalenderdagar av HRV SDNN, vilopuls och sömn.
+- Baslinjer räknas via PersonalBaselineCalculator och kräver minst 14 giltiga dagar.
+- Ingen Xcode-build eller HealthKit-enhetstest har körts efter ändringen.
+- Status: Implementerat i källkod, ännu ej byggverifierat eller enhetstestat.
