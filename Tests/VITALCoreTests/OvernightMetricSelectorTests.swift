@@ -33,7 +33,7 @@ final class OvernightMetricSelectorTests: XCTestCase {
 
     func testIgnoresInvalidValues() {
         let result = OvernightMetricSelector.select(
-            hrv: [TimedHealthValue(timestamp: date(1), value: .nan), TimedHealthValue(timestamp: date(2).addingTimeInterval(24 * 60 * 60), value: -1), TimedHealthValue(timestamp: date(3).addingTimeInterval(24 * 60 * 60), value: 55)],
+            hrv: [TimedHealthValue(timestamp: date(1).addingTimeInterval(24 * 60 * 60), value: .nan), TimedHealthValue(timestamp: date(2).addingTimeInterval(24 * 60 * 60), value: -1), TimedHealthValue(timestamp: date(3).addingTimeInterval(24 * 60 * 60), value: 55)],
             restingHeartRate: [],
             sleepSession: session
         )
