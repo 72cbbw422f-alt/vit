@@ -518,3 +518,11 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Dialogen fylls med befintligt mål, så värdet kan ändras utan att börja om.
 - Användaren kan ta bort målet uttryckligen. Målvikt förblir frivillig och inget standardvärde föreslås.
 - Ändringen inväntar CI.
+
+
+## 2026-11-15 – Framstegsbilder: strikt säkerhetskopieringsskydd
+
+- En ny framstegsbild sparas nu bara om iOS bekräftar att den enskilda bildfilen är undantagen från iCloud-säkerhetskopiering.
+- Om skyddsinställningen misslyckas tas den nyss skrivna bildfilen bort och användaren får ett tydligt felmeddelande.
+- Det förhindrar att appen tyst sparar en bild i strid med den integritetsinformation som visas i gränssnittet.
+- Ändringen inväntar CI och behöver verifieras på fysisk iPhone.
