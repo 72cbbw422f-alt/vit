@@ -154,3 +154,9 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Uppdaterade testfixturen och lade till separat gränstest för 19 minuter och 20 minuter.
 - GitHub Actions run 164, commit `0faa3689e68f3b9d1fc9da9a472039be1b70871d`: kärntester godkända och hela workflow-körningen slutförd med godkänt resultat.
 - Senare dokumentations- och HealthKit-felhanteringsändringar har egna CI-körningar i kö/pågående; de är ännu inte verifierade.
+
+## 2026-11-15 – Tidszonsstabil rapporthistorik
+- Utökade DailyReportSnapshot med lokal dagnyckel och tidszonsidentifierare; äldre Codable-arkiv avkodas med reservvärden.
+- Arkivets dubblettskydd och dashboardens historikdatum använder sparad lokal dag.
+- Lade till två tester för tidszonsbyte och sommartidsdag.
+- Källkod och tester är incheckade. CI-resultat för de nya testerna och simulatorbygget inväntas; ingen fysisk enhetstestning är utförd.
