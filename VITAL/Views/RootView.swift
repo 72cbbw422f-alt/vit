@@ -666,8 +666,8 @@ private struct BloodPressureEntry: Codable, Identifiable {
     let diastolic: Int
     let pulse: Int?
     let note: String
-    init(date: Date = .now, systolic: Int, diastolic: Int, pulse: Int?, note: String) {
-        self.id = UUID(); self.date = date; self.systolic = systolic
+    init(id: UUID = UUID(), date: Date = .now, systolic: Int, diastolic: Int, pulse: Int?, note: String) {
+        self.id = id; self.date = date; self.systolic = systolic
         self.diastolic = diastolic; self.pulse = pulse; self.note = note
     }
 }
@@ -682,6 +682,19 @@ private struct BloodPressureEntry: Codable, Identifiable {
     }
     func add(systolic: Int, diastolic: Int, pulse: Int?, note: String) {
         entries.append(BloodPressureEntry(systolic: systolic, diastolic: diastolic, pulse: pulse, note: note))
+        persist()
+    }
+    func update(_ entry: BloodPressureEntry, systolic: Int, diastolic: Int, pulse: Int?, note: String) {
+        guard let index = entries.firstIndex(where: { $0.id == entry.id }) else { return }
+        entries[index] = BloodPressureEntry(id: entry.id, date: entry.date, systolic: systolic,
+                                            diastolic: diastolic, pulse: pulse, note: note)
+        persist()
+    }
+    func delete(_ entry: BloodPressureEntry) {
+        entries.removeAll { $0.id == entry.id }
+        persist()
+    }
+    private func persist() {
         entries.sort { $0.date > $1.date }
         if let data = try? JSONEncoder().encode(entries) { UserDefaults.standard.set(data, forKey: key) }
     }
