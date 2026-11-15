@@ -63,8 +63,11 @@ enum BodyBatteryEngine {
         }
 
         let energy = input.activeEnergySamples
-            .filter { $0.timestamp >= input.wakeTime && $0.timestamp <= input.asOf &&
-                $0.value.isFinite && $0.value > 0 }
+            .filter {
+                let intervalStart = $0.startTimestamp ?? $0.timestamp
+                return intervalStart >= input.wakeTime && $0.timestamp <= input.asOf &&
+                    $0.value.isFinite && $0.value > 0
+            }
             .reduce(0) { $0 + $1.value }
         let activityLoad = energy * 0.025
         let totalLoad = cardiovascularLoad + activityLoad
