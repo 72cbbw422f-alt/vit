@@ -248,3 +248,12 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 ### Avgränsning
 - Detta är kärnmodell och testad arkivpolicy. Beständig lagring, schemaläggning, notiser och UI-historik är ännu inte inkopplade.
 - iOS kan inte garantera att appkod körs exakt klockan 07:00 eller 21:00 när appen är avstängd eller suspenderad. Nästa steg måste kombinera schemalagda notiser med en säker fångstpolicy när appen får körningstid; en notis i sig får inte påstå att en rapport har uppdaterats om ingen snapshot faktiskt skapats.
+
+
+## 2026-11-15 – Morgonrapportens utlösningspolicy
+- Lagt till en fristående och testbar policy som bedömer om en händelse får skapa morgonrapport.
+- Sömnfokus avslutat är en möjlig signal, men HealthKit-sömnuppdatering och att appen blir aktiv är uttryckliga reservsignaler.
+- Rapport skapas bara om en registrerad huvudsömn är avslutad, minst tre timmar lång, högst 18 timmar gammal och har uppvakningsdatum på rapportens lokala kalenderdag.
+- Kort tupplur, saknad sömndata, framtida/öppen sömnperiod och gammal sömnperiod avvisas.
+- Åtta enhetstester täcker godkända signaler, reservvägar och avvisningsfall.
+- Detta är en kärnpolicy, inte färdig bakgrundsintegration. HealthKit Observer Query med Background Delivery behöver implementeras och verifieras på fysisk enhet.
