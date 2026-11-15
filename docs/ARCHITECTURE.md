@@ -118,3 +118,9 @@ Blodtryck, träningspass, andningsfrekvens, syremättnad och andra datatyper är
 - `BodyBatteryEngine` får endast dagens sampel mellan uppvakning och aktuell beräkningstid.
 - Resultatet lagras i `HealthSnapshot.bodyBattery` och renderas av dashboardens energikort.
 - Om underlaget inte räcker lämnas poängen nil och förklaringen visas i stället.
+
+## Aktiv energi – intervallsemantik
+- TimedHealthValue kan bära både start- och sluttidsstämpel.
+- För aktiva energisampel måste hela intervallet rymmas inom vakenperioden (start >= wakeTime och end <= asOf).
+- Ögonblicksvärden utan starttid använder sin tidsstämpel som intervallstart.
+- Sampel som överlappar sömn eller ligger efter beräkningstidpunkten utesluts helt; ingen proportionell fördelning görs.
