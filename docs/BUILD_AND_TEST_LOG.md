@@ -63,3 +63,11 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Baslinjer räknas via PersonalBaselineCalculator och kräver minst 14 giltiga dagar.
 - Ingen Xcode-build eller HealthKit-enhetstest har körts efter ändringen.
 - Status: Implementerat i källkod, ännu ej byggverifierat eller enhetstestat.
+
+
+## 2026-11-15 – Dashboardintegration av återhämtning
+- HealthSnapshot kopplar nu tre baslinjer till RecoveryEngine. Den svagaste baslinjen styr om beräkningen får köras.
+- Dashboarden visar prototypens poäng och komponenter när data räcker, annars saknat underlag och antal baslinjedagar.
+- Kroppsbatteriet är fortsatt separat och visar ingen påhittad nivå.
+- Xcode-build, Swift-test och fysisk enhetstestning har inte körts efter denna ändring.
+- Status: Källkod incheckad; build- och enhetsverifiering återstår.
