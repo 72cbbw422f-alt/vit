@@ -193,6 +193,7 @@ private struct HealthOverviewView: View {
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
+            .task { waterTracker.refreshDay() }
         }
     }
 
@@ -256,9 +257,9 @@ private struct HealthOverviewView: View {
                             set: { waterTracker.setInterval($0) }
                         )) {
                             Text("1 timme").tag(1)
-                            Text("1,5 timme").tag(2)
-                            Text("2 timmar").tag(3)
-                            Text("3 timmar").tag(4)
+                            Text("2 timmar").tag(2)
+                            Text("3 timmar").tag(3)
+                            Text("4 timmar").tag(4)
                         }.pickerStyle(.menu).tint(VITALPalette.teal)
                     }
                 }
@@ -358,10 +359,21 @@ private struct HealthOverviewView: View {
         if remindersEnabled { Task { await scheduleReminders() } }
     }
     var progress: Double { min(Double(total) / Double(goal), 1) }
+    func refreshDay() {
+        let today = Calendar.current.startOfDay(for: .now)
+        let savedDay = UserDefaults.standard.object(forKey: dateKey) as? Date
+        guard savedDay.map({ Calendar.current.isDate($0, inSameDayAs: today) }) != true else { return }
+        UserDefaults.standard.set(today, forKey: dateKey)
+        additions = []
+        total = 0
+        persist()
+    }
     func add(_ amount: Int) {
+        refreshDay()
         additions.append(amount); persist()
     }
     func undo() {
+        refreshDay()
         guard !additions.isEmpty else { return }
         additions.removeLast(); persist()
     }
