@@ -218,7 +218,7 @@ final class HealthKitStore: ObservableObject {
                     let intervals = ((samples as? [HKCategorySample]) ?? [])
                         .filter { asleepValues.contains($0.value) }
                         .map { SleepInterval(start: $0.startDate, end: $0.endDate) }
-                    continuation.resume(returning: SleepSessionCalculator.latestSession(intervals: intervals))
+                    continuation.resume(returning: SleepSessionCalculator.primarySession(intervals: intervals))
                 }
             store.execute(query)
         }
