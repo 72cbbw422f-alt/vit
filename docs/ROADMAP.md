@@ -134,3 +134,16 @@ Status betyder:
 - [ ] Integrera resultat och datakvalitet i dashboarden
 - [ ] Utveckla och validera återladdning under vila
 - [ ] Kalibrera belastningskoefficienter mot verkliga data
+
+
+## Uppdatering 2026-11-15 – HealthKit-koppling kroppsbatteri
+- [x] Begära HealthKit-läsbehörighet för puls
+- [x] Hämta tidsstämplade pulssampel från HealthKit
+- [x] Hämta aktiva energisampel från HealthKit
+- [x] Beräkna kroppsbatteri från uppvakningstid, nattåterhämtning och personlig vilopulsbaslinje
+- [x] Lagra resultat separat i HealthSnapshot
+- [x] Visa kroppsbatteri i dashboarden med förklaring och datastatus
+- [ ] Godkänna CI för HealthKit- och UI-integrationen
+- [ ] Verifiera datainsamling och resultat på fysisk iPhone
+- [ ] Utveckla och validera återladdning under vila
+- [ ] Kalibrera belastningskoefficienter mot verkliga data
