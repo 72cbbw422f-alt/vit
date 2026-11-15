@@ -599,7 +599,11 @@ private struct HealthOverviewView: View {
     func setInterval(_ value: Int) {
         intervalHours = value
         UserDefaults.standard.set(value, forKey: intervalKey)
-        if remindersEnabled { Task { await scheduleReminders() } }
+        if remindersEnabled {
+            reminderGeneration += 1
+            let generation = reminderGeneration
+            Task { await scheduleReminders(generation: generation) }
+        }
     }
     func setReminders(_ enabled: Bool) {
         guard enabled != remindersEnabled else { return }
