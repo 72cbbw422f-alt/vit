@@ -237,3 +237,11 @@ Status betyder:
 - [ ] Konfigurera giltig iOS-signering och provisioning för fysisk enhet
 - [ ] Skapa signerad IPA och verifiera installation på iPhone
 - [ ] Genomföra fysisk HealthKit-, bakgrundsleverans- och notistestning
+
+
+## Uppdatering 2026-11-15 – Enhetsarkiv verifierat
+- [x] Bygga Release-arkiv för `generic/platform=iOS` i GitHub Actions utan kodsignering
+- [x] Ladda upp och kontrollera arkivets appbundle och dSYM som CI-artifakt
+- [ ] Skapa säker signeringskonfiguration med Apple Development-certifikat och provisioning profile
+- [ ] Exportera signerad IPA och verifiera installation på fysisk iPhone
+- [ ] Verifiera HealthKit-behörigheter, bakgrundsleverans och notiser på enheten
