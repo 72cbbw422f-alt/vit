@@ -50,3 +50,11 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 ## Sömnperiod – val av huvudsömn (2026-11-15)
 - För nattlig återhämtning väljs den längsta grupperade sömnperioden i det hämtade 36-timmarsfönstret. Vid lika längd väljs den senast avslutade perioden.
 - Detta minskar risken att en kortare tupplur ersätter huvudsömnen. Det är en dokumenterad heuristik, inte en universell regel; den ska verifieras med användarens faktiska HealthKit-data och får inte beskrivas som säker sömnstegsdetektion.
+
+
+## Kroppsbatteri – första modellsteg (2026-11-15)
+- Kroppsbatteriet är en separat modell från nattens återhämtning.
+- Första prototypen startar från nattens återhämtningspoäng och drar av belastning från tidsstämplad puls över personlig vilopuls samt aktiv energi.
+- Pulssampel får endast integreras över tidsluckor på högst 15 minuter. Minst tre sampel och minst 30 minuters täckning krävs.
+- Otillräckliga eller saknade underlag ska ge saknat värde, aldrig ett påhittat standardvärde.
+- Prototypen laddar ännu inte upp under vila. Återladdningsmodell och koefficienter måste valideras mot verkliga data innan produktionsstatus.
