@@ -1127,10 +1127,15 @@ private struct ProgressPhoto: Codable, Identifiable {
         let name = UUID().uuidString + ".jpg"
         let imageURL = folder.appendingPathComponent(name)
         try jpeg.write(to: imageURL, options: .atomic)
-        var imageURLWithBackupPolicy = imageURL
-        var imageValues = URLResourceValues()
-        imageValues.isExcludedFromBackup = true
-        try? imageURLWithBackupPolicy.setResourceValues(imageValues)
+        do {
+            var imageURLWithBackupPolicy = imageURL
+            var imageValues = URLResourceValues()
+            imageValues.isExcludedFromBackup = true
+            try imageURLWithBackupPolicy.setResourceValues(imageValues)
+        } catch {
+            try? FileManager.default.removeItem(at: imageURL)
+            throw PhotoError.backupExclusionFailed
+        }
         photos.append(ProgressPhoto(fileName: name, date: date, note: note))
         photos.sort { $0.date > $1.date }
         persist()
@@ -1145,7 +1150,15 @@ private struct ProgressPhoto: Codable, Identifiable {
     }
     enum PhotoError: LocalizedError {
         case invalidImage
-        var errorDescription: String? { "Bilden kunde inte läsas. Välj en annan bild." }
+        case backupExclusionFailed
+        var errorDescription: String? {
+            switch self {
+            case .invalidImage:
+                return "Bilden kunde inte läsas. Välj en annan bild."
+            case .backupExclusionFailed:
+                return "Bilden kunde inte sparas med rätt integritetsskydd. Försök igen."
+            }
+        }
     }
 }
 
