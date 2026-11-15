@@ -1100,7 +1100,12 @@ private struct ProgressPhoto: Codable, Identifiable {
             throw PhotoError.invalidImage
         }
         let name = UUID().uuidString + ".jpg"
-        try jpeg.write(to: folder.appendingPathComponent(name), options: .atomic)
+        let imageURL = folder.appendingPathComponent(name)
+        try jpeg.write(to: imageURL, options: .atomic)
+        var imageURLWithBackupPolicy = imageURL
+        var imageValues = URLResourceValues()
+        imageValues.isExcludedFromBackup = true
+        try? imageURLWithBackupPolicy.setResourceValues(imageValues)
         photos.append(ProgressPhoto(fileName: name, date: date, note: note))
         photos.sort { $0.date > $1.date }
         persist()
@@ -1219,7 +1224,7 @@ private struct ProgressPhotosView: View {
                             Text("Senast registrerade vikt: \(latestWeight.kilograms, specifier: "%.1f") kg · \(latestWeight.date.formatted(date: .abbreviated, time: .omitted))")
                                 .font(.caption).foregroundStyle(VITALPalette.muted)
                         }
-                        Text("VITAL synkroniserar inte bilderna med iCloud och delar dem inte automatiskt. Om appen raderas kan de lokalt sparade bilderna försvinna.")
+                        Text("Bilderna synkroniseras inte med iCloud och ingår inte i iCloud-säkerhetskopior. De delas inte automatiskt. Om appen raderas eller enheten försvinner kan bilderna gå förlorade.")
                             .font(.caption2).foregroundStyle(VITALPalette.muted)
                     }.padding(VITALSpacing.page).padding(.bottom, 28)
                 }
