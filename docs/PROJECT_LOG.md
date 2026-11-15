@@ -207,3 +207,14 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 ### Begränsning
 - Längsta perioden är en heuristik, inte en säker identifiering av nattsömn. Skiftarbete, lång tupplur eller fragmenterad sömn kan ge andra mönster. Verkliga HealthKit-data måste valideras innan modellen betraktas som färdig.
 - GitHub Actions för aktuell föregående commit rapporterade godkända core unit tests men underkänt i steget `Build iOS Simulator target`. Orsaken behöver fortsatt felsökas; ingen grön iOS-build påstås.
+
+
+## 2026-11-15 – Första kroppsbatterimodellen
+### Genomfört
+- Skapat en separat, deterministisk `BodyBatteryEngine` som startar från nattens återhämtningspoäng och beräknar en preliminär daglig belastning från tidsstämplad puls och aktiv energi.
+- Pulslast beräknas endast över sammanhängande intervall på högst 15 minuter och kräver minst tre pulssampel över minst 30 minuter.
+- Saknat morgonvärde, saknad vilopulsbaslinje eller otillräcklig pulstäckning ger inget batterivärde.
+- Lagt till fyra enhetstester för saknade data, otillräcklig täckning, belastning och filtrering av ogiltiga/utanförliggande sampel.
+
+### Viktig begränsning
+- Detta är en första teknisk prototyp, inte en validerad fysiologisk modell. Den räknar endast ned från morgonens återhämtningsvärde; uppladdning under vila och HealthKit-integration återstår. Ingen dashboard ska presentera modellen som färdig innan vidare validering.
