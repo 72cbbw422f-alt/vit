@@ -402,3 +402,13 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Hälsa visar senaste sömn, HRV, vilopuls och vikt från HealthKit.
 - Alla vyer använder endast befintliga HealthKit-värden och frysta rapporter. Saknad historik visas som tomt läge, inte som syntetiska kurvor.
 - Kompileringskontroll via GitHub Actions återstår för denna ändring.
+
+
+## 2026-11-15 – Blodtryckslogg
+
+- Lagt till manuell blodtrycksregistrering i fliken Hälsa med systoliskt och diastoliskt tryck, valfri puls och anteckning.
+- Mätningar sparas lokalt på enheten och sorteras med senaste först.
+- Visar senaste mätningen och en trendgraf för upp till tio senaste mätningar.
+- Lagt till delbar textbaserad sammanställning med upp till 100 mätningar för att kunna lämna till läkare.
+- Validerar rimliga inmatningsintervall och markerar att loggen inte är diagnostik.
+- Nästa steg: komplettera med import/läsning av blodtryck från Apple Hälsa när sådana mätningar finns, samt testa export och graf på fysisk iPhone.
