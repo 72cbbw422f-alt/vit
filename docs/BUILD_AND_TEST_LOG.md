@@ -172,3 +172,10 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - CI-artifakt `VITAL-unsigned-device-archive` skapades och laddades upp. Arkivets innehåll inspekterades: `Products/Applications/VITAL.app/VITAL`, Info.plist och dSYM finns med.
 - Arkivet är osignerat (`CODE_SIGNING_ALLOWED=NO`) och är endast en byggverifiering. Det är inte en signerad IPA och kan inte installeras på iPhone.
 - Signering, provisioning, IPA-export och fysisk enhetstestning återstår.
+
+
+## 2026-11-15 – Osignerad sideload-IPA verifierad
+- GitHub Actions run 201, commit `4e37de29ef7566c99ec8ceda9f41493e7f2c5c0e`: kärntester, simulatorbygge, iOS-enhetsarkiv, IPA-paketering och uppladdning godkända.
+- CI-artifakt `VITAL-unsigned-IPA` hämtades och öppnades. IPA:n innehåller `Payload/VITAL.app` med arm64 Mach-O-binär och Info.plist.
+- Verifierade metadata: bundle ID `se.vital.health`, visningsnamn VITAL, version 3.0 (build 1), minsta iOS 17.0, iPhone/iPad.
+- IPA:n är osignerad och saknar provisioning profile; den måste signeras via sideload-verktyget före installation. Ingen fysisk enhetsinstallation är ännu verifierad.
