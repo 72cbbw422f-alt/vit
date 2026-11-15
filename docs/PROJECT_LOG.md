@@ -299,3 +299,11 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Om rapport saknas visas att påminnelsen kommer kl. 21:00 och att appen behöver öppnas för att fånga rapporten.
 - Senaste vilopuls är uttryckligen märkt som senaste vilopuls, inte som momentan puls.
 - CI för denna UI-ändring inväntas.
+
+
+## 2026-11-15 – Fördröjd låsning av morgonrapport
+- Identifierade risk att första sömnuppdateringen från HealthKit låste morgonrapporten innan övriga nattvärden hunnit synkroniseras.
+- MorningReportTriggerPolicy kräver nu minst 20 minuter från huvudsömnens sluttid innan snapshot får skapas.
+- Väntetiden kontrolleras vid varje befintlig trigger/refresh; den skapar ingen bakgrundstimer och lovar därför inte exakt rapporttid.
+- Saknade värden förblir nil. Snapshoten är fortsatt oföränderlig efter arkivering.
+- Lade till regressionstest för signal före respektive efter 20-minutersgränsen.
