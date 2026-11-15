@@ -351,18 +351,18 @@ private struct HealthOverviewView: View {
                     }
                     Text(latest.date.formatted(date: .abbreviated, time: .shortened))
                         .font(.caption).foregroundStyle(VITALPalette.muted)
-                    ForEach(medicationJournal.doses.prefix(3)) { dose in
-                        HStack {
+                    ForEach(medicationJournal.doses.prefix(5)) { dose in
+                        HStack(spacing: 8) {
                             Text(dose.date.formatted(date: .abbreviated, time: .omitted))
                                 .foregroundStyle(VITALPalette.muted)
                             Spacer()
                             Text(String(format: "%.2g mg", dose.milligrams))
                                 .foregroundStyle(VITALPalette.cloud).monospacedDigit()
+                            Menu {
+                                Button { editingDose = dose } label: { Label("Redigera", systemImage: "pencil") }
+                                Button(role: .destructive) { medicationJournal.deleteDose(dose) } label: { Label("Radera", systemImage: "trash") }
+                            } label: { Image(systemName: "ellipsis.circle").foregroundStyle(VITALPalette.muted) }
                         }.font(.caption)
-                        Menu {
-                            Button { editingDose = dose } label: { Label("Redigera", systemImage: "pencil") }
-                            Button(role: .destructive) { medicationJournal.deleteDose(dose) } label: { Label("Radera", systemImage: "trash") }
-                        } label: { Image(systemName: "ellipsis.circle").foregroundStyle(VITALPalette.muted) }
                     }
                 } else {
                     Text("Registrera doserna enligt din ordination för att bygga en tydlig historik.")
