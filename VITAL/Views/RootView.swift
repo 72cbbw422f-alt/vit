@@ -143,6 +143,8 @@ private struct HealthOverviewView: View {
     @EnvironmentObject private var health: HealthKitStore
     @StateObject private var bloodPressure = BloodPressureJournal()
     @StateObject private var waterTracker = WaterTrackerStore()
+    @StateObject private var weightJournal = WeightJournal()
+    @State private var showingWeightEntry = false
     @State private var showingBloodPressureEntry = false
     var body: some View {
         NavigationStack {
@@ -161,18 +163,7 @@ private struct HealthOverviewView: View {
                                 }
                             }
                         }
-                        VITALCard {
-                            VStack(alignment: .leading, spacing: 12) {
-                                Label("Kropp & vikt", systemImage: "scalemass.fill")
-                                    .font(.headline).foregroundStyle(VITALPalette.cloud)
-                                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                                    Text(health.snapshot.latestWeight.map { String(format: "%.1f", $0) } ?? "—")
-                                        .font(.system(size: 38, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
-                                    Text(health.snapshot.latestWeight == nil ? "Inväntar viktdata" : "kg · Apple Hälsa")
-                                        .font(.subheadline).foregroundStyle(VITALPalette.muted)
-                                }
-                            }
-                        }
+                        weightCard
                         waterTrackerCard
                         bloodPressureCard
                         VITALCard {
@@ -194,6 +185,75 @@ private struct HealthOverviewView: View {
             }
             .toolbar(.hidden, for: .navigationBar)
             .task { waterTracker.refreshDay() }
+        }
+    }
+
+    private var weightCard: some View {
+        VITALCard {
+            VStack(alignment: .leading, spacing: 13) {
+                HStack {
+                    Label("Viktutveckling", systemImage: "scalemass.fill")
+                        .font(.headline).foregroundStyle(VITALPalette.cloud)
+                    Spacer()
+                    Button { showingWeightEntry = true } label: {
+                        Label("Registrera", systemImage: "plus")
+                            .font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.teal)
+                    }
+                }
+                let healthWeight = health.snapshot.latestWeight
+                let current = weightJournal.latest?.kilograms ?? healthWeight
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text(current.map { String(format: "%.1f", $0) } ?? "—")
+                        .font(.system(size: 38, weight: .bold, design: .rounded))
+                        .foregroundStyle(VITALPalette.cloud).monospacedDigit()
+                    Text("kg").font(.subheadline).foregroundStyle(VITALPalette.muted)
+                    Spacer()
+                    if weightJournal.latest != nil {
+                        Text("Egen logg").font(.caption.weight(.medium)).foregroundStyle(VITALPalette.teal)
+                    } else if healthWeight != nil {
+                        Text("Apple Hälsa").font(.caption.weight(.medium)).foregroundStyle(VITALPalette.muted)
+                    }
+                }
+                if weightJournal.entries.count > 1 {
+                    Chart(weightJournal.chartEntries) { entry in
+                        LineMark(x: .value("Datum", entry.date), y: .value("Vikt", entry.kilograms))
+                            .foregroundStyle(VITALPalette.teal).interpolationMethod(.catmullRom)
+                        PointMark(x: .value("Datum", entry.date), y: .value("Vikt", entry.kilograms))
+                            .foregroundStyle(VITALPalette.teal)
+                    }
+                    .chartYAxisLabel("kg")
+                    .frame(height: 150)
+                } else {
+                    Text("Registrera vikten regelbundet för att bygga din personliga viktkurva.")
+                        .font(.caption).foregroundStyle(VITALPalette.muted)
+                }
+                HStack {
+                    Text("Målvikt").font(.caption).foregroundStyle(VITALPalette.muted)
+                    Spacer()
+                    TextField("kg", value: $weightJournal.targetWeight, format: .number.precision(.fractionLength(1)))
+                        .keyboardType(.decimalPad).multilineTextAlignment(.trailing)
+                        .frame(width: 76).foregroundStyle(VITALPalette.teal)
+                    Text("kg").font(.caption).foregroundStyle(VITALPalette.muted)
+                }
+                if let current, weightJournal.targetWeight > 0 {
+                    let remaining = current - weightJournal.targetWeight
+                    Text(remaining >= 0 ? String(format: "%.1f kg till målet", remaining) : String(format: "%.1f kg under målet", abs(remaining)))
+                        .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.teal)
+                }
+                if let change = weightJournal.change {
+                    HStack {
+                        Text("Förändring sedan första loggningen").font(.caption).foregroundStyle(VITALPalette.muted)
+                        Spacer()
+                        Text(String(format: "%+.1f kg", change)).font(.caption.weight(.semibold).monospacedDigit())
+                            .foregroundStyle(change <= 0 ? VITALPalette.teal : VITALPalette.amber)
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showingWeightEntry) {
+            WeightEntrySheet(journal: weightJournal)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
         }
     }
 
@@ -500,6 +560,74 @@ private struct BloodPressureEntrySheet: View {
                         journal.add(systolic: Int(systolic)!, diastolic: Int(diastolic)!, pulse: Int(pulse), note: note)
                         dismiss()
                     }.disabled(!valid || (!pulse.isEmpty && Int(pulse) == nil))
+                }
+            }
+        }
+    }
+}
+
+
+private struct WeightEntry: Codable, Identifiable {
+    let id: UUID
+    let date: Date
+    let kilograms: Double
+    let note: String
+    init(date: Date = .now, kilograms: Double, note: String) {
+        self.id = UUID(); self.date = date; self.kilograms = kilograms; self.note = note
+    }
+}
+@MainActor private final class WeightJournal: ObservableObject {
+    @Published private(set) var entries: [WeightEntry] = []
+    @Published var targetWeight: Double {
+        didSet { UserDefaults.standard.set(targetWeight, forKey: "vital.weight.target.v1") }
+    }
+    private let key = "vital.weight.journal.v1"
+    init() {
+        let savedTarget = UserDefaults.standard.double(forKey: "vital.weight.target.v1")
+        targetWeight = savedTarget > 0 ? savedTarget : 90
+        if let data = UserDefaults.standard.data(forKey: key),
+           let decoded = try? JSONDecoder().decode([WeightEntry].self, from: data) {
+            entries = decoded.sorted { $0.date > $1.date }
+        }
+    }
+    func add(_ kilograms: Double, note: String) {
+        guard kilograms.isFinite, (25...350).contains(kilograms) else { return }
+        entries.append(WeightEntry(kilograms: kilograms, note: note))
+        entries.sort { $0.date > $1.date }
+        persist()
+    }
+    private func persist() {
+        if let data = try? JSONEncoder().encode(entries) { UserDefaults.standard.set(data, forKey: key) }
+    }
+    var latest: WeightEntry? { entries.first }
+    var change: Double? {
+        guard let first = entries.last, let last = entries.first else { return nil }
+        return last.kilograms - first.kilograms
+    }
+    var chartEntries: [WeightEntry] { Array(entries.reversed().suffix(30)) }
+}
+private struct WeightEntrySheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject var journal: WeightJournal
+    @State private var value = ""
+    @State private var note = ""
+    private var parsed: Double? { Double(value.replacingOccurrences(of: ",", with: ".")) }
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Vikt") {
+                    TextField("Vikt i kg", text: $value).keyboardType(.decimalPad)
+                    TextField("Anteckning (valfritt)", text: $note)
+                }
+            }
+            .navigationTitle("Registrera vikt")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Avbryt") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Spara") {
+                        if let parsed { journal.add(parsed, note: note); dismiss() }
+                    }.disabled(!(parsed.map { (25...350).contains($0) } ?? false))
                 }
             }
         }
