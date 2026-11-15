@@ -257,3 +257,11 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Kort tupplur, saknad sömndata, framtida/öppen sömnperiod och gammal sömnperiod avvisas.
 - Åtta enhetstester täcker godkända signaler, reservvägar och avvisningsfall.
 - Detta är en kärnpolicy, inte färdig bakgrundsintegration. HealthKit Observer Query med Background Delivery behöver implementeras och verifieras på fysisk enhet.
+
+
+## 2026-11-15 – HealthKit bakgrundsobservation av sömn
+- HealthKitStore skapar nu en HKObserverQuery för sleepAnalysis efter att användaren beviljat HealthKit-åtkomst.
+- Observeraren begär Background Delivery med omedelbar frekvens och uppdaterar HealthSnapshot när sömndata ändras.
+- HealthKit Background Delivery-entitlement har lagts till i appens entitlements.
+- Observerhändelsen är en datakälla/uppdateringssignal, inte en direkt avläsning av Sömnfokus-status.
+- Måste verifieras med signerad entitlement och fysisk iPhone; simulatorn stöder inte HealthKit background server queries.
