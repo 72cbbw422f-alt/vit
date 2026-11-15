@@ -147,3 +147,10 @@ Status betyder:
 - [ ] Verifiera datainsamling och resultat på fysisk iPhone
 - [ ] Utveckla och validera återladdning under vila
 - [ ] Kalibrera belastningskoefficienter mot verkliga data
+
+## Uppdatering 2026-11-15 – Energins tidsintervall
+- [x] Bevara start- och sluttid för HealthKit-sampel
+- [x] Räkna endast aktiva energisampel som helt ligger inom vakenperioden
+- [x] Lägga till regressionstest för intervall som överlappar uppvaknande
+- [ ] Verifiera CI för korrigeringen
+- [ ] Validera kroppsbatteriets koefficienter och återladdning med verkliga data
