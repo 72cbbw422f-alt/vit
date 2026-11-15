@@ -97,3 +97,8 @@ Blodtryck, träningspass, andningsfrekvens, syremättnad och andra datatyper är
 - `HealthSnapshot.hrv` och `restingHeartRate` är senaste tillgängliga värden för översikten. Separata fält, `overnightHRV` och `overnightRestingHeartRate`, används av RecoveryEngine.
 - Saknade nattliga sampel lämnas nil. Senaste dagvärdet får inte ersätta nattvärdet.
 - Valet av senaste sömnperiod kan fortfarande fånga en tupplur. Det behöver valideras och eventuellt ersättas med urval av huvudperiod.
+
+## Huvudsömn och tupplurar
+- `SleepSessionCalculator.primarySession` väljer den längsta grupperade sömnperioden i det aktuella HealthKit-fönstret; vid lika längd väljs den senast avslutade.
+- HealthKitStore använder denna period för urval av nattliga HRV- och vilopulsvärden.
+- Urvalet är en heuristik. Det identifierar inte säkert nattsömn och måste verifieras mot verkliga data. `latestSession` finns kvar för anrop som uttryckligen behöver den senast avslutade perioden.
