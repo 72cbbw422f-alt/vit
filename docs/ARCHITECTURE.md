@@ -59,3 +59,10 @@ Blodtryck, träningspass, andningsfrekvens, syremättnad och andra datatyper är
 - GitHub Actions-workflow finns i `.github/workflows/ios-build.yml`.
 - Workflow kör på macOS och bygger appmålet mot iOS Simulator med kodsignering avstängd.
 - Denna CI-build verifierar kompilering och projektkonfiguration, inte HealthKit-funktionalitet på en fysisk enhet.
+
+
+## Fristående beräkningskärna
+- `VITAL/Models/RecoveryEngine.swift` innehåller den rena återhämtningsfunktionen utan beroende till HealthKit eller SwiftUI.
+- `Package.swift` exponerar modellen som Swift Package så att den kan testas separat.
+- `Tests/VITALCoreTests/RecoveryEngineTests.swift` innehåller tester för baslinjekrav, saknade värden, normalisering och begränsning av komponentpoäng.
+- Modellen är ännu inte kopplad till HealthKitStore eller dashboarden. Det är avsiktligt tills baslinje- och sömnperiodslogiken är implementerad och verifierad.
