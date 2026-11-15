@@ -245,3 +245,11 @@ Status betyder:
 - [ ] Skapa säker signeringskonfiguration med Apple Development-certifikat och provisioning profile
 - [ ] Exportera signerad IPA och verifiera installation på fysisk iPhone
 - [ ] Verifiera HealthKit-behörigheter, bakgrundsleverans och notiser på enheten
+
+
+## Uppdatering 2026-11-15 – Sideload-IPA
+- [x] Fastställa leveransmål: osignerad IPA för signering i användarens sideload-verktyg
+- [x] Lägga till CI-paketering av `Payload/VITAL.app` till osignerad `.ipa`
+- [ ] Verifiera att IPA-artefakten skapas och har korrekt Payload-struktur
+- [ ] Signera IPA via AltStore/SideStore eller motsvarande och installera på iPhone
+- [ ] Testa HealthKit-läsning, entitlement, notiser och bakgrundsleverans efter sideload-signering
