@@ -96,7 +96,7 @@ struct DailyReportSnapshot: Codable, Equatable, Identifiable {
         self.id = id
         self.kind = kind
         self.localDay = localDay
-        self.localDayKey = Self.dayKey(for: localDay, calendar: calendar)
+        self.localDayKey = Self.dayKeyForLookup(localDay, calendar: calendar)
         self.timeZoneIdentifier = calendar.timeZone.identifier
         self.capturedAt = capturedAt
         self.recoveryScore = recoveryScore
