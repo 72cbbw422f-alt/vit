@@ -32,3 +32,10 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - Behåll `main` orörd tills grundfunktioner och byggen är verifierade.
 - Dokumentera varje större ändring, test, fel och beslut i `docs/`.
 - En IPA får inte beskrivas som färdig förrän en faktisk signerad byggfil har skapats och verifierats.
+
+
+## Datakvalitet – nattliga värden
+- Återhämtningsmotorn får inte använda senaste tillgängliga HRV- eller vilopulsvärde som om det automatiskt vore ett nattvärde.
+- Nattliga mätvärden måste kopplas till en explicit sömnperiod med tidsstämplar.
+- Om relevant nattligt underlag saknas ska värdet vara saknat; dagvärden får inte användas som tyst reserv.
+- HealthKit:s semantik och tidsstämplar ska verifieras innan urvalsmodellen kopplas in i produktionsflödet.
