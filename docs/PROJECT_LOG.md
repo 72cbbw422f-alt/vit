@@ -384,3 +384,11 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Granska den nya ikonen på faktisk iPhone efter nästa IPA-installation.
 - Fortsätta utveckla VITALs visuella komponentbibliotek med egna ringar, datagrafik och tydligare aktivitetsvisualiseringar.
 - Genomföra ny CI-build och granska eventuella SwiftUI-kompileringsfel innan IPA delas.
+
+
+## 2026-11-15 – Grafisk aktivitetsring och mätkort
+
+- Ersatt den linjära stegmålsindikatorn med en egen cirkulär aktivitetsring som visar faktisk andel av 8 000-stegsmålet.
+- Ringen visar neutral saknad status när HealthKit saknar stegvärde; den fabricerar inte nollsteg.
+- Gjort sömn-, HRV-, vilopuls- och stresskorten mer grafiska med egna symboler, färgaccent och tydligare visuell hierarki.
+- Fortsatt använda enbart riktiga HealthKit-värden i mätkorten; inga syntetiska trendkurvor har lagts till.
