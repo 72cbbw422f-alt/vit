@@ -58,3 +58,11 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - Pulssampel får endast integreras över tidsluckor på högst 15 minuter. Minst tre sampel och minst 30 minuters täckning krävs.
 - Otillräckliga eller saknade underlag ska ge saknat värde, aldrig ett påhittat standardvärde.
 - Prototypen laddar ännu inte upp under vila. Återladdningsmodell och koefficienter måste valideras mot verkliga data innan produktionsstatus.
+
+
+## Kroppsbatteri – HealthKit och dashboard (2026-11-15)
+- Kroppsbatteriet använder pulssampel (`heartRate`) och aktiv energi (`activeEnergyBurned`) från HealthKit.
+- Endast sampel inom perioden från vald sömns uppvakningstid till beräkningstid får påverka dagens batteri.
+- Startvärdet är nattens separata återhämtningspoäng; personlig vilopulsbaslinje används som referens för pulsbelastning.
+- Resultatet visas inte om nattens återhämtning, vilopulsbaslinje eller tillräcklig pulstäckning saknas.
+- UI ska visa att detta är en preliminär wellness-uppskattning och inte medicinskt mått.
