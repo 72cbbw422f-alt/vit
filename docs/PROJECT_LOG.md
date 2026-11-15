@@ -325,3 +325,10 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Dubblettskyddet använder nu den ursprungliga rapportdagen i stället för att omtolka historiska datum med aktuell tidszon.
 - Lade till bakåtkompatibel Codable-avkodning för äldre arkiv samt stabil datumetikett i dashboardens historik.
 - Lade till tester för byte mellan tidszoner och svensk sommartidsdag. CI-resultat inväntas.
+
+
+## 2026-11-15 – Förberedelse av iOS-enhetsarkiv i CI
+- Utökade GitHub Actions med ett separat Release-arkivsteg för generisk iOS-enhet med kodsignering avstängd.
+- Arkivet laddas upp som ett kortlivat CI-artifakt för inspektion. Det är uttryckligen osignerat och kan inte installeras på iPhone.
+- Syftet är att verifiera att projektet kan arkiveras för iOS-enhet innan Apple Team, certifikat och provisioning finns tillgängliga.
+- Resultatet av arkivsteget inväntas; ingen IPA har skapats.
