@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 import HealthKit
 
 @MainActor
@@ -73,9 +74,13 @@ final class HealthKitStore: ObservableObject {
         return await withCheckedContinuation { continuation in
             let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit,
                 sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { _, samples, _ in
-                    let asleep = (samples as? [HKCategorySample])?.filter {
-                        [.asleepUnspecified, .asleepCore, .asleepDeep, .asleepREM].contains(HKCategoryValueSleepAnalysis(rawValue: $0.value) ?? .inBed)
-                    } ?? []
+                    let asleepValues = [
+                        HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue,
+                        HKCategoryValueSleepAnalysis.asleepCore.rawValue,
+                        HKCategoryValueSleepAnalysis.asleepDeep.rawValue,
+                        HKCategoryValueSleepAnalysis.asleepREM.rawValue
+                    ]
+                    let asleep = (samples as? [HKCategorySample])?.filter { asleepValues.contains($0.value) } ?? []
                     let seconds = asleep.reduce(0.0) { $0 + $1.endDate.timeIntervalSince($1.startDate) }
                     continuation.resume(returning: seconds > 0 ? seconds : nil)
                 }
