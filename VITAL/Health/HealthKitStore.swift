@@ -8,6 +8,7 @@ final class HealthKitStore: ObservableObject {
     @Published private(set) var snapshot = HealthSnapshot.empty
     @Published private(set) var isAvailable = HKHealthStore.isHealthDataAvailable()
     @Published private(set) var authorizationRequested = false
+    @Published private(set) var backgroundSleepDeliveryEnabled = false
     @Published private(set) var lastError: String?
     @Published private(set) var morningReport: DailyReportSnapshot?
     @Published private(set) var eveningReport: DailyReportSnapshot?
@@ -65,9 +66,14 @@ final class HealthKitStore: ObservableObject {
         sleepObserverQuery = query
         store.execute(query)
 
-        await withCheckedContinuation { continuation in
-            store.enableBackgroundDelivery(for: sleepType, frequency: .immediate) { _, _ in
-                continuation.resume()
+        store.enableBackgroundDelivery(for: sleepType, frequency: .immediate) { [weak self] success, error in
+            Task { @MainActor [weak self] in
+                self?.backgroundSleepDeliveryEnabled = success
+                if let error {
+                    self?.lastError = "Bakgrundsuppdatering av sömndata kunde inte aktiveras: \(error.localizedDescription)"
+                } else if !success {
+                    self?.lastError = "Apple Hälsa bekräftade inte bakgrundsuppdatering av sömndata."
+                }
             }
         }
     }
