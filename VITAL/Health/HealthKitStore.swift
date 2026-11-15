@@ -81,7 +81,7 @@ final class HealthKitStore: ObservableObject {
             let granted = try await center.requestAuthorization(options: [.alert, .sound])
             guard granted else { return }
             let content = UNMutableNotificationContent()
-            content.title = "Kvällsrapporten är redo"
+            content.title = "Dags för kvällsrapporten"
             content.body = "Öppna VITAL för att uppdatera hälsodatan och skapa kvällens rapport."
             content.sound = .default
             var components = DateComponents()
