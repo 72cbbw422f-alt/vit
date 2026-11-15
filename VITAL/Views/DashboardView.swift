@@ -103,7 +103,7 @@ struct DashboardView: View {
                 HStack {
                     Text("Kroppsbatteri").font(.headline.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
                     Spacer()
-                    Text(battery?.score.map(String.init) ?? "—")
+                    Text(battery?.score.map { String($0) } ?? "—")
                         .font(.system(size: 32, weight: .bold, design: .rounded))
                         .foregroundStyle(VITALPalette.teal).monospacedDigit()
                     Text("/ 100").font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.muted)
