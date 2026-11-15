@@ -42,7 +42,7 @@ jobs:
         run: |
           APP="$RUNNER_TEMP/VITAL-unsigned.xcarchive/Products/Applications/VITAL.app"
           test -s "$APP/Assets.car"
-          /usr/libexec/PlistBuddy -c 'Print :CFBundleIcons:CFBundlePrimaryIcon:CFBundleName' "$APP/Info.plist" >/dev/null
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleIcons:CFBundlePrimaryIcon:CFBundleIconName' "$APP/Info.plist" >/dev/null
       - name: Package unsigned IPA for sideload signing
         run: |
           mkdir -p "$RUNNER_TEMP/ipa/Payload"
