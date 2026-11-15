@@ -526,3 +526,11 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Om skyddsinställningen misslyckas tas den nyss skrivna bildfilen bort och användaren får ett tydligt felmeddelande.
 - Det förhindrar att appen tyst sparar en bild i strid med den integritetsinformation som visas i gränssnittet.
 - Ändringen inväntar CI och behöver verifieras på fysisk iPhone.
+
+
+## 2026-11-15 – Vattenpåminnelser: versionsskydd och identifierare
+
+- Pågående behörighets- och schemaläggningsjobb får ett versions-ID så att ett äldre jobb inte kan återaktivera påminnelser efter att användaren stängt av dem eller ändrat intervall.
+- Korrigerade notisernas identifierare så att varje schemalagd tid får sitt eget indexbaserade ID och kan tas bort eller ersättas korrekt.
+- CI fångade först ett saknat funktionsargument; detta rättades. Därefter upptäcktes och korrigerades även interpoleringen i notis-ID:n.
+- Slutlig verifiering inväntar CI.
