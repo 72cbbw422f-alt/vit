@@ -110,3 +110,11 @@ Blodtryck, träningspass, andningsfrekvens, syremättnad och andra datatyper är
 - Pulslast integreras endast mellan sampel med högst 15 minuters mellanrum. Minst tre sampel över minst 30 minuter krävs.
 - Aktiv energi summeras inom vakenperioden. Saknat underlag ger nil-poäng.
 - Prototypen minskar från morgonens värde och modellerar ännu inte återhämtning under vila. HealthKit-frågor och UI-integration är nästa steg.
+
+
+## Kroppsbatteri – HealthKit-flöde
+- `HealthKitStore` läser tidsstämplad puls och aktiv energi från ett rullande 36-timmarsfönster.
+- Vid uppdatering väljs huvudsömnens sluttid som uppvakningstid och `HealthSnapshot.recoveryResult.score` som startvärde.
+- `BodyBatteryEngine` får endast dagens sampel mellan uppvakning och aktuell beräkningstid.
+- Resultatet lagras i `HealthSnapshot.bodyBattery` och renderas av dashboardens energikort.
+- Om underlaget inte räcker lämnas poängen nil och förklaringen visas i stället.
