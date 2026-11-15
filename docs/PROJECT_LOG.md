@@ -274,3 +274,11 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Saknade värden förblir nil; rapporten hittar inte på HRV, vilopuls, återhämtning eller aktivitetsvärden.
 - MorningReport publiceras som aktuell dags rapport i HealthKitStore. Visning, historikvy, kvällsrapport och fysisk iPhone-verifiering återstår.
 - CI för denna ändring är ännu inte bekräftad vid loggtillfället.
+
+
+## 2026-11-15 – Rapporthistorik i dashboarden
+- HealthKitStore exponerar nu sparade rapporter i omvänd kronologisk ordning.
+- Dashboarden visar upp till fem senaste rapporter med rapporttyp, lokal dag och återhämtningspoäng när sådan finns.
+- Historiklistan använder samma lokala arkiv som den frysta morgonrapporten; ingen separat kopia skapas.
+- En dashboard-build misslyckades först på en bokstavlig escaped newline i Swift-filen. Den är korrigerad i commit `4cfcde466347648c8b0b9bfb8e1def62963dd4cd`; ny CI körs för senare commits.
+- Senaste rapporthistorikändringarna inväntar fullständig CI-verifiering.
