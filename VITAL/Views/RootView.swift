@@ -148,7 +148,9 @@ private struct HealthOverviewView: View {
     @StateObject private var weightJournal = WeightJournal()
     @StateObject private var medicationJournal = SemaglutideJournal()
     @State private var showingDoseEntry = false
+    @State private var editingDose: MedicationDose?
     @State private var showingSideEffectEntry = false
+    @State private var editingEffect: MedicationEffect?
     @State private var showingDoseReminder = false
     @State private var showingWeightEntry = false
     @State private var editingWeight: WeightEntry?
@@ -357,6 +359,10 @@ private struct HealthOverviewView: View {
                             Text(String(format: "%.2g mg", dose.milligrams))
                                 .foregroundStyle(VITALPalette.cloud).monospacedDigit()
                         }.font(.caption)
+                        Menu {
+                            Button { editingDose = dose } label: { Label("Redigera", systemImage: "pencil") }
+                            Button(role: .destructive) { medicationJournal.deleteDose(dose) } label: { Label("Radera", systemImage: "trash") }
+                        } label: { Image(systemName: "ellipsis.circle").foregroundStyle(VITALPalette.muted) }
                     }
                 } else {
                     Text("Registrera doserna enligt din ordination för att bygga en tydlig historik.")
@@ -384,6 +390,10 @@ private struct HealthOverviewView: View {
                         Spacer()
                         Text("Intensitet \(effect.severity)/5")
                             .font(.caption).foregroundStyle(VITALPalette.amber)
+                        Menu {
+                            Button { editingEffect = effect } label: { Label("Redigera", systemImage: "pencil") }
+                            Button(role: .destructive) { medicationJournal.deleteEffect(effect) } label: { Label("Radera", systemImage: "trash") }
+                        } label: { Image(systemName: "ellipsis.circle").foregroundStyle(VITALPalette.muted) }
                     }
                 }
                 if let reminder = medicationJournal.reminderDate {
@@ -399,8 +409,16 @@ private struct HealthOverviewView: View {
             DoseEntrySheet(journal: medicationJournal)
                 .presentationDetents([.medium, .large]).presentationDragIndicator(.visible)
         }
+        .sheet(item: $editingDose) { entry in
+            DoseEntrySheet(journal: medicationJournal, entry: entry)
+                .presentationDetents([.medium, .large]).presentationDragIndicator(.visible)
+        }
         .sheet(isPresented: $showingSideEffectEntry) {
             SideEffectEntrySheet(journal: medicationJournal)
+                .presentationDetents([.medium, .large]).presentationDragIndicator(.visible)
+        }
+        .sheet(item: $editingEffect) { entry in
+            SideEffectEntrySheet(journal: medicationJournal, entry: entry)
                 .presentationDetents([.medium, .large]).presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $showingDoseReminder) {
@@ -829,8 +847,8 @@ private struct MedicationDose: Codable, Identifiable {
     let id: UUID
     let date: Date
     let milligrams: Double
-    init(date: Date = .now, milligrams: Double) {
-        id = UUID(); self.date = date; self.milligrams = milligrams
+    init(id: UUID = UUID(), date: Date = .now, milligrams: Double) {
+        self.id = id; self.date = date; self.milligrams = milligrams
     }
 }
 private struct MedicationEffect: Codable, Identifiable {
@@ -839,8 +857,8 @@ private struct MedicationEffect: Codable, Identifiable {
     let title: String
     let severity: Int
     let note: String
-    init(date: Date = .now, title: String, severity: Int, note: String) {
-        id = UUID(); self.date = date; self.title = title; self.severity = severity; self.note = note
+    init(id: UUID = UUID(), date: Date = .now, title: String, severity: Int, note: String) {
+        self.id = id; self.date = date; self.title = title; self.severity = severity; self.note = note
     }
 }
 @MainActor private final class SemaglutideJournal: ObservableObject {
@@ -870,11 +888,31 @@ private struct MedicationEffect: Codable, Identifiable {
     func addDose(_ mg: Double, date: Date) {
         guard mg.isFinite, (0.01...10).contains(mg) else { return }
         doses.append(MedicationDose(date: date, milligrams: mg))
-        doses.sort { $0.date > $1.date }; persist(doses, key: "vital.medication.doses.v1")
+        persist(doses, key: "vital.medication.doses.v1")
+    }
+    func updateDose(_ entry: MedicationDose, milligrams: Double, date: Date) {
+        guard milligrams.isFinite, (0.01...10).contains(milligrams),
+              let index = doses.firstIndex(where: { $0.id == entry.id }) else { return }
+        doses[index] = MedicationDose(id: entry.id, date: date, milligrams: milligrams)
+        persist(doses, key: "vital.medication.doses.v1")
+    }
+    func deleteDose(_ entry: MedicationDose) {
+        doses.removeAll { $0.id == entry.id }
+        persist(doses, key: "vital.medication.doses.v1")
     }
     func addEffect(_ title: String, severity: Int, note: String) {
         effects.append(MedicationEffect(title: title, severity: severity, note: note))
-        effects.sort { $0.date > $1.date }; persist(effects, key: "vital.medication.effects.v1")
+        persist(effects, key: "vital.medication.effects.v1")
+    }
+    func updateEffect(_ entry: MedicationEffect, title: String, severity: Int, note: String) {
+        guard (1...5).contains(severity),
+              let index = effects.firstIndex(where: { $0.id == entry.id }) else { return }
+        effects[index] = MedicationEffect(id: entry.id, date: entry.date, title: title, severity: severity, note: note)
+        persist(effects, key: "vital.medication.effects.v1")
+    }
+    func deleteEffect(_ entry: MedicationEffect) {
+        effects.removeAll { $0.id == entry.id }
+        persist(effects, key: "vital.medication.effects.v1")
     }
     private func persist<T: Encodable>(_ value: T, key: String) {
         if let data = try? JSONEncoder().encode(value) { UserDefaults.standard.set(data, forKey: key) }
@@ -921,8 +959,14 @@ private struct MedicationEffect: Codable, Identifiable {
 private struct DoseEntrySheet: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var journal: SemaglutideJournal
-    @State private var amount = ""
-    @State private var date = Date.now
+    let entry: MedicationDose?
+    @State private var amount: String
+    @State private var date: Date
+    init(journal: SemaglutideJournal, entry: MedicationDose? = nil) {
+        self.journal = journal; self.entry = entry
+        _amount = State(initialValue: entry.map { String(format: "%.2g", $0.milligrams) } ?? "")
+        _date = State(initialValue: entry?.date ?? .now)
+    }
     private var parsed: Double? { Double(amount.replacingOccurrences(of: ",", with: ".")) }
     var body: some View {
         NavigationStack {
@@ -933,11 +977,11 @@ private struct DoseEntrySheet: View {
                 }
                 Section { Text("Ange exakt den dos du tagit enligt din ordination. VITAL rekommenderar inte dos eller dosändring.").font(.footnote).foregroundStyle(.secondary) }
             }
-            .navigationTitle("Registrera dos").navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(entry == nil ? "Registrera dos" : "Redigera dos").navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Avbryt") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Spara") { if let parsed { journal.addDose(parsed, date: date); dismiss() } }
+                    Button("Spara") { if let parsed { if let entry { journal.updateDose(entry, milligrams: parsed, date: date) } else { journal.addDose(parsed, date: date) }; dismiss() } }
                         .disabled(!(parsed.map { (0.01...10).contains($0) } ?? false))
                 }
             }
@@ -947,9 +991,16 @@ private struct DoseEntrySheet: View {
 private struct SideEffectEntrySheet: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var journal: SemaglutideJournal
-    @State private var title = "Illamående"
-    @State private var severity = 2
-    @State private var note = ""
+    let entry: MedicationEffect?
+    @State private var title: String
+    @State private var severity: Int
+    @State private var note: String
+    init(journal: SemaglutideJournal, entry: MedicationEffect? = nil) {
+        self.journal = journal; self.entry = entry
+        _title = State(initialValue: entry?.title ?? "Illamående")
+        _severity = State(initialValue: entry?.severity ?? 2)
+        _note = State(initialValue: entry?.note ?? "")
+    }
     private let choices = ["Illamående", "Förstoppning", "Diarré", "Magont", "Huvudvärk", "Yrsel", "Trötthet", "Annat"]
     var body: some View {
         NavigationStack {
@@ -960,11 +1011,11 @@ private struct SideEffectEntrySheet: View {
                     TextField("Anteckning (valfritt)", text: $note, axis: .vertical)
                 }
             }
-            .navigationTitle("Logga biverkning").navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(entry == nil ? "Logga biverkning" : "Redigera registrering").navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Avbryt") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Spara") { journal.addEffect(title, severity: severity, note: note); dismiss() }
+                    Button("Spara") { if let entry { journal.updateEffect(entry, title: title, severity: severity, note: note) } else { journal.addEffect(title, severity: severity, note: note) }; dismiss() }
                 }
             }
         }
