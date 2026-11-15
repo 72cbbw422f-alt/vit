@@ -313,3 +313,9 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Lade till backgroundSleepDeliveryEnabled i HealthKitStore.
 - Resultatet från enableBackgroundDelivery hanteras nu uttryckligen; fel och nekad aktivering visas i lastError.
 - Ingen garanti om omedelbar bakgrundskörning görs. Verifiering kräver signerad app på fysisk iPhone.
+
+
+## 2026-11-15 – Robustare kvällspåminnelse
+- Ändrade notisflödet så att befintlig iOS-behörighet läses innan någon systemdialog begärs.
+- Behörighetsfrågan visas endast vid notDetermined. Nekad behörighet visas som status och väntande notis tas bort.
+- Dashboardens statusdel visar nu separat kvällsnotisens behörighet och HealthKit-sömnens bakgrundsleverans.
