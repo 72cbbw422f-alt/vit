@@ -107,3 +107,9 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Felet var i test-/modellens initieringsgränssnitt, inte i iOS Simulator-bygget (det steget hoppades över efter testfelet).
 - `TimedHealthValue` har nu en explicit initierare med valfri `startTimestamp` och standardvärdet nil.
 - Korrigeringen är incheckad i commit `dc752f30f416249a2ed12ed0787e1b62c0a885f7`; ny CI-körning inväntas.
+
+## 2026-11-15 – Aktiv energi-intervall: CI godkänd
+- GitHub Actions run 110, commit `dc752f30f416249a2ed12ed0787e1b62c0a885f7`: `Run core unit tests` godkänd och `Build iOS Simulator target` godkänd.
+- GitHub Actions run 111, dokumentationscommit `b22ccb533636cfe591d7967cb7a2f084a7bd286c`: båda stegen godkända.
+- Regressionstestet för aktiv energi verifierar att endast ett sampel helt inom vakenperioden räknas; överlappande och framtida sampel utesluts.
+- Ingen fysisk iPhone-testning, HealthKit-auktorisering eller IPA-export är utförd.
