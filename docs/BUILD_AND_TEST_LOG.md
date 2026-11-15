@@ -140,3 +140,10 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - GitHub Actions run 151, commit `cc672e9bc26366aaacd618728682cceffc7a50d7`: kärntester och iOS Simulator-build godkända för HealthKitStore-kopplingen av kvällssnapshot.
 - Körningar för daglig notis, scenePhase-refresh och senaste rapportkortet väntar fortfarande.
 - Ingen fysisk iPhone-testning eller IPA-export har utförts.
+
+
+## 2026-11-15 – Morgonrapportens dataväntan
+- Ändrat triggerpolicyn till minst 20 minuters väntetid efter huvudsömnens sluttid.
+- Lagt till test för att rapport inte får skapas efter 19 minuter och 59 sekunder, men får skapas vid 20 minuter.
+- Källkod och test är incheckade; CI-resultat för dessa commits inväntas.
+- Ingen fysisk iPhone-testning eller HealthKit-synkroniseringsmätning är utförd.
