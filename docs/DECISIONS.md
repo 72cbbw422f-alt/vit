@@ -39,3 +39,10 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - Nattliga mätvärden måste kopplas till en explicit sömnperiod med tidsstämplar.
 - Om relevant nattligt underlag saknas ska värdet vara saknat; dagvärden får inte användas som tyst reserv.
 - HealthKit:s semantik och tidsstämplar ska verifieras innan urvalsmodellen kopplas in i produktionsflödet.
+
+
+## Nattdata – HealthKit-integration
+- Senaste HRV och vilopuls kan visas som översiktsvärden men får inte automatiskt användas som nattliga återhämtningsvärden.
+- Återhämtningsmotorn får endast värden vars HealthKit-tidsstämpel ligger inom den valda sömnperioden.
+- Om HealthKit inte lämnar sampel inom sömnperioden visas ingen återhämtningspoäng.
+- Valet av huvudsömnperiod ska kvalitetssäkras separat så att tupplurar inte felaktigt ersätter nattsömnen.
