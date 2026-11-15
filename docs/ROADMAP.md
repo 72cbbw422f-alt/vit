@@ -93,5 +93,7 @@ Status betyder:
 - [x] Ignorera ogiltiga och utanför-fönstret-värden
 - [x] Kräva minst 14 giltiga dagar
 - [x] Lägga till fem tester för baslinjekalkylatorn
-- [ ] Hämta 30-dagarsserier från HealthKit och koppla in kalkylatorn
+- [x] Hämta 30-dagarsserier för HRV, vilopuls och sömn från HealthKit och koppla in baslinjekalkylatorn
+- [ ] Verifiera historiska HealthKit-frågor och baslinjer på fysisk iPhone
+- [ ] Koppla verifierade baslinjer till återhämtningsmotorn och visa datakvalitet
 - [ ] Validera datakvalitet och tidsfönster för varje mätvärde
