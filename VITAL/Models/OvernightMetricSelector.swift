@@ -3,6 +3,8 @@ import Foundation
 struct TimedHealthValue {
     let timestamp: Date
     let value: Double
+    /// Start of the source interval when HealthKit provides one (notably active energy).
+    /// Nil keeps compatibility with instantaneous or test samples.
 }
 
 struct OvernightMetrics {
