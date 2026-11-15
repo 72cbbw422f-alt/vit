@@ -99,3 +99,11 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - En daglig lokal notis påminner kl. 21:00 om att öppna VITAL. Notisen är en påminnelse, inte en garanti för bakgrundskörning eller rapportskapande.
 - När appen återgår till förgrunden uppdateras HealthKit och rapportflödet kontrolleras igen.
 - Fångsttiden som visas är den faktiska tidpunkten då VITAL skapade rapporten.
+
+
+## 2026-11-15 – Väntetid före låsning av morgonrapport
+- En godkänd morgonrapportsignal får inte omedelbart låsa rapporten. VITAL väntar minst 20 minuter från huvudsömnens sluttid innan snapshot får skapas.
+- Väntetiden är en försiktighetsåtgärd för att ge HealthKit tid att leverera fördröjda nattliga sampel; den är ingen garanti för fullständiga data.
+- Om appen inte får körningstid när väntetiden passerar skapas rapporten vid nästa HealthKit-uppdatering eller när appen blir aktiv.
+- När väntetiden passerat får fortfarande saknade mätvärden vara nil. Rapporten låses då med tillgängliga värden och skrivs aldrig om.
+- 20 minuter är en initial produktheuristik som ska utvärderas mot verklig synkronisering på fysisk iPhone.
