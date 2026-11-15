@@ -66,3 +66,9 @@ Blodtryck, träningspass, andningsfrekvens, syremättnad och andra datatyper är
 - `Package.swift` exponerar modellen som Swift Package så att den kan testas separat.
 - `Tests/VITALCoreTests/RecoveryEngineTests.swift` innehåller tester för baslinjekrav, saknade värden, normalisering och begränsning av komponentpoäng.
 - Modellen är ännu inte kopplad till HealthKitStore eller dashboarden. Det är avsiktligt tills baslinje- och sömnperiodslogiken är implementerad och verifierad.
+
+
+## Sömnperiodsberäkning
+- `VITAL/Models/SleepSessionCalculator.swift` slår ihop överlappande sömnintervall och grupperar sammanhängande segment.
+- `HealthKitStore.latestSleepDuration()` läser sömnsegment från de senaste 36 timmarna och skickar endast sömnklassade intervall till kalkylatorn.
+- Första prototypen grupperar segment med högst 90 minuters mellanrum. Tröskeln är konfigurerbar och ska valideras mot verkliga data.
