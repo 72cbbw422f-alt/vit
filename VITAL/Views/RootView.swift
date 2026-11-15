@@ -746,6 +746,12 @@ private struct MedicationEffect: Codable, Identifiable {
             effects = value.sorted { $0.date > $1.date }
         }
         reminderDate = defaults.object(forKey: "vital.medication.reminder.v1") as? Date
+        if let reminderDate, reminderDate <= .now {
+            self.reminderDate = nil
+            defaults.removeObject(forKey: "vital.medication.reminder.v1")
+            center.removePendingNotificationRequests(withIdentifiers: ["vital.medication.nextDose"])
+            center.removeDeliveredNotifications(withIdentifiers: ["vital.medication.nextDose"])
+        }
     }
     func addDose(_ mg: Double, date: Date) {
         guard mg.isFinite, (0.01...10).contains(mg) else { return }
@@ -766,6 +772,8 @@ private struct MedicationEffect: Codable, Identifiable {
             let granted = (try? await center.requestAuthorization(options: [.alert, .sound])) ?? false
             guard granted else { return false }
         }
+        center.removePendingNotificationRequests(withIdentifiers: ["vital.medication.nextDose"])
+        center.removeDeliveredNotifications(withIdentifiers: ["vital.medication.nextDose"])
         let content = UNMutableNotificationContent()
         content.title = "Påminnelse från VITAL"
         content.body = "Det är dags att se över din läkemedelsplan."
@@ -778,6 +786,12 @@ private struct MedicationEffect: Codable, Identifiable {
             UserDefaults.standard.set(date, forKey: "vital.medication.reminder.v1")
             return true
         } catch { return false }
+    }
+    func clearReminder() {
+        center.removePendingNotificationRequests(withIdentifiers: ["vital.medication.nextDose"])
+        center.removeDeliveredNotifications(withIdentifiers: ["vital.medication.nextDose"])
+        reminderDate = nil
+        UserDefaults.standard.removeObject(forKey: "vital.medication.reminder.v1")
     }
 }
 private struct DoseEntrySheet: View {
@@ -844,6 +858,14 @@ private struct DoseReminderSheet: View {
                     DatePicker("Datum och tid", selection: $date, in: Date.now..., displayedComponents: [.date, .hourAndMinute])
                     Text("Välj själv en tid som följer din ordination. Påminnelsen är en kalendernotis, inte ett doseringsråd.")
                         .font(.footnote).foregroundStyle(.secondary)
+                }
+                if journal.reminderDate != nil {
+                    Section {
+                        Button("Ta bort sparad påminnelse", role: .destructive) {
+                            journal.clearReminder()
+                            status = "Påminnelsen är borttagen."
+                        }
+                    }
                 }
                 if let status { Section { Text(status).font(.footnote) } }
             }
@@ -1050,6 +1072,10 @@ private struct ProgressPhoto: Codable, Identifiable {
     }
     init() {
         try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        var folderURL = folder
+        var values = URLResourceValues()
+        values.isExcludedFromBackup = true
+        try? folderURL.setResourceValues(values)
         if let data = UserDefaults.standard.data(forKey: key),
            let saved = try? JSONDecoder().decode([ProgressPhoto].self, from: data) {
             photos = saved.filter { FileManager.default.fileExists(atPath: folder.appendingPathComponent($0.fileName).path) }
@@ -1293,9 +1319,6 @@ private struct ProgressPhotoComparison: View {
         VStack(alignment: .leading, spacing: 3) {
             Text(photo.date.formatted(date: .abbreviated, time: .omitted))
                 .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
-            if let weight = nil as Double? {
-                Text("\(weight, specifier: "%.1f") kg").font(.caption2).foregroundStyle(VITALPalette.muted)
-            }
         }
     }
 }
