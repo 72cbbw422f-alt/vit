@@ -26,13 +26,13 @@ final class BodyBatteryEngineTests: XCTestCase {
         let calm = BodyBatteryEngine.calculate(BodyBatteryInputs(
             wakeTime: wake, asOf: wake.addingTimeInterval(3600),
             overnightRecoveryScore: 90, restingHeartRateBaselineBPM: 60,
-            heartRateSamples: samples([60, 60, 60], spacing: 1800),
+            heartRateSamples: samples([60, 60, 60, 60, 60], spacing: 900),
             activeEnergySamples: []
         ))
         let active = BodyBatteryEngine.calculate(BodyBatteryInputs(
             wakeTime: wake, asOf: wake.addingTimeInterval(3600),
             overnightRecoveryScore: 90, restingHeartRateBaselineBPM: 60,
-            heartRateSamples: samples([120, 120, 120], spacing: 1800),
+            heartRateSamples: samples([120, 120, 120, 120, 120], spacing: 900),
             activeEnergySamples: [TimedHealthValue(timestamp: wake.addingTimeInterval(1200), value: 400)]
         ))
         XCTAssertNotNil(calm.score)
