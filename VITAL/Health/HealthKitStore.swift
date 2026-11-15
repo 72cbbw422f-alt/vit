@@ -36,7 +36,9 @@ final class HealthKitStore: ObservableObject {
 
     func refresh() async {
         let now = Date()
-        async let sleepValue = latestSleepDuration()
+        async let sleepSessionValue = latestSleepSession()
+        async let overnightHRVSamples = recentTimedQuantitySamples(.heartRateVariabilitySDNN, unit: .secondUnit(with: .milli))
+        async let overnightPulseSamples = recentTimedQuantitySamples(.restingHeartRate, unit: HKUnit.count().unitDivided(by: .minute()))
         async let restingValue = latestQuantity(.restingHeartRate, unit: HKUnit.count().unitDivided(by: .minute()))
         async let hrvValue = latestQuantity(.heartRateVariabilitySDNN, unit: .secondUnit(with: .milli))
         async let stepsValue = todaySum(.stepCount, unit: .count())
@@ -45,10 +47,28 @@ final class HealthKitStore: ObservableObject {
         async let baselines = loadPersonalBaselines(asOf: now)
 
         let baselineValues = await baselines
+        let sleepSession = await sleepSessionValue
+        let overnightMetrics: OvernightMetrics
+        if let sleepSession {
+            overnightMetrics = OvernightMetricSelector.select(
+                hrv: await overnightHRVSamples,
+                restingHeartRate: await overnightPulseSamples,
+                sleepSession: sleepSession
+            )
+        } else {
+            overnightMetrics = OvernightMetrics(
+                hrvMilliseconds: nil,
+                restingHeartRateBPM: nil,
+                hrvSampleCount: 0,
+                restingHeartRateSampleCount: 0
+            )
+        }
         snapshot = HealthSnapshot(
-            sleepDuration: await sleepValue,
+            sleepDuration: sleepSession?.duration,
             restingHeartRate: await restingValue,
             hrv: await hrvValue,
+            overnightHRV: overnightMetrics.hrvMilliseconds,
+            overnightRestingHeartRate: overnightMetrics.restingHeartRateBPM,
             steps: await stepsValue,
             activeEnergy: await energyValue,
             latestWeight: await weightValue,
