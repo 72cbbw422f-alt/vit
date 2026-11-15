@@ -363,3 +363,10 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Måendedagboken har redan en färgkodad trendvy för de senaste registreringarna.
 - Målet är att fortsätta med riktiga historiska grafer för vikt, aktivitet och läkemedelslogg när respektive datamodell finns; inga syntetiska datapunkter används.
 - CI verifiering av UI-ändringen inväntas.
+
+
+## 2026-11-15 – VITAL-appikon integrerad i byggkedjan
+- Ny appikonriktning med marinblå grund, turkos/lila gradient, hjärta och EKG-linje har godkänts.
+- Lagt till en reproducerbar macOS/Swift-baserad ikonrenderare och AppIcon asset catalog.
+- Xcode-targeten pekar nu på AppIcon och GitHub Actions genererar ikonen före simulatorbygge och IPA-arkivering.
+- CI måste verifiera renderaren och att ikonen följer med i appbundle innan ändringen betraktas som färdig.
