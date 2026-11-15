@@ -151,6 +151,7 @@ private struct HealthOverviewView: View {
     @State private var showingSideEffectEntry = false
     @State private var showingDoseReminder = false
     @State private var showingWeightEntry = false
+    @State private var showingTargetWeightEntry = false
     @State private var showingBloodPressureEntry = false
     @State private var showingProgressPhotos = false
     @StateObject private var progressPhotos = ProgressPhotoJournal()
@@ -240,13 +241,21 @@ private struct HealthOverviewView: View {
                 HStack {
                     Text("Målvikt").font(.caption).foregroundStyle(VITALPalette.muted)
                     Spacer()
-                    TextField("kg", value: $weightJournal.targetWeight, format: .number.precision(.fractionLength(1)))
-                        .keyboardType(.decimalPad).multilineTextAlignment(.trailing)
-                        .frame(width: 76).foregroundStyle(VITALPalette.teal)
-                    Text("kg").font(.caption).foregroundStyle(VITALPalette.muted)
+                    if let target = weightJournal.targetWeight {
+                        TextField("kg", value: Binding(
+                            get: { weightJournal.targetWeight ?? target },
+                            set: { weightJournal.targetWeight = $0 }
+                        ), format: .number.precision(.fractionLength(1)))
+                            .keyboardType(.decimalPad).multilineTextAlignment(.trailing)
+                            .frame(width: 76).foregroundStyle(VITALPalette.teal)
+                        Text("kg").font(.caption).foregroundStyle(VITALPalette.muted)
+                    } else {
+                        Button("Ange målvikt") { showingTargetWeightEntry = true }
+                            .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.teal)
+                    }
                 }
-                if let current, weightJournal.targetWeight > 0 {
-                    let remaining = current - weightJournal.targetWeight
+                if let current, let target = weightJournal.targetWeight {
+                    let remaining = current - target
                     Text(remaining >= 0 ? String(format: "%.1f kg till målet", remaining) : String(format: "%.1f kg under målet", abs(remaining)))
                         .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.teal)
                 }
@@ -263,6 +272,11 @@ private struct HealthOverviewView: View {
         .sheet(isPresented: $showingWeightEntry) {
             WeightEntrySheet(journal: weightJournal)
                 .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showingTargetWeightEntry) {
+            TargetWeightEntrySheet(journal: weightJournal)
+                .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
         }
     }
@@ -860,13 +874,19 @@ private struct WeightEntry: Codable, Identifiable {
 }
 @MainActor private final class WeightJournal: ObservableObject {
     @Published private(set) var entries: [WeightEntry] = []
-    @Published var targetWeight: Double {
-        didSet { UserDefaults.standard.set(targetWeight, forKey: "vital.weight.target.v1") }
+    @Published var targetWeight: Double? {
+        didSet {
+            if let targetWeight, targetWeight.isFinite, (25...350).contains(targetWeight) {
+                UserDefaults.standard.set(targetWeight, forKey: "vital.weight.target.v1")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "vital.weight.target.v1")
+            }
+        }
     }
     private let key = "vital.weight.journal.v1"
     init() {
-        let savedTarget = UserDefaults.standard.double(forKey: "vital.weight.target.v1")
-        targetWeight = savedTarget > 0 ? savedTarget : 90
+        let savedTarget = UserDefaults.standard.object(forKey: "vital.weight.target.v1") as? Double
+        targetWeight = savedTarget.flatMap { $0.isFinite && (25...350).contains($0) ? $0 : nil }
         if let data = UserDefaults.standard.data(forKey: key),
            let decoded = try? JSONDecoder().decode([WeightEntry].self, from: data) {
             entries = decoded.sorted { $0.date > $1.date }
@@ -909,6 +929,34 @@ private struct WeightEntrySheet: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Spara") {
                         if let parsed { journal.add(parsed, note: note); dismiss() }
+                    }.disabled(!(parsed.map { (25...350).contains($0) } ?? false))
+                }
+            }
+        }
+    }
+}
+
+
+private struct TargetWeightEntrySheet: View {
+    @Environment(\\.dismiss) private var dismiss
+    @ObservedObject var journal: WeightJournal
+    @State private var value = ""
+    private var parsed: Double? { Double(value.replacingOccurrences(of: ",", with: ".")) }
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Personligt mål") {
+                    TextField("Målvikt i kg", text: $value).keyboardType(.decimalPad)
+                    Text("Målvikt är helt valfri. VITAL föreslår inget standardmål.")
+                        .font(.footnote).foregroundStyle(.secondary)
+                }
+            }
+            .navigationTitle("Ange målvikt").navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Avbryt") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Spara") {
+                        if let parsed { journal.targetWeight = parsed; dismiss() }
                     }.disabled(!(parsed.map { (25...350).contains($0) } ?? false))
                 }
             }
