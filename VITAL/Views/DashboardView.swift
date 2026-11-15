@@ -97,15 +97,40 @@ struct DashboardView: View {
         }
     }
     private var energyCard: some View {
-        VITALCard {
+        let battery = health.snapshot.bodyBattery
+        return VITALCard {
             VStack(alignment: .leading, spacing: 14) {
                 HStack {
-                    Text("Kroppens energinivå").font(.headline.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
-                    Spacer(); Text("—").font(.subheadline.weight(.bold)).foregroundStyle(VITALPalette.muted)
+                    Text("Kroppsbatteri").font(.headline.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
+                    Spacer()
+                    Text(battery?.score.map(String.init) ?? "—")
+                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                        .foregroundStyle(VITALPalette.teal).monospacedDigit()
+                    Text("/ 100").font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.muted)
                 }
-                Text("Avvaktar separat modell").font(.title2.bold()).foregroundStyle(VITALPalette.teal)
-                EnergyChartPlaceholder().frame(height: 132)
-                Text("Kroppsbatteriet utvecklas separat från nattens återhämtning.").font(.caption).foregroundStyle(VITALPalette.muted)
+                if let score = battery?.score {
+                    GeometryReader { proxy in
+                        ZStack(alignment: .leading) {
+                            Capsule().fill(VITALPalette.track)
+                            Capsule().fill(VITALPalette.teal)
+                                .frame(width: proxy.size.width * CGFloat(score) / 100)
+                        }
+                    }.frame(height: 9)
+                } else {
+                    RoundedRectangle(cornerRadius: 5).fill(VITALPalette.track).frame(height: 9)
+                }
+                Text(battery?.explanation ?? "Kroppsbatteriet väntar på nattens återhämtning och tillräckligt med pulsdata.")
+                    .font(.caption).foregroundStyle(VITALPalette.muted)
+                    .fixedSize(horizontal: false, vertical: true)
+                if let battery, battery.score != nil {
+                    HStack {
+                        Label("\(battery.heartRateSampleCount) pulsmätningar", systemImage: "heart")
+                        Spacer()
+                        Text("\(Int(battery.activeEnergyKcal.rounded())) kcal aktiv energi")
+                    }.font(.caption2).foregroundStyle(VITALPalette.teal)
+                }
+                Text("Preliminär uppskattning – inte ett medicinskt mått.")
+                    .font(.caption2).foregroundStyle(VITALPalette.amber)
             }
         }
     }
@@ -155,27 +180,5 @@ private struct MetricCard: View {
             Text(detail).font(.caption).foregroundStyle(accent).lineLimit(2)
         }.frame(maxWidth: .infinity, minHeight: 112, alignment: .leading).padding(16)
             .background(VITALPalette.midnight, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-    }
-}
-private struct EnergyChartPlaceholder: View {
-    var body: some View {
-        VStack(spacing: 12) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 14).fill(VITALPalette.surface)
-                VStack(spacing: 0) {
-                    ForEach(0..<3, id: \.self) { _ in
-                        Rectangle().fill(VITALPalette.track.opacity(0.65)).frame(height: 1)
-                        Spacer(minLength: 0)
-                    }
-                }.padding(.vertical, 16).padding(.horizontal, 8)
-                Text("Diagram visas när historiska mätvärden finns")
-                    .font(.caption).foregroundStyle(VITALPalette.muted)
-                    .multilineTextAlignment(.center).padding(.horizontal, 18)
-            }
-            .frame(height: 100)
-            HStack {
-                Text("00:00"); Spacer(); Text("06:00"); Spacer(); Text("12:00"); Spacer(); Text("18:00")
-            }.font(.caption).foregroundStyle(VITALPalette.muted)
-        }
     }
 }
