@@ -48,7 +48,7 @@ struct DashboardView: View {
                 }
                 Text("Din personliga återhämtningsbedömning visas när beräkningsunderlaget är klart.")
                     .foregroundStyle(VITALPalette.muted).fixedSize(horizontal: false, vertical: true)
-                ProgressView(value: 0).tint(VITALPalette.teal)
+                RoundedRectangle(cornerRadius: 4).fill(VITALPalette.track).frame(height: 8)
                 HStack { Text("Nattlig återhämtning"); Spacer(); Text("Inväntar data") }
                     .font(.subheadline).foregroundStyle(VITALPalette.muted)
             }
@@ -56,9 +56,9 @@ struct DashboardView: View {
     }
     private var metricGrid: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-            MetricCard(title: "SÖMN", value: health.snapshot.sleepText, detail: "Från Apple Hälsa", accent: VITALPalette.violet)
-            MetricCard(title: "HRV", value: health.snapshot.hrvText, detail: "Senaste registrering", accent: VITALPalette.teal)
-            MetricCard(title: "VILOPULS", value: health.snapshot.restingHeartRateText, detail: "Senaste registrering", accent: VITALPalette.teal)
+            MetricCard(title: "SÖMN", value: health.snapshot.sleepText, detail: health.snapshot.sleepDuration == nil ? "Ingen sömndata" : "Apple Hälsa", accent: VITALPalette.violet)
+            MetricCard(title: "HRV", value: health.snapshot.hrvText, detail: health.snapshot.hrv == nil ? "Ingen mätning" : "Senaste registrering", accent: VITALPalette.teal)
+            MetricCard(title: "VILOPULS", value: health.snapshot.restingHeartRateText, detail: health.snapshot.restingHeartRate == nil ? "Ingen mätning" : "Senaste registrering", accent: VITALPalette.teal)
             MetricCard(title: "STRESS", value: "—", detail: "Ingen direkt mätning", accent: VITALPalette.amber)
         }
     }
@@ -125,19 +125,20 @@ private struct MetricCard: View {
 }
 private struct EnergyChartPlaceholder: View {
     var body: some View {
-        VStack {
-            GeometryReader { proxy in
-                Path { path in
-                    let points: [CGPoint] = [.init(x: 0, y: 0.78), .init(x: 0.18, y: 0.62),
-                        .init(x: 0.34, y: 0.66), .init(x: 0.51, y: 0.32), .init(x: 0.68, y: 0.40),
-                        .init(x: 0.84, y: 0.48), .init(x: 1, y: 0.27)]
-                    for (index, point) in points.enumerated() {
-                        let p = CGPoint(x: point.x * proxy.size.width, y: point.y * proxy.size.height)
-                        if index == 0 { path.move(to: p) } else { path.addLine(to: p) }
+        VStack(spacing: 12) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 14).fill(VITALPalette.surface)
+                VStack(spacing: 0) {
+                    ForEach(0..<3, id: \\.self) { _ in
+                        Rectangle().fill(VITALPalette.track.opacity(0.65)).frame(height: 1)
+                        Spacer(minLength: 0)
                     }
-                }.stroke(LinearGradient(colors: [VITALPalette.violet, VITALPalette.teal], startPoint: .leading, endPoint: .trailing),
-                         style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+                }.padding(.vertical, 16).padding(.horizontal, 8)
+                Text("Diagram visas när historiska mätvärden finns")
+                    .font(.caption).foregroundStyle(VITALPalette.muted)
+                    .multilineTextAlignment(.center).padding(.horizontal, 18)
             }
+            .frame(height: 100)
             HStack {
                 Text("00:00"); Spacer(); Text("06:00"); Spacer(); Text("12:00"); Spacer(); Text("18:00")
             }.font(.caption).foregroundStyle(VITALPalette.muted)
