@@ -154,3 +154,15 @@ Status betyder:
 - [x] Lägga till regressionstest för intervall som överlappar uppvaknande
 - [ ] Verifiera CI för korrigeringen
 - [ ] Validera kroppsbatteriets koefficienter och återladdning med verkliga data
+
+## Uppdatering 2026-11-15 – Fryst rapportmodell
+- [x] Skapa en oföränderlig rapportmodell med separata typer för morgon och kväll
+- [x] Spara mätvärden och poäng som frysta värden vid fångsttillfället
+- [x] Förhindra att en senare rapport för samma dag och typ skriver över den första
+- [x] Tillåta en separat kvällsrapport samma kalenderdag
+- [x] Stödja kodning/avkodning för framtida lokal persistens
+- [x] Lägga till fem tester för låsning, separata rapporttyper, ny dag och Codable
+- [ ] Koppla arkivet till beständig lagring i appen
+- [ ] Implementera schemalagd 07:00- och 21:00-fångst med iOS-begränsningar
+- [ ] Visa rapporthistorik och fångsttid i gränssnittet
+- [ ] Verifiera CI för den nya modellen
