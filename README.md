@@ -22,3 +22,15 @@ Initial SwiftUI source, design tokens, four-tab navigation, dashboard layout, an
 
 ## Build status
 The Xcode project file, target configuration, signing, and device build are still required before an installable IPA can be produced.
+
+## Documentation
+
+Project history, decisions, roadmap, architecture, and build/test status are maintained in `docs/`:
+
+- [Project log](docs/PROJECT_LOG.md)
+- [Decision log](docs/DECISIONS.md)
+- [Roadmap](docs/ROADMAP.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Build and test log](docs/BUILD_AND_TEST_LOG.md)
+
+Update the relevant documentation whenever code, design, behavior, requirements, or test status changes.
