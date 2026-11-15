@@ -125,3 +125,14 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - Arkivet använder en sparad `yyyy-MM-dd`-nyckel för dubblettskydd och uppslagning; historiska rapporter ska inte flyttas när användaren reser eller ändrar tidszon.
 - Äldre arkiv ska kunna avkodas utan de nya fälten. Sådana poster använder kompatibel reservlogik.
 - Sommar-/vintertid hanteras som kalenderdagar, inte genom antaganden om att varje dygn är 24 timmar.
+
+
+## 2026-11-15 – VITAL som samlad hälso- och behandlingsdagbok
+- Produktens omfattning breddas från en ren återhämtningsapp till en samlad personlig hälsoöversikt.
+- VITAL ska samla Apple Hälsa-data, sömn/återhämtning, aktivitet, viktutveckling och läkemedelsuppföljning i en sammanhängande upplevelse.
+- Wegovy/semaglutid får en egen läkemedelsmodul med doshistorik, nästa dos och påminnelser, registrering av upplevda biverkningar, viktkurva och tydlig förändring från vald startvikt.
+- Beräknad läkemedelsnivå får endast visas som en teoretisk farmakokinetisk uppskattning baserad på registrerade doser och tidpunkter; den får aldrig beskrivas som uppmätt blodnivå eller användas för dosråd.
+- Läkemedelsmodulen ska inte rekommendera ändrad dos, tidigarelagd dos eller kompensation för missad dos. Sådana frågor hänvisas till ordination och vården.
+- HealthKit-behörigheter ska breddas stegvis efter funktion: begär endast datatyper som VITAL faktiskt använder och förklara nyttan före systemdialogen.
+- VITAL ska fortsatt skilja mellan Apple Hälsa-data, manuellt registrerade uppgifter, beräknade uppskattningar och saknade värden.
+- Ingen fullständig kost- eller kaloriregistrering ingår i detta beslut; fokus är hälsa, behandling, viktutveckling och återhämtning.
