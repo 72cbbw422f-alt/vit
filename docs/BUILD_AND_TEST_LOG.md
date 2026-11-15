@@ -94,3 +94,10 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - `Run core unit tests`: Godkänd.
 - `Build iOS Simulator target`: Underkänd.
 - Ingen IPA skapad. Simulatorbygget är inte godkänt; felorsaken är ännu inte fastställd från tillgängliga loggar.
+
+## 2026-11-15 – Verifierad HealthKit- och dashboardintegration
+- GitHub Actions run 100, commit `e3517a6af7d14375314b976ef710bf64b30241ce`: `Run core unit tests` och `Build iOS Simulator target` godkända.
+- Runs 97–100 rapporterade också godkända för sina respektive commits.
+- Detta verifierar källkodsläget före korrigeringen av aktiva energisampels intervallgränser.
+- Korrigeringen och dess nya regressionstest är incheckade; CI för dessa commits är ännu pågående.
+- Ingen fysisk iPhone-testning, HealthKit-auktorisering eller IPA-export är utförd.
