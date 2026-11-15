@@ -612,7 +612,7 @@ private struct HealthOverviewView: View {
         if !enabled {
             remindersEnabled = false
             UserDefaults.standard.set(false, forKey: reminderKey)
-            let ids = (0..<13).map { index in "vital.water.\\(index)" }
+            let ids = (0..<13).map { index in "vital.water.\(index)" }
             UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ids)
             return
         }
@@ -640,7 +640,7 @@ private struct HealthOverviewView: View {
         let settings = await center.notificationSettings()
         guard generation == reminderGeneration else { return }
         guard settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional else { return }
-        let ids = (0..<13).map { index in "vital.water.\\(index)" }
+        let ids = (0..<13).map { index in "vital.water.\(index)" }
         center.removePendingNotificationRequests(withIdentifiers: ids)
         for index in 0..<13 {
             guard generation == reminderGeneration else { return }
@@ -652,7 +652,7 @@ private struct HealthOverviewView: View {
             content.title = "Dags att dricka vatten 💧"
             content.body = "Ta en liten vattenpaus och registrera mängden i VITAL."
             content.sound = .default
-            let request = UNNotificationRequest(identifier: "vital.water.\\(index)", content: content,
+            let request = UNNotificationRequest(identifier: "vital.water.\(index)", content: content,
                 trigger: UNCalendarNotificationTrigger(dateMatching: components, repeats: true))
             try? await center.add(request)
         }
