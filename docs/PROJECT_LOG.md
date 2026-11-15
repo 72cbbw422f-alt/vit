@@ -441,3 +441,21 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Doser och tider anges av användaren enligt ordination; appen ger inga doseringsförslag eller råd om dosändring.
 - Data lagras lokalt i UserDefaults och sorteras nyast först.
 - Nästa steg: CI-verifiering, export av läkemedelsjournalen, möjlighet att redigera/ta bort felregistreringar och test av notiser på fysisk iPhone.
+
+
+## 2026-11-15 – Privat framstegsfotohistorik
+
+### Implementerat
+- Lagt till en lokal framstegsfotohistorik i Hälsa.
+- Bilder väljs via iOS bildväljare och kopieras till appens privata dokumentkatalog.
+- Metadata med datum och valfri anteckning sparas lokalt.
+- Lagt till bildhistorik, markering av exakt två bilder och jämförelse sida vid sida.
+- Lagt till fotoguide med råd om konsekvent ljus, avstånd, höjd och bakgrund.
+- Lagt till individuell radering av bilder.
+- Bilder läggs inte automatiskt till i Bilder och delas inte automatiskt.
+
+### Avgränsningar att verifiera
+- Funktionen är implementerad i SwiftUI men behöver verifieras genom CI-build och på fysisk iPhone.
+- Bilderna är lokala appdata och synkas inte via iCloud. Om appen avinstalleras kan de försvinna.
+- Vikt kopplas tills vidare via senast registrerade vikt i viktjournalen; historisk vikt per enskild bild är inte låst ännu.
+- Automatisk vikttext i delningsbild ingår inte i första versionen.
