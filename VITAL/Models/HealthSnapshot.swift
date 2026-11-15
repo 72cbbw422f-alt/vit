@@ -4,6 +4,8 @@ struct HealthSnapshot {
     var sleepDuration: TimeInterval?
     var restingHeartRate: Double?
     var hrv: Double?
+    var overnightHRV: Double?
+    var overnightRestingHeartRate: Double?
     var steps: Double?
     var activeEnergy: Double?
     var latestWeight: Double?
@@ -25,9 +27,9 @@ struct HealthSnapshot {
         return RecoveryEngine.calculate(RecoveryInputs(
             sleepDurationHours: sleepDuration.map { $0 / 3600 },
             baselineSleepHours: sleepBaseline?.median,
-            hrvMilliseconds: hrv,
+            hrvMilliseconds: overnightHRV,
             baselineHRVMilliseconds: hrvBaseline?.median,
-            restingHeartRateBPM: restingHeartRate,
+            restingHeartRateBPM: overnightRestingHeartRate,
             baselineRestingHeartRateBPM: restingHeartRateBaseline?.median,
             baselineDaysAvailable: availableDays
         ))
