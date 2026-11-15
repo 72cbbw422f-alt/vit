@@ -117,5 +117,6 @@ Status betyder:
 - [x] Hålla senaste dagvärden separerade från nattliga återhämtningsvärden
 - [x] Förhindra att dagvärden används som reserv för saknade nattvärden
 - [ ] Verifiera sample-tidsstämplar och vilopulsdata på fysisk iPhone
-- [ ] Förbättra valet av huvudsömn så att tupplurar inte blir nattens återhämtningsperiod
+- [x] Införa heuristik som väljer längsta sömnperioden framför en senare kort tupplur
+- [ ] Validera huvudsömnheuristiken mot verkliga HealthKit-data, skiftarbete och fragmenterad sömn
 - [ ] Köra samtliga enhetstester och Xcode-build
