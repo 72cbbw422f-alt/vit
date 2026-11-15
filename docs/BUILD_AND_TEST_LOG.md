@@ -71,3 +71,11 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Kroppsbatteriet är fortsatt separat och visar ingen påhittad nivå.
 - Xcode-build, Swift-test och fysisk enhetstestning har inte körts efter denna ändring.
 - Status: Källkod incheckad; build- och enhetsverifiering återstår.
+
+
+## 2026-11-15 – Tidsstämplad natturvalsmodell
+- Fyra enhetstester har lagts till för urval inom sömnperiod, saknade nattvärden, ogiltiga värden och exakta periodgränser.
+- Modellen har registrerats i Swift Package och Xcode-projektets källfas.
+- Testerna har ännu inte körts.
+- Xcode-build och HealthKit-enhetstest har inte körts.
+- Status: Implementerat i källkod; verifiering återstår.
