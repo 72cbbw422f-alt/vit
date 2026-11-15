@@ -9,6 +9,7 @@ final class HealthKitStore: ObservableObject {
     @Published private(set) var authorizationRequested = false
     @Published private(set) var lastError: String?
     @Published private(set) var morningReport: DailyReportSnapshot?
+    @Published private(set) var reportHistory: [DailyReportSnapshot] = []
     private let store = HKHealthStore()
     private let baselineCalendar = Calendar.current
     private var sleepObserverQuery: HKObserverQuery?
@@ -133,6 +134,7 @@ final class HealthKitStore: ObservableObject {
         guard let data = UserDefaults.standard.data(forKey: reportArchiveKey),
               let decoded = try? JSONDecoder().decode(ReportSnapshotArchive.self, from: data) else { return }
         reportArchive = decoded
+        reportHistory = decoded.snapshots.reversed()
         morningReport = decoded.snapshot(for: Date(), kind: .morning)
     }
 
@@ -169,6 +171,7 @@ final class HealthKitStore: ObservableObject {
         guard reportArchive.appendIfAbsent(candidate, calendar: calendar),
               let data = try? JSONEncoder().encode(reportArchive) else { return }
         UserDefaults.standard.set(data, forKey: reportArchiveKey)
+        reportHistory = reportArchive.snapshots.reversed()
         morningReport = candidate
     }
 
