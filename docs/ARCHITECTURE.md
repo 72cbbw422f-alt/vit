@@ -133,3 +133,7 @@ Blodtryck, träningspass, andningsfrekvens, syremättnad och andra datatyper är
 - Initiala skydd: minst tre timmars sömn, avslutad sömnperiod, max 18 timmar från uppvaknande och samma lokala kalenderdag.
 - Arkivet `ReportSnapshotArchive` förhindrar fortfarande fler än en morgonrapport per lokal dag.
 - `HealthKitStore` startar en `HKObserverQuery` för `sleepAnalysis` efter HealthKit-auktorisering och begär `.immediate` Background Delivery.\n- Observerarens callback gör en ny HealthKit-refresh och anropar completion-handlern.\n- Entitlement `com.apple.developer.healthkit.background-delivery` finns i `VITAL.entitlements`.\n- Detta observerar ändringar i HealthKit, inte Sleep Focus-status. Bakgrundsleverans måste verifieras på fysisk enhet och kräver korrekt provisionerad entitlement.
+
+
+## Morgonrapport – dataväntan
+Morgonrapportens triggerpolicy kräver att huvudsömnen är avslutad och att minst 20 minuter har passerat från sömnperiodens sluttid. HealthKit-uppdateringar och appens återgång till aktivt läge kan kontrollera policyn igen. Väntetiden garanterar inte att alla sampel har levererats; saknade värden förblir nil när snapshoten till slut låses. Rapportarkivet gör därefter snapshoten oföränderlig per lokal dag och rapporttyp.
