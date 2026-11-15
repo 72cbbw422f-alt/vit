@@ -370,3 +370,17 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Lagt till en reproducerbar macOS/Swift-baserad ikonrenderare och AppIcon asset catalog.
 - Xcode-targeten pekar nu på AppIcon och GitHub Actions genererar ikonen före simulatorbygge och IPA-arkivering.
 - CI måste verifiera renderaren och att ikonen följer med i appbundle innan ändringen betraktas som färdig.
+
+
+## 2026-11-15 – Visuell omarbetning efter iPhone-test
+
+### Genomfört
+- Bytt appikonsymbol från den tidigare textbaserade logotypen till en ren hjärt-/ECG-symbol på djup marinblå grund, med turkos linjeföring och diskret halo.
+- Ändrat startsidans ordning så återhämtning, nyckelmått, kroppsbatteri och rörelse kommer före mående och rapporthistorik.
+- Samlat morgonrapport, kvällsrapport och rapporthistorik i en hopfällbar sektion för att minska mängden text vid första anblick.
+- Kortat hjälpförklaringar i återhämtnings- och kroppsbatterikorten. Saknade värden fortsätter att visas som saknade och inte som noll.
+
+### Kvar att göra
+- Granska den nya ikonen på faktisk iPhone efter nästa IPA-installation.
+- Fortsätta utveckla VITALs visuella komponentbibliotek med egna ringar, datagrafik och tydligare aktivitetsvisualiseringar.
+- Genomföra ny CI-build och granska eventuella SwiftUI-kompileringsfel innan IPA delas.
