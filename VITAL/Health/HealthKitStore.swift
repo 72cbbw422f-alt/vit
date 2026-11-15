@@ -207,7 +207,7 @@ final class HealthKitStore: ObservableObject {
             let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit,
                 sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)]) { _, samples, _ in
                     let values = ((samples as? [HKQuantitySample]) ?? []).map {
-                        TimedHealthValue(timestamp: $0.endDate, value: $0.quantity.doubleValue(for: unit))
+                        TimedHealthValue(timestamp: $0.endDate, value: $0.quantity.doubleValue(for: unit), startTimestamp: $0.startDate)
                     }
                     continuation.resume(returning: values)
                 }
