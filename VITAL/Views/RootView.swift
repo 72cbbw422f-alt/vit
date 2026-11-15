@@ -144,6 +144,10 @@ private struct HealthOverviewView: View {
     @StateObject private var bloodPressure = BloodPressureJournal()
     @StateObject private var waterTracker = WaterTrackerStore()
     @StateObject private var weightJournal = WeightJournal()
+    @StateObject private var medicationJournal = SemaglutideJournal()
+    @State private var showingDoseEntry = false
+    @State private var showingSideEffectEntry = false
+    @State private var showingDoseReminder = false
     @State private var showingWeightEntry = false
     @State private var showingBloodPressureEntry = false
     var body: some View {
@@ -165,6 +169,7 @@ private struct HealthOverviewView: View {
                         }
                         weightCard
                         waterTrackerCard
+                        medicationCard
                         bloodPressureCard
                         VITALCard {
                             VStack(alignment: .leading, spacing: 12) {
@@ -254,6 +259,96 @@ private struct HealthOverviewView: View {
             WeightEntrySheet(journal: weightJournal)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
+        }
+    }
+
+    private var medicationCard: some View {
+        VITALCard {
+            VStack(alignment: .leading, spacing: 13) {
+                HStack {
+                    Label("Läkemedel · Wegovy", systemImage: "cross.case.fill")
+                        .font(.headline).foregroundStyle(VITALPalette.cloud)
+                    Spacer()
+                    Text("Egen journal").font(.caption).foregroundStyle(VITALPalette.muted)
+                }
+                HStack(spacing: 10) {
+                    Button { showingDoseEntry = true } label: {
+                        Label("Registrera dos", systemImage: "plus")
+                            .font(.subheadline.weight(.semibold)).frame(maxWidth: .infinity).padding(.vertical, 11)
+                            .background(VITALPalette.teal.opacity(0.14), in: RoundedRectangle(cornerRadius: 12))
+                    }.foregroundStyle(VITALPalette.teal)
+                    Button { showingDoseReminder = true } label: {
+                        Label("Påminnelse", systemImage: "bell")
+                            .font(.subheadline.weight(.semibold)).frame(maxWidth: .infinity).padding(.vertical, 11)
+                            .background(VITALPalette.surfaceRaised, in: RoundedRectangle(cornerRadius: 12))
+                    }.foregroundStyle(VITALPalette.cloud)
+                }
+                if let latest = medicationJournal.doses.first {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(String(format: "%.2g mg", latest.milligrams))
+                            .font(.system(size: 29, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
+                        Text("senast registrerade dos").font(.caption).foregroundStyle(VITALPalette.muted)
+                        Spacer()
+                    }
+                    Text(latest.date.formatted(date: .abbreviated, time: .shortened))
+                        .font(.caption).foregroundStyle(VITALPalette.muted)
+                    ForEach(medicationJournal.doses.prefix(3)) { dose in
+                        HStack {
+                            Text(dose.date.formatted(date: .abbreviated, time: .omitted))
+                                .foregroundStyle(VITALPalette.muted)
+                            Spacer()
+                            Text(String(format: "%.2g mg", dose.milligrams))
+                                .foregroundStyle(VITALPalette.cloud).monospacedDigit()
+                        }.font(.caption)
+                    }
+                } else {
+                    Text("Registrera doserna enligt din ordination för att bygga en tydlig historik.")
+                        .font(.caption).foregroundStyle(VITALPalette.muted)
+                }
+                Divider().overlay(VITALPalette.track)
+                HStack {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Biverkningar och mående").font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
+                        Text("\(medicationJournal.effects.count) registreringar").font(.caption).foregroundStyle(VITALPalette.muted)
+                    }
+                    Spacer()
+                    Button { showingSideEffectEntry = true } label: {
+                        Label("Logga", systemImage: "plus.circle")
+                            .font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.teal)
+                    }
+                }
+                ForEach(medicationJournal.effects.prefix(2)) { effect in
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(effect.title).font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
+                            Text(effect.date.formatted(date: .abbreviated, time: .shortened))
+                                .font(.caption2).foregroundStyle(VITALPalette.muted)
+                        }
+                        Spacer()
+                        Text("Intensitet \(effect.severity)/5")
+                            .font(.caption).foregroundStyle(VITALPalette.amber)
+                    }
+                }
+                if let reminder = medicationJournal.reminderDate {
+                    Label("Nästa påminnelse: \(reminder.formatted(date: .abbreviated, time: .shortened))",
+                          systemImage: "bell.badge")
+                        .font(.caption).foregroundStyle(VITALPalette.teal)
+                }
+                Text("Journalen ersätter inte ordination eller råd från vården. Doser och påminnelser ställs in av dig.")
+                    .font(.caption2).foregroundStyle(VITALPalette.muted)
+            }
+        }
+        .sheet(isPresented: $showingDoseEntry) {
+            DoseEntrySheet(journal: medicationJournal)
+                .presentationDetents([.medium, .large]).presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showingSideEffectEntry) {
+            SideEffectEntrySheet(journal: medicationJournal)
+                .presentationDetents([.medium, .large]).presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showingDoseReminder) {
+            DoseReminderSheet(journal: medicationJournal)
+                .presentationDetents([.medium]).presentationDragIndicator(.visible)
         }
     }
 
@@ -566,6 +661,158 @@ private struct BloodPressureEntrySheet: View {
     }
 }
 
+
+
+private struct MedicationDose: Codable, Identifiable {
+    let id: UUID
+    let date: Date
+    let milligrams: Double
+    init(date: Date = .now, milligrams: Double) {
+        id = UUID(); self.date = date; self.milligrams = milligrams
+    }
+}
+private struct MedicationEffect: Codable, Identifiable {
+    let id: UUID
+    let date: Date
+    let title: String
+    let severity: Int
+    let note: String
+    init(date: Date = .now, title: String, severity: Int, note: String) {
+        id = UUID(); self.date = date; self.title = title; self.severity = severity; self.note = note
+    }
+}
+@MainActor private final class SemaglutideJournal: ObservableObject {
+    @Published private(set) var doses: [MedicationDose] = []
+    @Published private(set) var effects: [MedicationEffect] = []
+    @Published private(set) var reminderDate: Date?
+    private let center = UNUserNotificationCenter.current()
+    init() {
+        let defaults = UserDefaults.standard
+        if let data = defaults.data(forKey: "vital.medication.doses.v1"),
+           let value = try? JSONDecoder().decode([MedicationDose].self, from: data) {
+            doses = value.sorted { $0.date > $1.date }
+        }
+        if let data = defaults.data(forKey: "vital.medication.effects.v1"),
+           let value = try? JSONDecoder().decode([MedicationEffect].self, from: data) {
+            effects = value.sorted { $0.date > $1.date }
+        }
+        reminderDate = defaults.object(forKey: "vital.medication.reminder.v1") as? Date
+    }
+    func addDose(_ mg: Double, date: Date) {
+        guard mg.isFinite, (0.01...10).contains(mg) else { return }
+        doses.append(MedicationDose(date: date, milligrams: mg))
+        doses.sort { $0.date > $1.date }; persist(doses, key: "vital.medication.doses.v1")
+    }
+    func addEffect(_ title: String, severity: Int, note: String) {
+        effects.append(MedicationEffect(title: title, severity: severity, note: note))
+        effects.sort { $0.date > $1.date }; persist(effects, key: "vital.medication.effects.v1")
+    }
+    private func persist<T: Encodable>(_ value: T, key: String) {
+        if let data = try? JSONEncoder().encode(value) { UserDefaults.standard.set(data, forKey: key) }
+    }
+    func setReminder(_ date: Date) async -> Bool {
+        let settings = await center.notificationSettings()
+        if settings.authorizationStatus == .denied { return false }
+        if settings.authorizationStatus == .notDetermined {
+            let granted = (try? await center.requestAuthorization(options: [.alert, .sound])) ?? false
+            guard granted else { return false }
+        }
+        let content = UNMutableNotificationContent()
+        content.title = "Påminnelse från VITAL"
+        content.body = "Det är dags att se över din läkemedelsplan."
+        content.sound = .default
+        let trigger = UNCalendarNotificationTrigger(dateMatching: Calendar.current.dateComponents([.year,.month,.day,.hour,.minute], from: date), repeats: false)
+        let request = UNNotificationRequest(identifier: "vital.medication.nextDose", content: content, trigger: trigger)
+        do {
+            try await center.add(request)
+            reminderDate = date
+            UserDefaults.standard.set(date, forKey: "vital.medication.reminder.v1")
+            return true
+        } catch { return false }
+    }
+}
+private struct DoseEntrySheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject var journal: SemaglutideJournal
+    @State private var amount = ""
+    @State private var date = Date.now
+    private var parsed: Double? { Double(amount.replacingOccurrences(of: ",", with: ".")) }
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Registrerad dos") {
+                    TextField("Dos i mg", text: $amount).keyboardType(.decimalPad)
+                    DatePicker("Datum och tid", selection: $date, displayedComponents: [.date, .hourAndMinute])
+                }
+                Section { Text("Ange exakt den dos du tagit enligt din ordination. VITAL rekommenderar inte dos eller dosändring.").font(.footnote).foregroundStyle(.secondary) }
+            }
+            .navigationTitle("Registrera dos").navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Avbryt") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Spara") { if let parsed { journal.addDose(parsed, date: date); dismiss() } }
+                        .disabled(!(parsed.map { (0.01...10).contains($0) } ?? false))
+                }
+            }
+        }
+    }
+}
+private struct SideEffectEntrySheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject var journal: SemaglutideJournal
+    @State private var title = "Illamående"
+    @State private var severity = 2
+    @State private var note = ""
+    private let choices = ["Illamående", "Förstoppning", "Diarré", "Magont", "Huvudvärk", "Yrsel", "Trötthet", "Annat"]
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Besvär") {
+                    Picker("Typ", selection: $title) { ForEach(choices, id: \.self) { Text($0).tag($0) } }
+                    Stepper("Intensitet: \(severity)/5", value: $severity, in: 1...5)
+                    TextField("Anteckning (valfritt)", text: $note, axis: .vertical)
+                }
+            }
+            .navigationTitle("Logga biverkning").navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Avbryt") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Spara") { journal.addEffect(title, severity: severity, note: note); dismiss() }
+                }
+            }
+        }
+    }
+}
+private struct DoseReminderSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject var journal: SemaglutideJournal
+    @State private var date = Calendar.current.date(byAdding: .day, value: 7, to: .now) ?? .now
+    @State private var status: String?
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Nästa påminnelse") {
+                    DatePicker("Datum och tid", selection: $date, in: Date.now..., displayedComponents: [.date, .hourAndMinute])
+                    Text("Välj själv en tid som följer din ordination. Påminnelsen är en kalendernotis, inte ett doseringsråd.")
+                        .font(.footnote).foregroundStyle(.secondary)
+                }
+                if let status { Section { Text(status).font(.footnote) } }
+            }
+            .navigationTitle("Läkemedelspåminnelse").navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Stäng") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Spara") {
+                        Task {
+                            let success = await journal.setReminder(date)
+                            status = success ? "Påminnelsen är sparad." : "Kunde inte aktivera notisen. Kontrollera notisbehörigheten i iOS-inställningarna."
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 private struct WeightEntry: Codable, Identifiable {
     let id: UUID
