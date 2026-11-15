@@ -41,3 +41,11 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Testfall: otillräcklig baslinje, värden lika med personlig baslinje, saknat mätvärde, försämrade komponenter och begränsning till 0–100.
 - En initial testmiss avslöjade felaktig HRV-normalisering; den korrigerades innan den godkända omkörningen.
 - Begränsning: detta test omfattar endast Swift Package-kärnan, inte iOS-appen eller HealthKit.
+
+
+## 2026-11-15 – SleepSessionCalculator unit tests
+- Kommando: `swift test`
+- Miljö: Swift 6.2.1, Linux x86_64.
+- Resultat: totalt 10 tester passerade, 0 fel (5 RecoveryEngine + 5 SleepSessionCalculator).
+- Testfall sömn: överlappande stadier dubbelräknas inte, intilliggande stadier grupperas, senaste session väljs efter lång vakenperiod, ogiltiga intervall ignoreras och tom lista ger nil.
+- Begränsning: fristående kärnlogik testad; HealthKit-frågan och iOS-appen är inte testade på enheten.
