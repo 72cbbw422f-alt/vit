@@ -392,3 +392,13 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Ringen visar neutral saknad status när HealthKit saknar stegvärde; den fabricerar inte nollsteg.
 - Gjort sömn-, HRV-, vilopuls- och stresskorten mer grafiska med egna symboler, färgaccent och tydligare visuell hierarki.
 - Fortsatt använda enbart riktiga HealthKit-värden i mätkorten; inga syntetiska trendkurvor har lagts till.
+
+
+## 2026-11-15 – Funktionella huvudflikar
+
+- Ersatt platshållarna för Insikter, Aktivitet och Hälsa med separata SwiftUI-vyer.
+- Insikter visar sparade morgonvärden för återhämtning som diagram när sådana finns, samt status för personliga baslinjer.
+- Aktivitet visar stegmål i cirkelring, aktiv energi och tillgängligt underlag för kroppsbatteriet.
+- Hälsa visar senaste sömn, HRV, vilopuls och vikt från HealthKit.
+- Alla vyer använder endast befintliga HealthKit-värden och frysta rapporter. Saknad historik visas som tomt läge, inte som syntetiska kurvor.
+- Kompileringskontroll via GitHub Actions återstår för denna ändring.
