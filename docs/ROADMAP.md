@@ -210,3 +210,10 @@ Status betyder:
 ## Uppdatering 2026-11-15 – HealthKit-bakgrundsstatus
 - [x] Hantera resultatet från enableBackgroundDelivery och exponera aktiveringsstatus
 - [ ] Verifiera entitlement och bakgrundsleverans med signerad app på fysisk iPhone
+
+
+## Uppdatering 2026-11-15 – Notisstatus
+- [x] Kontrollera iOS-notisbehörighet innan eventuell begäran
+- [x] Undvika upprepade behörighetsdialoger när användaren redan valt
+- [x] Visa notisstatus och HealthKit-bakgrundsstatus separat i dashboarden
+- [ ] Verifiera notisleverans och inställningsflöde på fysisk iPhone
