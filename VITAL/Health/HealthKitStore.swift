@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import HealthKit
+import UserNotifications
 
 @MainActor
 final class HealthKitStore: ObservableObject {
@@ -37,6 +38,7 @@ final class HealthKitStore: ObservableObject {
             try await store.requestAuthorization(toShare: [], read: [sleep, resting, hrv, heartRate, steps, energy, weight])
             authorizationRequested = true
             await startSleepObservation()
+            await scheduleEveningReportNotification()
             await refresh()
         } catch {
             lastError = error.localizedDescription
@@ -67,6 +69,33 @@ final class HealthKitStore: ObservableObject {
             store.enableBackgroundDelivery(for: sleepType, frequency: .immediate) { _, _ in
                 continuation.resume()
             }
+        }
+    }
+
+    /// Ask once for notification permission and schedule a daily local reminder.
+    /// The reminder asks the user to open VITAL; it does not claim iOS will run
+    /// the app in the background at exactly 21:00.
+    private func scheduleEveningReportNotification() async {
+        let center = UNUserNotificationCenter.current()
+        do {
+            let granted = try await center.requestAuthorization(options: [.alert, .sound])
+            guard granted else { return }
+            let content = UNMutableNotificationContent()
+            content.title = "Kvällsrapporten är redo"
+            content.body = "Öppna VITAL för att uppdatera hälsodatan och skapa kvällens rapport."
+            content.sound = .default
+            var components = DateComponents()
+            components.hour = EveningReportTriggerPolicy.defaultHour
+            components.minute = 0
+            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+            let request = UNNotificationRequest(
+                identifier: "vital.evening-report.daily",
+                content: content,
+                trigger: trigger
+            )
+            try await center.add(request)
+        } catch {
+            lastError = "Kunde inte schemalägga kvällspåminnelsen: \(error.localizedDescription)"
         }
     }
 
