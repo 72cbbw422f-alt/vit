@@ -52,3 +52,8 @@ Slutpoängen avrundas till heltal.
 - [ ] Definiera nattens sömnperiod och eliminera dubbelräkning
 - [ ] Granska vikter mot verkliga data
 - [x] Koppla prototypen till dashboarden med tydlig varning om att den inte är medicinskt validerad
+
+## Uppdatering – val av huvudsömn
+- HealthKitStore använder nu längsta grupperade sömnperioden som huvudsömn, med senast avslutade period som tie-breaker.
+- Syftet är att inte låta en kortare senare tupplur ersätta huvudsömnen.
+- Heuristiken är inte kliniskt validerad och kan vara fel vid skiftarbete eller atypiska sömnmönster. Verklig HealthKit-verifiering krävs.
