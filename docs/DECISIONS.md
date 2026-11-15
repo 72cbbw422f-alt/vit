@@ -66,3 +66,10 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - Startvärdet är nattens separata återhämtningspoäng; personlig vilopulsbaslinje används som referens för pulsbelastning.
 - Resultatet visas inte om nattens återhämtning, vilopulsbaslinje eller tillräcklig pulstäckning saknas.
 - UI ska visa att detta är en preliminär wellness-uppskattning och inte medicinskt mått.
+
+## 2026-11-15 – Oföränderlig dagsrapport
+- Morgon- och kvällsrapporter lagras som separata snapshot-poster.
+- En snapshot är unik per lokal kalenderdag och rapporttyp.
+- Den första sparade posten vinner; senare data får inte skriva om rapportens historiska innehåll.
+- Rapporten ska innehålla både fångsttid och lokal rapportdag.
+- Schemaläggning får inte lova exakt bakgrundskörning vid 07:00/21:00. Rapportskapande och användarnotis måste hållas isär.
