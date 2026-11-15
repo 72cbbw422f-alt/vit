@@ -151,6 +151,7 @@ private struct HealthOverviewView: View {
     @State private var showingSideEffectEntry = false
     @State private var showingDoseReminder = false
     @State private var showingWeightEntry = false
+    @State private var editingWeight: WeightEntry?
     @State private var showingTargetWeightEntry = false
     @State private var showingBloodPressureEntry = false
     @State private var editingBloodPressure: BloodPressureEntry?
@@ -239,6 +240,31 @@ private struct HealthOverviewView: View {
                     Text("Registrera vikten regelbundet för att bygga din personliga viktkurva.")
                         .font(.caption).foregroundStyle(VITALPalette.muted)
                 }
+                if !weightJournal.entries.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Senaste registreringar").font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.muted)
+                        ForEach(weightJournal.entries.prefix(5)) { entry in
+                            HStack(spacing: 8) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(entry.date.formatted(date: .abbreviated, time: .omitted))
+                                        .font(.caption).foregroundStyle(VITALPalette.muted)
+                                    if !entry.note.isEmpty {
+                                        Text(entry.note).font(.caption2).foregroundStyle(VITALPalette.muted).lineLimit(1)
+                                    }
+                                }
+                                Spacer()
+                                Text(String(format: "%.1f kg", entry.kilograms))
+                                    .font(.subheadline.weight(.semibold).monospacedDigit()).foregroundStyle(VITALPalette.cloud)
+                                Menu {
+                                    Button { editingWeight = entry } label: { Label("Redigera", systemImage: "pencil") }
+                                    Button(role: .destructive) { weightJournal.delete(entry) } label: { Label("Radera", systemImage: "trash") }
+                                } label: {
+                                    Image(systemName: "ellipsis.circle").foregroundStyle(VITALPalette.muted).padding(.leading, 5)
+                                }
+                            }.padding(.vertical, 3)
+                        }
+                    }
+                }
                 HStack {
                     Text("Målvikt").font(.caption).foregroundStyle(VITALPalette.muted)
                     Spacer()
@@ -278,6 +304,11 @@ private struct HealthOverviewView: View {
         }
         .sheet(isPresented: $showingWeightEntry) {
             WeightEntrySheet(journal: weightJournal)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(item: $editingWeight) { entry in
+            WeightEntrySheet(journal: weightJournal, entry: entry)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
@@ -983,8 +1014,8 @@ private struct WeightEntry: Codable, Identifiable {
     let date: Date
     let kilograms: Double
     let note: String
-    init(date: Date = .now, kilograms: Double, note: String) {
-        self.id = UUID(); self.date = date; self.kilograms = kilograms; self.note = note
+    init(id: UUID = UUID(), date: Date = .now, kilograms: Double, note: String) {
+        self.id = id; self.date = date; self.kilograms = kilograms; self.note = note
     }
 }
 @MainActor private final class WeightJournal: ObservableObject {
@@ -1010,10 +1041,20 @@ private struct WeightEntry: Codable, Identifiable {
     func add(_ kilograms: Double, note: String) {
         guard kilograms.isFinite, (25...350).contains(kilograms) else { return }
         entries.append(WeightEntry(kilograms: kilograms, note: note))
-        entries.sort { $0.date > $1.date }
+        persist()
+    }
+    func update(_ entry: WeightEntry, kilograms: Double, note: String) {
+        guard kilograms.isFinite, (25...350).contains(kilograms),
+              let index = entries.firstIndex(where: { $0.id == entry.id }) else { return }
+        entries[index] = WeightEntry(id: entry.id, date: entry.date, kilograms: kilograms, note: note)
+        persist()
+    }
+    func delete(_ entry: WeightEntry) {
+        entries.removeAll { $0.id == entry.id }
         persist()
     }
     private func persist() {
+        entries.sort { $0.date > $1.date }
         if let data = try? JSONEncoder().encode(entries) { UserDefaults.standard.set(data, forKey: key) }
     }
     var latest: WeightEntry? { entries.first }
@@ -1030,8 +1071,15 @@ private struct WeightEntry: Codable, Identifiable {
 private struct WeightEntrySheet: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var journal: WeightJournal
-    @State private var value = ""
-    @State private var note = ""
+    let entry: WeightEntry?
+    @State private var value: String
+    @State private var note: String
+    init(journal: WeightJournal, entry: WeightEntry? = nil) {
+        self.journal = journal
+        self.entry = entry
+        _value = State(initialValue: entry.map { String(format: "%.1f", $0.kilograms) } ?? "")
+        _note = State(initialValue: entry?.note ?? "")
+    }
     private var parsed: Double? { Double(value.replacingOccurrences(of: ",", with: ".")) }
     var body: some View {
         NavigationStack {
@@ -1039,22 +1087,30 @@ private struct WeightEntrySheet: View {
                 Section("Vikt") {
                     TextField("Vikt i kg", text: $value).keyboardType(.decimalPad)
                     TextField("Anteckning (valfritt)", text: $note)
+                    if let entry {
+                        LabeledContent("Mätdatum", value: entry.date.formatted(date: .long, time: .shortened))
+                        Text("Mätdatumet behålls när en registrering korrigeras.")
+                            .font(.footnote).foregroundStyle(.secondary)
+                    }
                 }
             }
-            .navigationTitle("Registrera vikt")
+            .navigationTitle(entry == nil ? "Registrera vikt" : "Redigera vikt")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Avbryt") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Spara") {
-                        if let parsed { journal.add(parsed, note: note); dismiss() }
+                        if let parsed {
+                            if let entry { journal.update(entry, kilograms: parsed, note: note) }
+                            else { journal.add(parsed, note: note) }
+                            dismiss()
+                        }
                     }.disabled(!(parsed.map { (25...350).contains($0) } ?? false))
                 }
             }
         }
     }
 }
-
 
 private struct TargetWeightEntrySheet: View {
     @Environment(\.dismiss) private var dismiss
