@@ -217,3 +217,12 @@ Status betyder:
 - [x] Undvika upprepade behörighetsdialoger när användaren redan valt
 - [x] Visa notisstatus och HealthKit-bakgrundsstatus separat i dashboarden
 - [ ] Verifiera notisleverans och inställningsflöde på fysisk iPhone
+
+## Uppdatering 2026-11-15 – Tidszonsstabil rapporthistorik
+- [x] Spara lokal kalenderdag som stabil dagnyckel i nya rapporter
+- [x] Spara tidszonsidentifierare vid rapportens fångst
+- [x] Behålla gamla rapportarkiv läsbara med bakåtkompatibel avkodning
+- [x] Visa historikdatum utifrån rapportens sparade lokala dag
+- [x] Lägga till tester för tidszonsbyte och sommartidsdag
+- [ ] Verifiera tidszonsbyte, omstart och historik på fysisk iPhone
+- [ ] Bekräfta CI för denna ändring
