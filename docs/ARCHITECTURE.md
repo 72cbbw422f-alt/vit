@@ -82,3 +82,10 @@ Blodtryck, träningspass, andningsfrekvens, syremättnad och andra datatyper är
 - Sömnsegment hämtas för samma period, slås ihop till sömnperioder och reduceras till den längsta perioden per lokal uppvakningsdag. Tupplurar summeras alltså inte med nattsömnen.
 - Resultaten sparas i `HealthSnapshot` som tre separata baslinjeobjekt. Detta är datainsamling och baslinjeberäkning; återhämtningsmotorn är ännu inte inkopplad i dashboarden.
 - HealthKit-frågorna kräver verifiering på fysisk iPhone. Om HealthKit inte returnerar data ska baslinjen förbli ej redo.
+
+
+## Tidsstämplade nattvärden
+- `OvernightMetricSelector.swift` är en fristående kärnmodell för att välja HRV- och vilopulsvärden inom en explicit `SleepSession`.
+- Modellen returnerar median och antal giltiga sampel per mätvärde.
+- Den gör inget antagande om att nattliga sampel måste finnas. Saknade värden förblir nil.
+- Modellen är ännu inte ansluten till HealthKitStore eller RecoveryEngine. Integrationen inväntar verifiering av HealthKit:s faktiska tidsstämplar, särskilt för vilopuls.
