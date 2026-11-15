@@ -469,3 +469,12 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Om inget mål har angetts visas i stället en tydlig åtgärd för att lägga till ett eget mål.
 - Befintliga sparade målvärden bevaras om de är giltiga.
 - Ändringen inväntar CI-build och behöver därefter provas i appen.
+
+## 2026-11-15 – Kvalitetsrunda: påminnelser och fotosekretess
+
+- Läkemedelspåminnelsen rensas när den har passerat, så en gammal engångsnotis inte fortsätter visas som nästa påminnelse.
+- En ny läkemedelspåminnelse ersätter tidigare väntande och levererade notiser med samma identifierare.
+- Användaren kan ta bort en sparad läkemedelspåminnelse direkt i påminnelsevyn.
+- Fotomappen markeras som exkluderad från iOS-enhetens iCloud-säkerhetskopia. Bilderna fortsätter att lagras lokalt i appens dokumentmapp och synkas inte via iCloud.
+- Tog bort en kvarlämnad tom viktvisning i bildjämförelsen.
+- Ändringarna inväntar CI och fysisk verifiering på iPhone.
