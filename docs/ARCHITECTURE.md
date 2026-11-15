@@ -141,3 +141,7 @@ Morgonrapportens triggerpolicy kräver att huvudsömnen är avslutad och att min
 
 ## HealthKit-bakgrundsleverans
 HealthKitStore registrerar en observerfråga för sömn och begär bakgrundsleverans. Resultatet från enableBackgroundDelivery sparas i backgroundSleepDeliveryEnabled. Fel och nekad aktivering förs vidare till lastError i stället för att tyst ignoreras. Statusen bevisar inte att framtida observerhändelser levereras i tid; fysisk enhet och korrekt entitlement/provisionering krävs för verifiering.
+
+
+## Notisbehörighet och synlig status
+VITAL läser först UNUserNotificationCenter notificationSettings. Systemdialogen begärs endast om behörigheten ännu inte har valts. Vid nekad behörighet tas väntande kvällspåminnelse bort. Dashboarden visar notisstatus separat från HealthKit-bakgrundsleverans; de två funktionerna har olika behörigheter och felorsaker.
