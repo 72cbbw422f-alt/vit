@@ -195,3 +195,15 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Den senaste grupperade sömnperioden kan i vissa fall vara en tupplur. Urvalet av huvudperiod behöver valideras mot verkliga data.
 - 36-timmarsfönstret, sample-tidsstämplar och datatillgänglighet måste verifieras på fysisk iPhone.
 - Ingen Xcode-build eller testkörning har utförts efter integrationen.
+
+## 2026-11-15 – Huvudsömn framför senaste sömnperiod
+### Genomfört
+- Infört `primarySession` som väljer den längsta grupperade sömnperioden inom HealthKit-fönstret i stället för att alltid välja den senast avslutade perioden.
+- Vid lika lång varaktighet väljs perioden som avslutades senast.
+- HealthKitStore använder nu huvudsömnurvalet för nattlig återhämtningsdata.
+- Lagt till tester som säkerställer att en senare kort tupplur inte ersätter en längre huvudsömn och att lika långa perioder hanteras deterministiskt.
+- Flyttat NaN-testvärdet så att det ligger inom den testade sömnperioden.
+
+### Begränsning
+- Längsta perioden är en heuristik, inte en säker identifiering av nattsömn. Skiftarbete, lång tupplur eller fragmenterad sömn kan ge andra mönster. Verkliga HealthKit-data måste valideras innan modellen betraktas som färdig.
+- GitHub Actions för aktuell föregående commit rapporterade godkända core unit tests men underkänt i steget `Build iOS Simulator target`. Orsaken behöver fortsatt felsökas; ingen grön iOS-build påstås.
