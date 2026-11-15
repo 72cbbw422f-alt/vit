@@ -292,3 +292,10 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Sex enhetstester täcker före/vid/efter 21:00, lokal rapportdag, anpassad timme och ogiltig tid.
 - CI för kvällsrapportens modell, HealthKit-koppling och notisflöde är ännu inte bekräftad.
 - Fysisk iPhone-testning och signerad IPA-export återstår.
+
+
+## 2026-11-15 – Kvällsrapport i dashboarden
+- Dashboarden visar nu kvällsrapportens fångsttid, steg, aktiv energi, senaste vilopuls och kroppsbatteri när rapporten finns.
+- Om rapport saknas visas att påminnelsen kommer kl. 21:00 och att appen behöver öppnas för att fånga rapporten.
+- Senaste vilopuls är uttryckligen märkt som senaste vilopuls, inte som momentan puls.
+- CI för denna UI-ändring inväntas.
