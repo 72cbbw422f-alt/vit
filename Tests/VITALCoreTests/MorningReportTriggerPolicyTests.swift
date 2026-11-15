@@ -82,6 +82,14 @@ final class MorningReportTriggerPolicyTests: XCTestCase {
         XCTAssertFalse(result.shouldCreateSnapshot)
     }
 
+    func testDecisionReasonNamesActualTriggerSource() {
+        let result = MorningReportTriggerPolicy.evaluate(
+            source: .healthKitSleepUpdated, eventDate: date(15, 7),
+            mainSleep: mainSleep, reportDay: date(15, 0), calendar: calendar
+        )
+        XCTAssertTrue(result.reason.contains("Apple Hälsa registrerade en sömnuppdatering"))
+    }
+
     func testMissingSleepDataNeverCreatesReport() {
         let result = MorningReportTriggerPolicy.evaluate(
             source: .sleepFocusEnded, eventDate: date(15, 7),
