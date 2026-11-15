@@ -19,6 +19,7 @@ final class HealthKitStore: ObservableObject {
         guard let sleep = HKObjectType.categoryType(forIdentifier: .sleepAnalysis),
               let resting = HKObjectType.quantityType(forIdentifier: .restingHeartRate),
               let hrv = HKObjectType.quantityType(forIdentifier: .heartRateVariabilitySDNN),
+              let heartRate = HKObjectType.quantityType(forIdentifier: .heartRate),
               let steps = HKObjectType.quantityType(forIdentifier: .stepCount),
               let energy = HKObjectType.quantityType(forIdentifier: .activeEnergyBurned),
               let weight = HKObjectType.quantityType(forIdentifier: .bodyMass) else {
@@ -26,7 +27,7 @@ final class HealthKitStore: ObservableObject {
             return
         }
         do {
-            try await store.requestAuthorization(toShare: [], read: [sleep, resting, hrv, steps, energy, weight])
+            try await store.requestAuthorization(toShare: [], read: [sleep, resting, hrv, heartRate, steps, energy, weight])
             authorizationRequested = true
             await refresh()
         } catch {
@@ -39,6 +40,8 @@ final class HealthKitStore: ObservableObject {
         async let sleepSessionValue = latestSleepSession()
         async let overnightHRVSamples = recentTimedQuantitySamples(.heartRateVariabilitySDNN, unit: .secondUnit(with: .milli))
         async let overnightPulseSamples = recentTimedQuantitySamples(.restingHeartRate, unit: HKUnit.count().unitDivided(by: .minute()))
+        async let bodyBatteryHeartRateSamples = recentTimedQuantitySamples(.heartRate, unit: HKUnit.count().unitDivided(by: .minute()))
+        async let bodyBatteryEnergySamples = recentTimedQuantitySamples(.activeEnergyBurned, unit: .kilocalorie())
         async let restingValue = latestQuantity(.restingHeartRate, unit: HKUnit.count().unitDivided(by: .minute()))
         async let hrvValue = latestQuantity(.heartRateVariabilitySDNN, unit: .secondUnit(with: .milli))
         async let stepsValue = todaySum(.stepCount, unit: .count())
@@ -63,7 +66,7 @@ final class HealthKitStore: ObservableObject {
                 restingHeartRateSampleCount: 0
             )
         }
-        snapshot = HealthSnapshot(
+        var updatedSnapshot = HealthSnapshot(
             sleepDuration: sleepSession?.duration,
             restingHeartRate: await restingValue,
             hrv: await hrvValue,
@@ -77,6 +80,17 @@ final class HealthKitStore: ObservableObject {
             sleepBaseline: baselineValues.sleep,
             lastUpdated: now
         )
+        if let wakeTime = sleepSession?.end {
+            updatedSnapshot.bodyBattery = BodyBatteryEngine.calculate(BodyBatteryInputs(
+                wakeTime: wakeTime,
+                asOf: now,
+                overnightRecoveryScore: updatedSnapshot.recoveryResult.score,
+                restingHeartRateBaselineBPM: baselineValues.resting.median,
+                heartRateSamples: await bodyBatteryHeartRateSamples,
+                activeEnergySamples: await bodyBatteryEnergySamples
+            ))
+        }
+        snapshot = updatedSnapshot
     }
 
     private func loadPersonalBaselines(asOf date: Date) async -> (resting: PersonalBaseline, hrv: PersonalBaseline, sleep: PersonalBaseline) {
