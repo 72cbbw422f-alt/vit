@@ -23,3 +23,12 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Fel/loggar:
 - Åtgärd:
 - Status: Ej testad / Godkänd / Underkänd
+
+
+## 2026-11-15 – Förberedelse för automatiserad build
+- Delad Xcode-scheme: Inlagd, ej verifierad med Xcode lokalt.
+- GitHub Actions-workflow: Inlagd för macOS 15 och iOS Simulator SDK.
+- Buildstatus: Väntar på första workflow-körningen.
+- Dashboard-dataetiketter: Förbättrade så saknade värden inte felaktigt anges som hämtade.
+- Energidiagram: Illustrativ kurva borttagen; tomt tillstånd visas tills verklig historik finns.
+- Ingen build eller test markeras som godkänd innan CI-resultat finns.
