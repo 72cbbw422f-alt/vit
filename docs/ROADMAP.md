@@ -169,11 +169,11 @@ Status betyder:
 
 
 ## Uppdatering 2026-11-15 – Rapporternas utlösare
-- [x] Besluta att morgonrapporten utlöses av att Sömnfokus stängs av efter huvudsömnen
+- [x] Besluta att Sömnfokus-av är en möjlig morgonsignal efter huvudsömnen
 - [x] Besluta att kvällsrapporten använder en fast lokal tid, 21:00 som standard
-- [ ] Implementera tillförlitlig observation av Sömnfokus-status/ändring och återupptagning när appen får körningstid
-- [ ] Kontrollera att huvudsömnen är avslutad och att nattens HealthKit-data hunnit bli tillgängliga
+- [x] Skapa testbar policy med Sömnfokus, HealthKit-sömnuppdatering och appaktivitet som signaler\n- [ ] Implementera HealthKit Observer Query och Background Delivery-entitlement
+- [x] Kontrollera avslutad huvudsömn, minsta sömnlängd, maxålder och lokal rapportdag i kärnmodellen\n- [ ] Verifiera HealthKit-datans tillgänglighet och timing på fysisk iPhone
 - [ ] Hantera fördröjda HealthKit-sampel utan att skriva om en redan låst rapport
 - [ ] Skydda mot dubbletter och felaktiga utlösningar vid tupplur eller manuell Fokusändring
 - [ ] Schemalägga kvällsrapportens lokala notis och skapa kvällssnapshot vid säker körningstid
-- [ ] Testa tidszon, sommartid, omstart och flera Fokusväxlingar
+- [x] Testa grundläggande utlösningspolicy och reservsignaler\n- [ ] Testa tidszon, sommartid, omstart och flera Fokusväxlingar på enhet
