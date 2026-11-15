@@ -307,3 +307,9 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Väntetiden kontrolleras vid varje befintlig trigger/refresh; den skapar ingen bakgrundstimer och lovar därför inte exakt rapporttid.
 - Saknade värden förblir nil. Snapshoten är fortsatt oföränderlig efter arkivering.
 - Lade till regressionstest för signal före respektive efter 20-minutersgränsen.
+
+
+## 2026-11-15 – Felhantering för HealthKit-bakgrundsleverans
+- Lade till backgroundSleepDeliveryEnabled i HealthKitStore.
+- Resultatet från enableBackgroundDelivery hanteras nu uttryckligen; fel och nekad aktivering visas i lastError.
+- Ingen garanti om omedelbar bakgrundskörning görs. Verifiering kräver signerad app på fysisk iPhone.
