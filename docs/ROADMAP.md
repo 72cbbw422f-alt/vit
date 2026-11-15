@@ -253,3 +253,15 @@ Status betyder:
 - [ ] Verifiera att IPA-artefakten skapas och har korrekt Payload-struktur
 - [ ] Signera IPA via AltStore/SideStore eller motsvarande och installera på iPhone
 - [ ] Testa HealthKit-läsning, entitlement, notiser och bakgrundsleverans efter sideload-signering
+
+
+## Uppdatering 2026-11-15 – VITAL som helhetslösning
+- [ ] Utöka HealthKit-stöd och behörighetsintroduktion för relevanta hälsokategorier utöver nuvarande sju datatyper
+- [ ] Inventera tillgängliga HealthKit-typer och skilja mellan läsbara data, datakällor som saknas och behörighet som användaren inte beviljat (iOS kan begränsa insyn i läsbehörighet)
+- [ ] Skapa viktmodul med startvikt, aktuell vikt, förändring i kg/procent, historik och grafer
+- [ ] Synka vikt med Apple Hälsa och tillåt manuell registrering med tydlig källa
+- [ ] Skapa läkemedelsmodul med Wegovy-dos, doshistorik, dosintervall och nästa dospåminnelse
+- [ ] Skapa logg för upplevda biverkningar med datum, intensitet och fritext
+- [ ] Utreda och dokumentera en försiktig, teoretisk semaglutidnivå-kurva; aldrig presentera den som uppmätt nivå eller doseringsråd
+- [ ] Utforma en samlad hälsotidslinje där vikt, doser, biverkningar, sömn och återhämtning kan jämföras utan att påstå orsakssamband
+- [ ] Lägga till integritetsvänlig export och säker lokal lagring för läkemedels- och viktjournal
