@@ -160,3 +160,8 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Arkivets dubblettskydd och dashboardens historikdatum använder sparad lokal dag.
 - Lade till två tester för tidszonsbyte och sommartidsdag.
 - Källkod och tester är incheckade. CI-resultat för de nya testerna och simulatorbygget inväntas; ingen fysisk enhetstestning är utförd.
+
+## 2026-11-15 – CI för tidszonsstabil rapporthistorik
+- GitHub Actions run 191, commit `de89a1a2f935df89f4c77fb0dc500996d32673c0`: kärntester godkända och iOS Simulator target byggd utan fel.
+- Tidigare körningar 182–190 avsåg mellanliggande commits och misslyckades bland annat på ett felaktigt metodargument i dagnyckelns konstruktion. Felet är korrigerat i run 191.
+- Detta verifierar kompilering och tester i CI, inte HealthKit-beteende, notisleverans eller installation på fysisk iPhone.
