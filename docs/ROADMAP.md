@@ -198,3 +198,10 @@ Status betyder:
 - [ ] Verifiera kvällsrapport, notistillstånd, tidszon och sommartid på fysisk iPhone
 - [ ] Lägga till inställning för anpassad kvällstid
 - [ ] Slutföra CI för kvällsrapportens nya modell och HealthKit-koppling
+
+
+## Uppdatering 2026-11-15 – Dataväntan för morgonrapport
+- [x] Införa minst 20 minuters väntetid efter huvudsömnens sluttid innan morgonrapport får låsas
+- [x] Lägga till test som stoppar för tidig rapport och godkänner rapport efter väntetiden
+- [ ] Verifiera HealthKit-synkroniseringens faktiska fördröjning på fysisk iPhone
+- [ ] Utvärdera 20-minutersheuristiken mot verkliga användardata
