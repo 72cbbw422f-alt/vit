@@ -165,7 +165,7 @@ struct DashboardView: View {
                                 VStack(alignment: .leading, spacing: 3) {
                                     Text(report.kind == .morning ? "Morgonrapport" : "Kvällsrapport")
                                         .font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
-                                    Text(report.localDay.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated)))
+                                    Text(report.localDayDisplayText)
                                         .font(.caption).foregroundStyle(VITALPalette.muted)
                                 }
                                 Spacer()
