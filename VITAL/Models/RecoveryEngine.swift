@@ -48,7 +48,7 @@ enum RecoveryEngine {
 
         // Components are bounded to avoid a single unusual reading dominating the estimate.
         let sleepScore = clamp((sleep / sleepBaseline) * 100, lower: 0, upper: 100)
-        let hrvScore = clamp(50 + ((hrv / hrvBaseline) - 1) * 100, lower: 0, upper: 100)
+        let hrvScore = clamp(100 + ((hrv / hrvBaseline) - 1) * 100, lower: 0, upper: 100)
         let pulseScore = clamp(100 - ((pulse - pulseBaseline) * 5), lower: 0, upper: 100)
 
         // Fixed weights sum to 1.0. Keep visible in documentation and tests.
