@@ -138,7 +138,7 @@ struct DashboardView: View {
                 if let report = health.eveningReport {
                     reportRow("Steg", value: report.steps.map { Int($0).formatted() } ?? "—")
                     reportRow("Aktiv energi", value: report.activeEnergyKcal.map { "\(Int($0.rounded())) kcal" } ?? "—")
-                    reportRow("Puls", value: report.restingHeartRateBPM.map { "\(Int($0.rounded())) bpm" } ?? "—")
+                    reportRow("Senaste vilopuls", value: report.restingHeartRateBPM.map { "\(Int($0.rounded())) bpm" } ?? "—")
                     reportRow("Kroppsbatteri", value: report.bodyBatteryScore.map { "\($0) / 100" } ?? "—")
                     Text("Fryst rapport · fångad vid första uppdateringen efter kl. 21:00.")
                         .font(.caption2).foregroundStyle(VITALPalette.muted)
