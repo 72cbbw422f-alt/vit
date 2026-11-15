@@ -431,3 +431,13 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Lagt till historikdiagram baserat enbart på registrerade viktvärden samt förändring sedan första registreringen.
 - Visar aktuell vikt från Apple Hälsa när ingen manuell registrering finns och märker datakällan.
 - Nästa steg: CI-verifiering, bättre startviktsflöde, förändring i procent, datum-/historikdetaljer och verifierad HealthKit-viktserie.
+
+
+## 2026-11-15 – Första läkemedelsjournalen
+
+- Lagt till lokal doshistorik för Wegovy med registrerad mängd i mg och datum/tid.
+- Lagt till biverkningslogg med typ, intensitet 1–5 och valfri anteckning.
+- Lagt till en valbar engångspåminnelse med datum och tid via iOS-notiser.
+- Doser och tider anges av användaren enligt ordination; appen ger inga doseringsförslag eller råd om dosändring.
+- Data lagras lokalt i UserDefaults och sorteras nyast först.
+- Nästa steg: CI-verifiering, export av läkemedelsjournalen, möjlighet att redigera/ta bort felregistreringar och test av notiser på fysisk iPhone.
