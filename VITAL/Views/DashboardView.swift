@@ -15,13 +15,11 @@ struct DashboardView: View {
                 VStack(spacing: 16) {
                     header
                     statusCard
-                    moodJournalCard
-                    morningReportCard
-                    eveningReportCard
-                    reportHistoryCard
                     metricGrid
                     energyCard
                     activityCard
+                    moodJournalCard
+                    reportsSection
                     habitsCard
                 }.padding(.horizontal, VITALSpacing.page).padding(.top, 12).padding(.bottom, 28)
             }
@@ -68,9 +66,8 @@ struct DashboardView: View {
                         Text(result.score.map { "\($0)" } ?? "—")
                             .font(.system(size: 42, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
                         Text("av 100").font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.teal)
-                        Text(result.explanation)
+                        Text(result.score == nil ? baselineStatus : "Personlig återhämtningsnivå")
                             .font(.caption).foregroundStyle(VITALPalette.muted)
-                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
                 if let score = result.score {
@@ -78,10 +75,12 @@ struct DashboardView: View {
                     componentRow("HRV", value: result.hrvComponent)
                     componentRow("Vilopuls", value: result.restingPulseComponent)
                 } else {
-                    HStack { Text("Personlig baslinje"); Spacer(); Text(baselineStatus) }
-                        .font(.subheadline).foregroundStyle(VITALPalette.muted)
+                    HStack(spacing: 6) {
+                        Circle().fill(VITALPalette.amber).frame(width: 6, height: 6)
+                        Text("Bygger personlig baslinje · \(baselineStatus)")
+                    }.font(.caption).foregroundStyle(VITALPalette.muted)
                 }
-                Text("Experimentell wellness-uppskattning – inte medicinskt validerad.")
+                Text("Preliminär uppskattning")
                     .font(.caption2).foregroundStyle(VITALPalette.amber)
             }
         }
@@ -131,10 +130,10 @@ struct DashboardView: View {
                         }
                         .frame(height: 92, alignment: .bottom)
                         .padding(.horizontal, 4)
-                        Text("Utveckling senaste registreringarna · högre stapel = bättre mående")
+                        Text("Senaste registreringar")
                             .font(.caption2).foregroundStyle(VITALPalette.muted)
                     } else {
-                        Text("Registrera ditt mående flera dagar i rad för att börja se din utveckling här.")
+                        Text("Din måendekurva visas här när du har fler registreringar.")
                             .font(.caption).foregroundStyle(VITALPalette.muted)
                     }
                     if !latest.note.isEmpty {
@@ -148,9 +147,8 @@ struct DashboardView: View {
                             .frame(width: 54, height: 54)
                             .background(VITALPalette.teal.opacity(0.12), in: Circle())
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Börja följa ditt mående").font(.headline).foregroundStyle(VITALPalette.cloud)
-                            Text("En kort daglig check-in bygger din personliga måendekurva.")
-                                .font(.caption).foregroundStyle(VITALPalette.muted)
+                            Text("Ditt mående").font(.headline).foregroundStyle(VITALPalette.cloud)
+                            Text("Registrera dagens läge").font(.caption).foregroundStyle(VITALPalette.muted)
                         }
                     }
                     Button { showingMoodCheckIn = true } label: {
@@ -196,9 +194,8 @@ struct DashboardView: View {
                     Text("Fryst rapport · värdena ändras inte när ny hälsodata kommer in.")
                         .font(.caption2).foregroundStyle(VITALPalette.muted)
                 } else {
-                    Text("Rapporten skapas när VITAL har registrerat en avslutad huvudsömn. Den sparas sedan som en oföränderlig ögonblicksbild.")
+                    Label("Skapas när huvudsömnen är registrerad", systemImage: "moon.zzz")
                         .font(.caption).foregroundStyle(VITALPalette.muted)
-                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
         }
@@ -226,12 +223,31 @@ struct DashboardView: View {
                     Text("Fryst rapport · fångad vid första uppdateringen efter kl. 21:00.")
                         .font(.caption2).foregroundStyle(VITALPalette.muted)
                 } else {
-                    Text("En påminnelse skickas kl. 21:00. Öppna VITAL så hämtas dagens data och kvällsrapporten sparas.")
+                    Label("Påminnelse kl. 21:00", systemImage: "bell")
                         .font(.caption).foregroundStyle(VITALPalette.muted)
-                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
         }
+    }
+
+    private var reportsSection: some View {
+        DisclosureGroup {
+            VStack(spacing: 12) {
+                morningReportCard
+                eveningReportCard
+                reportHistoryCard
+            }.padding(.top, 8)
+        } label: {
+            HStack {
+                Label("Rapporter", systemImage: "doc.text")
+                    .font(.headline.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
+                Spacer()
+                Text("Morgon · kväll").font(.caption).foregroundStyle(VITALPalette.muted)
+            }.padding(.vertical, 5)
+        }
+        .tint(VITALPalette.teal)
+        .padding(16)
+        .background(VITALPalette.midnight, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 
     private var reportHistoryCard: some View {
@@ -314,9 +330,8 @@ struct DashboardView: View {
                     }
                     Spacer()
                 }
-                Text(battery?.explanation ?? "Kroppsbatteriet väntar på nattens återhämtning och tillräckligt med pulsdata.")
+                Text(battery?.score == nil ? "Inväntar tillräckligt underlag" : "Dagens beräknade energinivå")
                     .font(.caption).foregroundStyle(VITALPalette.muted)
-                    .fixedSize(horizontal: false, vertical: true)
                 if let battery, battery.score != nil {
                     HStack {
                         Label("\(battery.heartRateSampleCount) pulsmätningar", systemImage: "heart")
@@ -324,7 +339,7 @@ struct DashboardView: View {
                         Text("\(Int(battery.activeEnergyKcal.rounded())) kcal aktiv energi")
                     }.font(.caption2).foregroundStyle(VITALPalette.teal)
                 }
-                Text("Preliminär uppskattning – inte ett medicinskt mått.")
+                Text("Preliminär uppskattning")
                     .font(.caption2).foregroundStyle(VITALPalette.amber)
             }
         }
