@@ -55,3 +55,81 @@ struct HealthSnapshot {
         return "\(Int(hrv.rounded())) ms"
     }
 }
+
+
+enum DailyReportKind: String, Codable {
+    case morning
+    case evening
+}
+
+/// Immutable values captured for a report. Later HealthKit updates must never
+/// mutate an already-created report for the same local day and report kind.
+struct DailyReportSnapshot: Codable, Equatable, Identifiable {
+    let id: UUID
+    let kind: DailyReportKind
+    let localDay: Date
+    let capturedAt: Date
+    let recoveryScore: Int?
+    let bodyBatteryScore: Int?
+    let sleepDurationSeconds: TimeInterval?
+    let hrvMilliseconds: Double?
+    let restingHeartRateBPM: Double?
+    let steps: Double?
+    let activeEnergyKcal: Double?
+
+    init(
+        id: UUID = UUID(),
+        kind: DailyReportKind,
+        localDay: Date,
+        capturedAt: Date,
+        recoveryScore: Int?,
+        bodyBatteryScore: Int?,
+        sleepDurationSeconds: TimeInterval?,
+        hrvMilliseconds: Double?,
+        restingHeartRateBPM: Double?,
+        steps: Double?,
+        activeEnergyKcal: Double?
+    ) {
+        self.id = id
+        self.kind = kind
+        self.localDay = localDay
+        self.capturedAt = capturedAt
+        self.recoveryScore = recoveryScore
+        self.bodyBatteryScore = bodyBatteryScore
+        self.sleepDurationSeconds = sleepDurationSeconds
+        self.hrvMilliseconds = hrvMilliseconds
+        self.restingHeartRateBPM = restingHeartRateBPM
+        self.steps = steps
+        self.activeEnergyKcal = activeEnergyKcal
+    }
+}
+
+/// Small deterministic archive policy. Persistence is deliberately kept out of
+/// the core model so the same rules can be tested without UserDefaults/HealthKit.
+struct ReportSnapshotArchive: Codable, Equatable {
+    private(set) var snapshots: [DailyReportSnapshot] = []
+
+    @discardableResult
+    mutating func appendIfAbsent(
+        _ candidate: DailyReportSnapshot,
+        calendar: Calendar = .current
+    ) -> Bool {
+        let alreadyExists = snapshots.contains {
+            $0.kind == candidate.kind && calendar.isDate($0.localDay, inSameDayAs: candidate.localDay)
+        }
+        guard !alreadyExists else { return false }
+        snapshots.append(candidate)
+        snapshots.sort { $0.capturedAt < $1.capturedAt }
+        return true
+    }
+
+    func snapshot(
+        for date: Date,
+        kind: DailyReportKind,
+        calendar: Calendar = .current
+    ) -> DailyReportSnapshot? {
+        snapshots.first {
+            $0.kind == kind && calendar.isDate($0.localDay, inSameDayAs: date)
+        }
+    }
+}
