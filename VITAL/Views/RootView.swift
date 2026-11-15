@@ -767,6 +767,7 @@ private struct MedicationEffect: Codable, Identifiable {
     @Published private(set) var effects: [MedicationEffect] = []
     @Published private(set) var reminderDate: Date?
     private let center = UNUserNotificationCenter.current()
+    private var reminderGeneration = 0
     init() {
         let defaults = UserDefaults.standard
         if let data = defaults.data(forKey: "vital.medication.doses.v1"),
@@ -798,28 +799,38 @@ private struct MedicationEffect: Codable, Identifiable {
         if let data = try? JSONEncoder().encode(value) { UserDefaults.standard.set(data, forKey: key) }
     }
     func setReminder(_ date: Date) async -> Bool {
+        guard date > .now else { return false }
+        reminderGeneration += 1
+        let generation = reminderGeneration
+        let identifier = "vital.medication.nextDose"
         let settings = await center.notificationSettings()
+        guard generation == reminderGeneration else { return false }
         if settings.authorizationStatus == .denied { return false }
         if settings.authorizationStatus == .notDetermined {
             let granted = (try? await center.requestAuthorization(options: [.alert, .sound])) ?? false
-            guard granted else { return false }
+            guard granted, generation == reminderGeneration else { return false }
         }
-        center.removePendingNotificationRequests(withIdentifiers: ["vital.medication.nextDose"])
-        center.removeDeliveredNotifications(withIdentifiers: ["vital.medication.nextDose"])
+        center.removePendingNotificationRequests(withIdentifiers: [identifier])
+        center.removeDeliveredNotifications(withIdentifiers: [identifier])
         let content = UNMutableNotificationContent()
         content.title = "Påminnelse från VITAL"
         content.body = "Det är dags att se över din läkemedelsplan."
         content.sound = .default
         let trigger = UNCalendarNotificationTrigger(dateMatching: Calendar.current.dateComponents([.year,.month,.day,.hour,.minute], from: date), repeats: false)
-        let request = UNNotificationRequest(identifier: "vital.medication.nextDose", content: content, trigger: trigger)
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
         do {
             try await center.add(request)
+            guard generation == reminderGeneration else {
+                center.removePendingNotificationRequests(withIdentifiers: [identifier])
+                return false
+            }
             reminderDate = date
             UserDefaults.standard.set(date, forKey: "vital.medication.reminder.v1")
             return true
         } catch { return false }
     }
     func clearReminder() {
+        reminderGeneration += 1
         center.removePendingNotificationRequests(withIdentifiers: ["vital.medication.nextDose"])
         center.removeDeliveredNotifications(withIdentifiers: ["vital.medication.nextDose"])
         reminderDate = nil
