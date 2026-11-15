@@ -697,7 +697,8 @@ private struct BloodPressureEntrySheet: View {
     @State private var note = ""
     private var valid: Bool {
         guard let s = Int(systolic), let d = Int(diastolic) else { return false }
-        return (60...260).contains(s) && (30...160).contains(d)
+        let pulseIsValid = pulse.isEmpty || (Int(pulse).map { (30...220).contains($0) } ?? false)
+        return (60...260).contains(s) && (30...160).contains(d) && s > d && pulseIsValid
     }
     var body: some View {
         NavigationStack {
@@ -725,7 +726,7 @@ private struct BloodPressureEntrySheet: View {
                     Button("Spara") {
                         journal.add(systolic: Int(systolic)!, diastolic: Int(diastolic)!, pulse: Int(pulse), note: note)
                         dismiss()
-                    }.disabled(!valid || (!pulse.isEmpty && Int(pulse) == nil))
+                    }.disabled(!valid)
                 }
             }
         }
