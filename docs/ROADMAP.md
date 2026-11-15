@@ -162,9 +162,9 @@ Status betyder:
 - [x] Tillåta en separat kvällsrapport samma kalenderdag
 - [x] Stödja kodning/avkodning för framtida lokal persistens
 - [x] Lägga till fem tester för låsning, separata rapporttyper, ny dag och Codable
-- [ ] Koppla arkivet till beständig lagring i appen
+- [x] Koppla arkivet till beständig lokal lagring i appen
 - [ ] Implementera schemalagd 07:00- och 21:00-fångst med iOS-begränsningar
-- [ ] Visa rapporthistorik och fångsttid i gränssnittet
+- [x] Visa aktuell fryst morgonrapport och fångsttid i dashboarden\n- [ ] Bygga fullständig rapporthistorikvy
 - [ ] Verifiera CI för den nya modellen
 
 
@@ -177,3 +177,13 @@ Status betyder:
 - [ ] Skydda mot dubbletter och felaktiga utlösningar vid tupplur eller manuell Fokusändring
 - [ ] Schemalägga kvällsrapportens lokala notis och skapa kvällssnapshot vid säker körningstid
 - [x] Testa grundläggande utlösningspolicy och reservsignaler\n- [ ] Testa tidszon, sommartid, omstart och flera Fokusväxlingar på enhet
+
+
+## Uppdatering 2026-11-15 – Första morgonrapportflödet
+- [x] Koppla HealthKit-uppdatering till morgonrapportens utlösningspolicy
+- [x] Spara första morgonrapporten per lokal dag i UserDefaults
+- [x] Låsa rapporten så senare uppdateringar inte skriver över den
+- [x] Visa rapportvärden och fångsttid i dashboarden
+- [ ] Förbättra hantering av fördröjda/partiella HealthKit-data före låsning
+- [ ] Lägga till fullständig rapporthistorik
+- [ ] Verifiera flödet på fysisk iPhone med riktiga HealthKit-data
