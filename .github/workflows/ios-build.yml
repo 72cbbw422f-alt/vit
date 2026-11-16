@@ -48,7 +48,7 @@ jobs:
           xcrun simctl install "$DEVICE_ID" "$APP"
           LAUNCH_OUTPUT="$(xcrun simctl launch "$DEVICE_ID" se.vital.health)"
           echo "$LAUNCH_OUTPUT"
-          APP_PID="$(printf '%s\\n' "$LAUNCH_OUTPUT" | awk -F': ' '/se.vital.health:/ {print $NF; exit}')"
+          APP_PID="$(printf '%s\n' "$LAUNCH_OUTPUT" | awk -F': ' '/se.vital.health:/ {print $NF; exit}')"
           if ! [[ "$APP_PID" =~ ^[0-9]+$ ]]; then
             echo "Could not read VITAL process ID from simulator launch output."
             exit 1
