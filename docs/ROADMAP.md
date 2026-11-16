@@ -281,3 +281,13 @@ Status betyder:
 - [x] Säkerställ att valfria mätvärden inte blockerar grundläggande HealthKit-auktorisering
 - [x] Behåll saknade valfria mätvärden som saknade
 - [ ] Verifiera ändringen i CI och på fysisk iPhone
+
+
+## Uppdatering 2026-11-16 – HealthKit vikt och blodtryck
+- [x] Läsa senaste viktvärde och mättid från HealthKit
+- [x] Läsa systoliskt och diastoliskt blodtryck från samma HealthKit-korrelation
+- [x] Visa HealthKit som primär källa för aktuell vikt och blodtryck
+- [x] Ta bort nya manuella registreringsflöden från vikt- och blodtryckskorten
+- [x] Behålla tidigare lokala journalposter som äldre historik
+- [ ] Verifiera HealthKit-korrelationer, enheter och tidsstämplar på fysisk iPhone
+- [ ] Bygga historiska vikt- och blodtrycksgrafer från HealthKit-sampel
