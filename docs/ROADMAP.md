@@ -258,8 +258,9 @@ Status betyder:
 ## Uppdatering 2026-11-15 – VITAL som helhetslösning
 - [ ] Utöka HealthKit-stöd och behörighetsintroduktion för relevanta hälsokategorier utöver nuvarande sju datatyper
 - [ ] Inventera tillgängliga HealthKit-typer och skilja mellan läsbara data, datakällor som saknas och behörighet som användaren inte beviljat (iOS kan begränsa insyn i läsbehörighet)
-- [~] Första viktmodul: manuell registrering, redigerbar målvikt, förändring i kg och historikgraf; startvikt/procent och full HealthKit-synk återstår
-- [ ] Synka vikt med Apple Hälsa och tillåt manuell registrering med tydlig källa
+- [~] Viktmodul finns med lokal journal och målvikt; nuvarande manuella registreringsflöde behöver ersättas enligt produktkravet om automatisk Apple Hälsa-läsning
+- [ ] Läs vikt och blodtryck från HealthKit med korrekta tidsstämplar och tydlig datakälla
+- [ ] Ta bort nya manuella registreringsflöden för vikt och blodtryck när HealthKit-visningen är verifierad; bevara befintliga lokala journaldata läsbara under övergången
 - [ ] Skapa läkemedelsmodul med Wegovy-dos, doshistorik, dosintervall och nästa dospåminnelse
 - [ ] Skapa logg för upplevda biverkningar med datum, intensitet och fritext
 - [ ] Utreda och dokumentera en försiktig, teoretisk semaglutidnivå-kurva; aldrig presentera den som uppmätt nivå eller doseringsråd
