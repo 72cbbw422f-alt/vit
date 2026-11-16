@@ -201,8 +201,13 @@ private struct HealthOverviewView: View {
                                     HealthValueTile(title: "Andningsfrekvens", value: health.snapshot.respiratoryRateText, tint: VITALPalette.violet)
                                     HealthValueTile(title: "Syremättnad", value: health.snapshot.oxygenSaturationText, tint: VITALPalette.teal)
                                 }
-                                Text("Senaste tillgängliga mätningar från Apple Hälsa. Saknade värden visas som streck.")
-                                    .font(.caption).foregroundStyle(VITALPalette.muted)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(health.snapshot.respiratoryRateDate.map { "Andning: \($0.formatted(date: .abbreviated, time: .shortened))" } ?? "Andning: ingen registrerad mätning")
+                                    Text(health.snapshot.oxygenSaturationDate.map { "Syremättnad: \($0.formatted(date: .abbreviated, time: .shortened))" } ?? "Syremättnad: ingen registrerad mätning")
+                                }
+                                .font(.caption).foregroundStyle(VITALPalette.muted)
+                                Text("Senaste registrerade mätning från Apple Hälsa – inte nödvändigtvis ett realtidsvärde.")
+                                    .font(.caption2).foregroundStyle(VITALPalette.muted)
                             }
                         }
                         weightCard
