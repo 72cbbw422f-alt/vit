@@ -203,3 +203,12 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Grenpekaren uppdaterades via Git Data API, vilket inte startade GitHub Actions som en vanlig push-händelse.
 - En efterföljande dokumentationspush används därför för att trigga workflow på den aktuella grenkoden.
 - Status för byggning och simulatorstart ska hämtas från den nya körningen; äldre körning 43921250780 avslutades som avbruten och verifierar inte den senaste dokumentationen.
+
+
+## 2026-11-16 – Bekräftad krasch i HealthKit-auktorisering
+- Run 43922206353: core unit tests godkända; iOS Simulator build godkänd; appen startade men avslutades under HealthKit-auktorisering.
+- Simulatorloggen visar `NSInvalidArgumentException`: `Authorization to read the following types is disallowed: HKCorrelationTypeIdentifierBloodPressure`.
+- Rotorsak identifierad: `HKCorrelationType` för blodtryck lades till i `readTypes` i `requestAuthorization`.
+- Åtgärd i commit `88bcdd9e6638ecb3979e10619f152254d128d50a`: endast systoliskt och diastoliskt `HKQuantityType` begärs i read-authorization. Den befintliga korrelationsfrågan för att läsa ihop parade värden är kvar.
+- Ny simulator- och CI-verifiering återstår. Inga IPA-steg kördes i den misslyckade körningen eftersom smoke-testet stoppade workflow.
+- Notering: loggen innehåller även HealthKit-meddelanden om saknat HealthKit-entitlement i simulatorn. Dessa ska utvärderas separat efter att auktoriseringsundantaget är borta; de var inte den utlösande NSInvalidArgumentException som avslutade processen.
