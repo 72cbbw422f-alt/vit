@@ -655,3 +655,15 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Granska rapportmodeller, schemaläggning och notiser så att kvällsrapporten tas ur produktflödet och morgonsammanfattningen blir den enda dagliga sammanfattningen.
 - Behåll befintliga återhämtnings-, baslinje-, HealthKit-, kroppsbatteri-, läkemedels- och historikbeslut; kontrollera att de integreras konsekvent i de fyra flikarna.
 - Verifiera varje steg i CI och därefter på fysisk iPhone med verkliga HealthKit-data.
+
+
+## 2026-11-16 – Första implementation av återhämtningsfokuserad startsida
+- Dashboardens huvudkort har bytt fokus från enbart nattens återhämtningsvärde till **Dagens återhämtning**.
+- Kortet visar en grafisk poängring när RecoveryEngine har tillräckligt underlag, en kort statusförklaring och ett försiktigt dagsråd.
+- När poäng saknas visas att personlig baslinje byggs upp; ingen poäng eller datagissning skapas.
+- En kompakt rad visar nattens sömntid och nattliga HRV i stället för en lång lista med fristående mätvärden.
+- Den separata rapportsektionen har tagits bort från startsidans visning. Befintliga rapportmodeller och lagrade historiska poster har ännu inte migrerats eller raderats.
+- Stresskortet utan direkt mätkälla har tagits bort från mätvärdesrutnätet.
+- Kvällspåminnelsen visas inte längre i startsidans vanestatus.
+- Kodändring: VITAL/Views/DashboardView.swift, commits b12e4691c0c71200defd24b4305dd3d853af9f8f och 630c2f82653f4b3c813c861dcc906be68b38e304.
+- Status: Första UI-iteration incheckad. CI efter ändringen och visuell kontroll på simulator/iPhone återstår. Dagsrådens poängintervall är preliminära UI-regler och ska granskas/valideras innan de betraktas som medicinskt eller träningsmässigt beslutsunderlag.

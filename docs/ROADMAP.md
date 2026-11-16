@@ -342,3 +342,18 @@ Status betyder:
 - [ ] Säkerställa att samtliga tidigare beslutade funktioner har en tydlig plats och ett verkligt användningsvärde i den nya informationsarkitekturen
 
 **Överordnat beslut:** Denna målbild ersätter tidigare roadmap-punkter om separata morgon- och kvällsrapporter som framtida användarupplevelse. Historiska implementationsposter behålls som utvecklingshistorik.
+
+
+## Uppdatering 2026-11-16 – Första dashboardimplementation
+- [x] Byta huvudkortets fokus till Dagens återhämtning
+- [x] Visa grafisk återhämtningsring och kort statusförklaring när poäng finns
+- [x] Visa tillstånd för otillräcklig personlig baslinje utan att hitta på värden
+- [x] Visa en kompakt rad med nattens sömntid och nattliga HRV
+- [x] Ta bort separat rapportsektion från startsidans synliga flöde
+- [x] Ta bort stresskort utan direkt mätkälla
+- [ ] Validera statusintervall och rekommendationslogik mot dokumenterad återhämtningsmodell och verkliga data
+- [ ] Ersätta nuvarande poängbaserade generella råd med signalbaserade, förklarade rekommendationer
+- [ ] Flytta detaljerade mätvärden till grafiska fördjupningsvyer
+- [ ] Avveckla kvällsrapportens schemaläggning och notisflöde på ett bakåtkompatibelt sätt
+- [ ] Köra CI och granska den nya dashboarden visuellt i simulator
+- [ ] Verifiera HealthKit-data och gränssnitt på fysisk iPhone
