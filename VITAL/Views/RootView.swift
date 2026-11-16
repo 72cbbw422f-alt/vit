@@ -4,6 +4,21 @@ import UserNotifications
 import PhotosUI
 import UIKit
 
+/// Decodes locally stored journal data and preserves an unreadable payload for recovery.
+private func decodeJournal<T: Decodable>(_ type: T.Type, key: String) -> T? {
+    let defaults = UserDefaults.standard
+    guard let data = defaults.data(forKey: key) else { return nil }
+    do {
+        return try JSONDecoder().decode(type, from: data)
+    } catch {
+        let backupKey = "\(key).recoveryBackup.v1"
+        if defaults.data(forKey: backupKey) == nil {
+            defaults.set(data, forKey: backupKey)
+        }
+        return nil
+    }
+}
+
 struct RootView: View {
     var body: some View {
         TabView {
@@ -764,8 +779,7 @@ private struct BloodPressureEntry: Codable, Identifiable {
     @Published private(set) var entries: [BloodPressureEntry] = []
     private let key = "vital.bloodPressureJournal.v1"
     init() {
-        if let data = UserDefaults.standard.data(forKey: key),
-           let decoded = try? JSONDecoder().decode([BloodPressureEntry].self, from: data) {
+        if let decoded = decodeJournal([BloodPressureEntry].self, key: key) {
             entries = decoded.sorted { $0.date > $1.date }
         }
     }
@@ -891,12 +905,10 @@ private struct MedicationEffect: Codable, Identifiable {
     private var reminderGeneration = 0
     init() {
         let defaults = UserDefaults.standard
-        if let data = defaults.data(forKey: "vital.medication.doses.v1"),
-           let value = try? JSONDecoder().decode([MedicationDose].self, from: data) {
+        if let value = decodeJournal([MedicationDose].self, key: "vital.medication.doses.v1") {
             doses = value.sorted { $0.date > $1.date }
         }
-        if let data = defaults.data(forKey: "vital.medication.effects.v1"),
-           let value = try? JSONDecoder().decode([MedicationEffect].self, from: data) {
+        if let value = decodeJournal([MedicationEffect].self, key: "vital.medication.effects.v1") {
             effects = value.sorted { $0.date > $1.date }
         }
         reminderDate = defaults.object(forKey: "vital.medication.reminder.v1") as? Date
@@ -1109,8 +1121,7 @@ private struct WeightEntry: Codable, Identifiable {
     init() {
         let savedTarget = UserDefaults.standard.object(forKey: "vital.weight.target.v1") as? Double
         targetWeight = savedTarget.flatMap { $0.isFinite && (25...350).contains($0) ? $0 : nil }
-        if let data = UserDefaults.standard.data(forKey: key),
-           let decoded = try? JSONDecoder().decode([WeightEntry].self, from: data) {
+        if let decoded = decodeJournal([WeightEntry].self, key: key) {
             entries = decoded.sorted { $0.date > $1.date }
         }
     }
@@ -1317,8 +1328,7 @@ private struct ProgressPhoto: Codable, Identifiable {
         var values = URLResourceValues()
         values.isExcludedFromBackup = true
         try? folderURL.setResourceValues(values)
-        if let data = UserDefaults.standard.data(forKey: key),
-           let saved = try? JSONDecoder().decode([ProgressPhoto].self, from: data) {
+        if let saved = decodeJournal([ProgressPhoto].self, key: key) {
             photos = saved.filter { FileManager.default.fileExists(atPath: folder.appendingPathComponent($0.fileName).path) }
                 .sorted { $0.date > $1.date }
         }
