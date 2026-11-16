@@ -596,3 +596,11 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Inga uppenbara force unwraps eller direkta fatalError-anrop identifierades i den granskade uppstartsvägen.
 - HealthKit-auktorisering och bakgrundsobservation startar först när dashboardens uppgift begär åtkomst; detta är en viktig separat del att verifiera på fysisk enhet.
 - Den statiska granskningen kan inte fastställa orsaken till FlareStore-kraschen. För det krävs en crashrapport eller inspektion av den signerade IPA:ns kodsignatur och entitlements.
+
+
+## 2026-11-16 – Bekräftad HealthKit-kraschorsak och korrigering
+- GitHub Actions-simulatorloggen visade en faktisk krasch med `NSInvalidArgumentException`: `Authorization to read the following types is disallowed: HKCorrelationTypeIdentifierBloodPressure`.
+- Orsak: blodtryckets korrelationstyp lades in i `readTypes` vid `requestAuthorization`. På iOS avvisas denna typ i just auktoriseringsanropet.
+- Åtgärd: begär nu läsbehörighet för de två komponenttyperna `bloodPressureSystolic` och `bloodPressureDiastolic` i stället. Den separata korrelationsfrågan behålls för att läsa systoliskt och diastoliskt värde som ett sammanhållet blodtryck.
+- Ändringen är incheckad i commit `88bcdd9e6638ecb3979e10619f152254d128d50a`.
+- Källstöd: Apples dokumentation beskriver blodtryckskorrelationen som ett prov som grupperar systoliskt och diastoliskt prov; en extern felrapport med samma exakta undantag bekräftar att korrelationstypen måste utelämnas från auktoriseringslistan på iOS. Detta ska verifieras med ny CI-körning.
