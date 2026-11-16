@@ -671,6 +671,7 @@ private struct HealthOverviewView: View {
         persist()
     }
     func add(_ amount: Int) {
+        guard [150, 250, 500].contains(amount) else { return }
         refreshDay()
         additions.append(amount); persist()
     }
@@ -684,6 +685,7 @@ private struct HealthOverviewView: View {
         UserDefaults.standard.set(additions, forKey: entriesKey)
     }
     func setInterval(_ value: Int) {
+        guard (1...4).contains(value) else { return }
         intervalHours = value
         UserDefaults.standard.set(value, forKey: intervalKey)
         if remindersEnabled {
@@ -767,12 +769,18 @@ private struct BloodPressureEntry: Codable, Identifiable {
             entries = decoded.sorted { $0.date > $1.date }
         }
     }
+    private func valid(systolic: Int, diastolic: Int, pulse: Int?) -> Bool {
+        (60...260).contains(systolic) && (30...160).contains(diastolic) &&
+        systolic > diastolic && (pulse.map { (30...220).contains($0) } ?? true)
+    }
     func add(systolic: Int, diastolic: Int, pulse: Int?, note: String) {
+        guard valid(systolic: systolic, diastolic: diastolic, pulse: pulse) else { return }
         entries.append(BloodPressureEntry(systolic: systolic, diastolic: diastolic, pulse: pulse, note: note))
         persist()
     }
     func update(_ entry: BloodPressureEntry, systolic: Int, diastolic: Int, pulse: Int?, note: String) {
-        guard let index = entries.firstIndex(where: { $0.id == entry.id }) else { return }
+        guard valid(systolic: systolic, diastolic: diastolic, pulse: pulse),
+              let index = entries.firstIndex(where: { $0.id == entry.id }) else { return }
         entries[index] = BloodPressureEntry(id: entry.id, date: entry.date, systolic: systolic,
                                             diastolic: diastolic, pulse: pulse, note: note)
         persist()
@@ -915,13 +923,16 @@ private struct MedicationEffect: Codable, Identifiable {
         persist(doses, key: "vital.medication.doses.v1")
     }
     func addEffect(_ title: String, severity: Int, note: String) {
-        effects.append(MedicationEffect(title: title, severity: severity, note: note))
+        let cleanTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanTitle.isEmpty, (1...5).contains(severity) else { return }
+        effects.append(MedicationEffect(title: cleanTitle, severity: severity, note: note))
         persist(effects, key: "vital.medication.effects.v1")
     }
     func updateEffect(_ entry: MedicationEffect, title: String, severity: Int, note: String) {
-        guard (1...5).contains(severity),
+        let cleanTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanTitle.isEmpty, (1...5).contains(severity),
               let index = effects.firstIndex(where: { $0.id == entry.id }) else { return }
-        effects[index] = MedicationEffect(id: entry.id, date: entry.date, title: title, severity: severity, note: note)
+        effects[index] = MedicationEffect(id: entry.id, date: entry.date, title: cleanTitle, severity: severity, note: note)
         persist(effects, key: "vital.medication.effects.v1")
     }
     func deleteEffect(_ entry: MedicationEffect) {
