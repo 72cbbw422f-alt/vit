@@ -37,6 +37,12 @@ final class HealthKitStore: ObservableObject {
         }
         // Optional metrics must never prevent access to core sleep and activity data.
         var readTypes: Set<HKObjectType> = [sleep, resting, hrv, heartRate, steps, energy, weight]
+        let systolicType = HKObjectType.quantityType(forIdentifier: .bloodPressureSystolic)
+        let diastolicType = HKObjectType.quantityType(forIdentifier: .bloodPressureDiastolic)
+        let bloodPressureCorrelation = HKObjectType.correlationType(forIdentifier: .bloodPressure)
+        if let systolicType { readTypes.insert(systolicType) }
+        if let diastolicType { readTypes.insert(diastolicType) }
+        if let bloodPressureCorrelation { readTypes.insert(bloodPressureCorrelation) }
         if let respiratoryRate = HKObjectType.quantityType(forIdentifier: .respiratoryRate) {
             readTypes.insert(respiratoryRate)
         }
@@ -146,7 +152,8 @@ final class HealthKitStore: ObservableObject {
         async let hrvValue = latestQuantity(.heartRateVariabilitySDNN, unit: .secondUnit(with: .milli))
         async let stepsValue = todaySum(.stepCount, unit: .count())
         async let energyValue = todaySum(.activeEnergyBurned, unit: .kilocalorie())
-        async let weightValue = latestQuantity(.bodyMass, unit: .gramUnit(with: .kilo))
+        async let weightSample = latestQuantitySample(.bodyMass, unit: .gramUnit(with: .kilo))
+        async let bloodPressureSample = latestBloodPressureSample()
         async let respiratoryRateSample = latestQuantitySample(.respiratoryRate, unit: HKUnit.count().unitDivided(by: .minute()))
         async let oxygenSaturationSample = latestQuantitySample(.oxygenSaturation, unit: .percent())
         async let baselines = loadPersonalBaselines(asOf: now)
@@ -176,7 +183,11 @@ final class HealthKitStore: ObservableObject {
             overnightRestingHeartRate: overnightMetrics.restingHeartRateBPM,
             steps: await stepsValue,
             activeEnergy: await energyValue,
-            latestWeight: await weightValue,
+            latestWeight: await weightSample?.value,
+            latestWeightDate: await weightSample?.date,
+            systolicBloodPressure: await bloodPressureSample?.systolic,
+            diastolicBloodPressure: await bloodPressureSample?.diastolic,
+            bloodPressureDate: await bloodPressureSample?.date,
             respiratoryRate: await respiratoryRateSample?.value,
             respiratoryRateDate: await respiratoryRateSample?.date,
             oxygenSaturation: await oxygenSaturationSample?.value,
@@ -353,6 +364,30 @@ final class HealthKitStore: ObservableObject {
                         return DailyBaselineSample(day: day, value: longest.duration / 3600)
                     }
                     continuation.resume(returning: daily)
+                }
+            store.execute(query)
+        }
+    }
+
+    private func latestBloodPressureSample() async -> (systolic: Double, diastolic: Double, date: Date)? {
+        guard let correlationType = HKObjectType.correlationType(forIdentifier: .bloodPressure),
+              let systolicType = HKObjectType.quantityType(forIdentifier: .bloodPressureSystolic),
+              let diastolicType = HKObjectType.quantityType(forIdentifier: .bloodPressureDiastolic) else { return nil }
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(sampleType: correlationType, predicate: nil, limit: 1,
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { _, samples, _ in
+                    guard let correlation = samples?.first as? HKCorrelation,
+                          let systolic = correlation.objects(for: systolicType).first as? HKQuantitySample,
+                          let diastolic = correlation.objects(for: diastolicType).first as? HKQuantitySample else {
+                        continuation.resume(returning: nil)
+                        return
+                    }
+                    let unit = HKUnit.millimeterOfMercury()
+                    continuation.resume(returning: (
+                        systolic.quantity.doubleValue(for: unit),
+                        diastolic.quantity.doubleValue(for: unit),
+                        correlation.endDate
+                    ))
                 }
             store.execute(query)
         }
