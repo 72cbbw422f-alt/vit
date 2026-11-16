@@ -588,3 +588,11 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Vid oväntad processavslutning skrivs relevanta simulatorloggar ut för felsökning.
 - Vid eftergranskning upptäcktes ett dubblerat escape-tecken i shell-kommandots `printf`-format, vilket kunde hindra PID-parsningen. Formatsträngen är korrigerad i workflow-filen.
 - Ingen appkrasch är ännu bekräftad av simulatorloggarna. Den tidigare fysiska iPhone-kraschen är fortfarande olöst och måste verifieras separat.
+
+
+## 2026-11-16 – Statisk granskning av appens uppstartsflöde
+- Granskat appens entry point, RootView, Info.plist, HealthKitStore och HealthKit-entitlements.
+- Bekräftat att appens startpunkt skapar HealthKitStore och injicerar den i RootView; Info.plist innehåller HealthKit-delningstext och launch screen-nyckel.
+- Inga uppenbara force unwraps eller direkta fatalError-anrop identifierades i den granskade uppstartsvägen.
+- HealthKit-auktorisering och bakgrundsobservation startar först när dashboardens uppgift begär åtkomst; detta är en viktig separat del att verifiera på fysisk enhet.
+- Den statiska granskningen kan inte fastställa orsaken till FlareStore-kraschen. För det krävs en crashrapport eller inspektion av den signerade IPA:ns kodsignatur och entitlements.

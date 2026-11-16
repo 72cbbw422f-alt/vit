@@ -188,3 +188,11 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Tidigare run 43874399827 föll på den gamla processidentifieringskontrollen. Loggen visade att `simctl launch` hade startat VITAL och returnerat PID 3393; felet var kontrollmetoden, inte bevis på appkrasch.
 - Fysisk iPhone: appen har tidigare rapporterats krascha direkt vid start efter FlareStore-signering. Ingen diagnostisk crashrapport har ännu kunnat granskas. Simulatorstart kan inte ersätta fysisk enhetsverifiering.
 - Status: Nytt simulator-smoketest väntar på CI. Ingen ny IPA ska lämnas ut som verifierad förrän byggstegen och simulatorstarten har passerat.
+
+
+## 2026-11-16 – Statisk uppstartsgranskning
+- Granskade `VITALApp`, `RootView`, `Info.plist`, `VITAL.entitlements` och huvuddelen av `HealthKitStore`.
+- Bekräftat i källkoden: HealthKitStore initieras vid appstart, HealthKit-auktorisering begärs senare från dashboardens uppgift, och HealthKit usage description finns i Info.plist.
+- Inga uppenbara force unwraps eller direkta fatalError-anrop hittades i den granskade uppstartsvägen.
+- Detta är en statisk kodgranskning, inte ett körtest. Den fastställer inte orsaken till kraschen på fysisk iPhone.
+- Nästa diagnostiska underlag: resultat från PID-baserat simulator-smoketest samt vid behov crashrapport eller signerad IPA med dess entitlements.
