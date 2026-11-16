@@ -310,3 +310,35 @@ Status betyder:
 - [ ] Verifiera att appen passerar HealthKit-auktorisering i simulatorn
 - [ ] Utvärdera simulatorns varning om saknat HealthKit-entitlement separat
 - [ ] Bygg ny IPA först efter godkänd CI och verifierad simulatorstart
+
+
+## Uppdatering 2026-11-16 – Ny produkt- och designriktning för startsidan
+
+### Beslutad målbild
+- [x] Fastställa visuell riktning: ren, luftig och premiumbetonad mörk hälsodesign med grafiska mätare, trenddiagram och tydlig informationshierarki
+- [x] Behålla Midnight Navy och befintliga accentfärger teal, violet och amber
+- [x] Besluta att startsidan ska prioritera förståelse och rekommendation framför en tät lista av siffror
+- [x] Ersätta separat morgon- och kvällsrapport med en enda daglig morgonsammanfattning
+- [x] Behålla morgonsammanfattningen som fryst snapshot; senare HealthKit-data får inte skriva om den
+- [x] Ta bort kvällsrapporten och den separata rapportsektionen ur målgränssnittet
+- [ ] Designa om startsidan runt huvudkortet **Dagens återhämtning**
+- [ ] Visa en grafisk återhämtningsindikator endast när datakvalitet och personlig baslinje räcker
+- [ ] Visa kort nattöversikt, relevanta avvikelser och en förklarad dagsrekommendation
+- [ ] Flytta detaljerade värden och historik till relevanta vyer under Insikter, Aktivitet och Hälsa
+- [ ] Bygga riktiga sömn- och trendvisualiseringar från HealthKit-tidsserier; inga illustrativa låtsasgrafer
+- [ ] Implementera tydliga tom-, laddnings-, fel- och otillräckligt-underlagstillstånd
+- [ ] Granska och avveckla kvällsrapportens användarflöde, notis och schemaläggning utan att förlora nödvändig bakåtkompatibilitet
+- [ ] Kvalitetssäkra rekommendationer mot personliga baslinjer, datakvalitet och flera samverkande signaler
+
+### Helhetsprodukt – krav som ligger fast
+- [x] Fyra flikar: Idag, Insikter, Aktivitet och Hälsa
+- [x] Apple Health/HealthKit som primär källa för tillgängliga hälsomått
+- [x] Separat nattlig återhämtning och dynamiskt kroppsbatteri
+- [x] Personliga baslinjer och historiska trender
+- [x] Automatisk HealthKit-läsning av vikt och blodtryck; inga nya manuella registreringsformulär för dessa mått
+- [x] Läkemedels-/Wegovy-historik, biverkningslogg och samlad hälsotidslinje kvar i produktplanen
+- [x] Notiser och Apple Watch-stöd där plattformen tillåter det
+- [x] Ingen kost- eller näringsregistrering
+- [ ] Säkerställa att samtliga tidigare beslutade funktioner har en tydlig plats och ett verkligt användningsvärde i den nya informationsarkitekturen
+
+**Överordnat beslut:** Denna målbild ersätter tidigare roadmap-punkter om separata morgon- och kvällsrapporter som framtida användarupplevelse. Historiska implementationsposter behålls som utvecklingshistorik.

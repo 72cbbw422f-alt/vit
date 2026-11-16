@@ -604,3 +604,54 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Åtgärd: begär nu läsbehörighet för de två komponenttyperna `bloodPressureSystolic` och `bloodPressureDiastolic` i stället. Den separata korrelationsfrågan behålls för att läsa systoliskt och diastoliskt värde som ett sammanhållet blodtryck.
 - Ändringen är incheckad i commit `88bcdd9e6638ecb3979e10619f152254d128d50a`.
 - Källstöd: Apples dokumentation beskriver blodtryckskorrelationen som ett prov som grupperar systoliskt och diastoliskt prov; en extern felrapport med samma exakta undantag bekräftar att korrelationstypen måste utelämnas från auktoriseringslistan på iOS. Detta ska verifieras med ny CI-körning.
+
+
+## 2026-11-16 – Produktbeslut: VITAL som visuell återhämtningscoach
+
+### Övergripande riktning
+- Den nya dashboardriktningen ska kombineras med samtliga tidigare beslutade VITAL 3.0-funktioner. Detta är en förfining av helhetsprodukten, inte en bantning av funktionaliteten.
+- VITAL ska upplevas som en professionell, grafiskt tydlig hälso- och återhämtningsapp – inte som en rå lista med HealthKit-värden.
+- Visuell referens är rena, luftiga och premiumbetonade mörka hälsogränssnitt med tydlig typografisk hierarki, väl avvägda kort, ringmätare, små trenddiagram och diskreta statusindikatorer.
+- Behåll Midnight Navy som grund och den etablerade paletten Vital Teal, Soft Violet och Warm Amber. Grafiken ska förklara data och hjälpa användaren att prioritera; dekorativa diagram utan verkliga data får inte visas.
+
+### Startsidan – ny huvuduppgift
+- Ersätt den nuvarande täta sifferdashboarden och den separata rapportsektionen med en sammanhållen startsida som snabbt svarar på: Hur återhämtad är jag? Vad bör jag vara uppmärksam på? Hur bör jag lägga upp dagen?
+- Huvudkortet ska vara **Dagens återhämtning**: en tydlig grafisk återhämtningsindikator när underlaget räcker, en kort sammanvägd förklaring och en konkret dagsrekommendation.
+- Sammanfattningen ska bygga på nattens sömn, nattlig HRV, nattlig vilopuls när den kan knytas till sömnperioden, personliga baslinjer och föregående dags belastning där relevanta data finns.
+- Lyft avvikelser och relevanta signaler i ett kompakt avsnitt, exempelvis kort sömn eller värden som avviker från användarens personliga normalnivå. Förklara varför signalen uppmärksammas.
+- Rekommendationer ska vara försiktiga, begripliga och proportionerliga: exempelvis lättare aktivitet eller återhämtning när flera relevanta signaler talar för det. En enskild mätning ska inte ensam ge en långtgående slutsats.
+- Visa tydligt när underlaget är otillräckligt. Saknade värden ska förbli saknade; ingen poäng, graf eller slutsats får fabriceras.
+
+### Rapporter – ersatt produktbeslut
+- De separata morgon- och kvällsrapporterna samt den nuvarande rapportsektionen ska inte längre vara en del av målgränssnittet.
+- Ersätt dem med **en daglig morgonsammanfattning** av hur natten varit, återhämtningen inför den nya dagen, eventuella värden att hålla extra koll på och dagens rekommendation.
+- Morgonsammanfattningen ska vara en fryst ögonblicksbild vid fångsttillfället och inte skrivas om av senare HealthKit-uppdateringar under dagen.
+- Kvällsrapporten tas bort. Separat kvällsrapportnotis och rapportflöde ska inte byggas vidare som användarfunktion. Historisk rapportkod får bara behållas om den behövs för säker migration eller bakåtkompatibilitet; den ska inte styra den nya upplevelsen.
+
+### Grafisk presentation och informationshierarki
+- Prioritera grafiska återhämtnings- och sömnindikatorer, trenddiagram för relevanta mätvärden och statusmarkeringar med förklarande text.
+- Visa färre fristående siffror på första skärmen. Detaljer och längre historik hör hemma i Insikter, Aktivitet och Hälsa.
+- Använd grafer endast när verkliga tidsserier finns. Visa tydliga tom-, laddnings-, fel- och otillräckligt-underlagstillstånd.
+- Jämför värden med individens egen baslinje och relevanta tidsfönster; generella gränsvärden ska inte ersätta personlig kontext.
+
+### Funktioner som fortsatt ingår i helhetsprodukten
+- Fyra huvudflikar: Idag, Insikter, Aktivitet och Hälsa.
+- Apple Health/HealthKit som primär källa för sömn, puls, HRV, steg, aktiv energi, vikt, blodtryck och tillgängliga kompletterande mått som andningsfrekvens och syremättnad.
+- Separat nattlig återhämtning och dynamiskt kroppsbatteri; de två begreppen får inte blandas ihop.
+- Personliga baslinjer, historiska trender, avvikelseförklaringar och tydlig datakvalitet/tidsstämpel.
+- Hälsomodul med automatisk vikt- och blodtrycksläsning från Apple Hälsa; inga nya manuella registreringsformulär för dessa värden. Äldre lokala journaler bevaras läsbara.
+- Läkemedelsmodul med läkemedels-/Wegovy-doshistorik och dospåminnelser, logg för upplevda biverkningar och en samlad hälsotidslinje. Eventuell semaglutidnivåkurva ska uttryckligen vara teoretisk, inte uppmätt nivå eller doseringsråd.
+- Aktivitet, belastning och återhämtning ska ge användbara insikter snarare än samla på sig mätvärden utan syfte.
+- Notiser och Apple Watch-stöd där iOS och tillgängliga behörigheter faktiskt tillåter det.
+- Ingen kost- eller näringsregistrering.
+
+### Kvalitetsprincip
+- Hälsodata ska presenteras med källor, enheter, tidsfönster och färskhet där det är relevant. HRV och vilopuls ska jämföras med personlig baslinje; ett isolerat värde ska inte automatiskt klassas som dålig återhämtning.
+- Alla beräkningar och rekommendationer ska kunna förklaras. Skilj uppmätta data från beräknade uppskattningar.
+- Ingen funktion ska läggas till bara för att fylla startsidan. Varje graf, siffra, notis och rekommendation ska ha ett tydligt användningsvärde.
+
+### Nästa genomförandesteg
+- Revidera dashboardens informationsarkitektur och grafiska komponenter utifrån denna riktning.
+- Granska rapportmodeller, schemaläggning och notiser så att kvällsrapporten tas ur produktflödet och morgonsammanfattningen blir den enda dagliga sammanfattningen.
+- Behåll befintliga återhämtnings-, baslinje-, HealthKit-, kroppsbatteri-, läkemedels- och historikbeslut; kontrollera att de integreras konsekvent i de fyra flikarna.
+- Verifiera varje steg i CI och därefter på fysisk iPhone med verkliga HealthKit-data.
