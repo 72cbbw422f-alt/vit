@@ -432,79 +432,53 @@ private struct HealthOverviewView: View {
     private var bloodPressureCard: some View {
         VITALCard {
             VStack(alignment: .leading, spacing: 13) {
-                HStack {
-                    Label("Blodtryck", systemImage: "heart.text.square")
-                        .font(.headline).foregroundStyle(VITALPalette.cloud)
-                    Spacer()
-                    Button { showingBloodPressureEntry = true } label: {
-                        Label("Lägg till", systemImage: "plus")
-                            .font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.teal)
-                    }
-                }
-                if let latest = bloodPressure.entries.first {
+                Label("Blodtryck", systemImage: "heart.text.square")
+                    .font(.headline).foregroundStyle(VITALPalette.cloud)
+                if let date = health.snapshot.bloodPressureDate {
                     HStack(alignment: .firstTextBaseline, spacing: 5) {
-                        Text("\(latest.systolic)/\(latest.diastolic)")
+                        Text(health.snapshot.bloodPressureText)
                             .font(.system(size: 34, weight: .bold, design: .rounded))
                             .foregroundStyle(VITALPalette.cloud).monospacedDigit()
                         Text("mmHg").font(.caption).foregroundStyle(VITALPalette.muted)
-                        Spacer()
-                        if let pulse = latest.pulse {
-                            Text("\(pulse) bpm").font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.teal)
-                        }
                     }
-                    Text("Senast · \(latest.date.formatted(date: .abbreviated, time: .shortened))")
+                    Text("Apple Hälsa · \(date.formatted(date: .abbreviated, time: .shortened))")
                         .font(.caption).foregroundStyle(VITALPalette.muted)
-                    ForEach(bloodPressure.entries.prefix(5)) { entry in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("\(entry.systolic)/\(entry.diastolic) mmHg")
-                                    .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
-                                Text(entry.date.formatted(date: .abbreviated, time: .shortened))
-                                    .font(.caption2).foregroundStyle(VITALPalette.muted)
-                            }
-                            Spacer()
-                            Menu {
-                                Button("Redigera", systemImage: "pencil") { editingBloodPressure = entry }
-                                Button("Radera", systemImage: "trash", role: .destructive) { bloodPressure.delete(entry) }
-                            } label: {
-                                Image(systemName: "ellipsis.circle").foregroundStyle(VITALPalette.muted)
-                                    .frame(width: 36, height: 32)
-                            }
-                        }
-                    }
-                    if bloodPressure.entries.count > 1 {
-                        Chart(Array(bloodPressure.entries.prefix(10).reversed()), id: \.id) { entry in
-                            LineMark(x: .value("Mätning", entry.date), y: .value("Systoliskt", entry.systolic))
-                                .foregroundStyle(VITALPalette.teal).symbol(Circle())
-                            LineMark(x: .value("Mätning", entry.date), y: .value("Diastoliskt", entry.diastolic))
-                                .foregroundStyle(VITALPalette.violet).symbol(Circle())
-                        }
-                        .chartLegend(position: .bottom)
-                        .chartYAxisLabel("mmHg")
-                        .frame(height: 150)
-                    }
-                    ShareLink(item: bloodPressure.doctorSummary) {
-                        Label("Dela sammanställning med läkaren", systemImage: "square.and.arrow.up")
-                            .font(.subheadline.weight(.semibold)).frame(maxWidth: .infinity)
-                            .padding(.vertical, 11)
-                            .background(VITALPalette.teal.opacity(0.13), in: RoundedRectangle(cornerRadius: 13))
-                    }.foregroundStyle(VITALPalette.teal)
                 } else {
-                    EmptyChartState(symbol: "heart.text.square", title: "Ingen blodtryckshistorik", detail: "Lägg in dina mätningar för att följa utvecklingen över tid.")
+                    EmptyChartState(
+                        symbol: "heart.text.square",
+                        title: "Ingen blodtrycksmätning hittades",
+                        detail: "Blodtryck visas automatiskt när en mätning finns i Apple Hälsa."
+                    )
                 }
-                Text("Registrerade värden är en loggbok, inte en diagnos.")
+                if !bloodPressure.entries.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Äldre lokala registreringar")
+                            .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.muted)
+                        ForEach(bloodPressure.entries.prefix(5)) { entry in
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("\(entry.systolic)/\(entry.diastolic) mmHg")
+                                        .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
+                                    Text(entry.date.formatted(date: .abbreviated, time: .shortened))
+                                        .font(.caption2).foregroundStyle(VITALPalette.muted)
+                                }
+                                Spacer()
+                                if let pulse = entry.pulse {
+                                    Text("\(pulse) bpm").font(.caption).foregroundStyle(VITALPalette.muted)
+                                }
+                            }
+                        }
+                        ShareLink(item: bloodPressure.doctorSummary) {
+                            Label("Dela äldre sammanställning", systemImage: "square.and.arrow.up")
+                                .font(.subheadline.weight(.semibold)).frame(maxWidth: .infinity)
+                                .padding(.vertical, 10)
+                                .background(VITALPalette.teal.opacity(0.13), in: RoundedRectangle(cornerRadius: 13))
+                        }.foregroundStyle(VITALPalette.teal)
+                    }
+                }
+                Text("Värden från Apple Hälsa visas som mätdata, inte som diagnos.")
                     .font(.caption2).foregroundStyle(VITALPalette.muted)
             }
-        }
-        .sheet(isPresented: $showingBloodPressureEntry) {
-            BloodPressureEntrySheet(journal: bloodPressure, entry: nil)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-        }
-        .sheet(item: $editingBloodPressure) { entry in
-            BloodPressureEntrySheet(journal: bloodPressure, entry: entry)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
         }
     }
 }
