@@ -240,30 +240,29 @@ private struct HealthOverviewView: View {
     private var weightCard: some View {
         VITALCard {
             VStack(alignment: .leading, spacing: 13) {
-                HStack {
-                    Label("Viktutveckling", systemImage: "scalemass.fill")
-                        .font(.headline).foregroundStyle(VITALPalette.cloud)
-                    Spacer()
-                    Button { showingWeightEntry = true } label: {
-                        Label("Registrera", systemImage: "plus")
-                            .font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.teal)
-                    }
-                }
+                Label("Viktutveckling", systemImage: "scalemass.fill")
+                    .font(.headline).foregroundStyle(VITALPalette.cloud)
                 let healthWeight = health.snapshot.latestWeight
-                let current = weightJournal.latest?.kilograms ?? healthWeight
+                let current = healthWeight ?? weightJournal.latest?.kilograms
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Text(current.map { String(format: "%.1f", $0) } ?? "—")
                         .font(.system(size: 38, weight: .bold, design: .rounded))
                         .foregroundStyle(VITALPalette.cloud).monospacedDigit()
                     Text("kg").font(.subheadline).foregroundStyle(VITALPalette.muted)
                     Spacer()
-                    if weightJournal.latest != nil {
-                        Text("Egen logg").font(.caption.weight(.medium)).foregroundStyle(VITALPalette.teal)
-                    } else if healthWeight != nil {
-                        Text("Apple Hälsa").font(.caption.weight(.medium)).foregroundStyle(VITALPalette.muted)
-                    }
+                    Text(healthWeight != nil ? "Apple Hälsa" : (weightJournal.latest != nil ? "Äldre egen logg" : "Inväntar data"))
+                        .font(.caption.weight(.medium)).foregroundStyle(VITALPalette.muted)
+                }
+                if let date = health.snapshot.latestWeightDate {
+                    Text("Senaste mätning · \(date.formatted(date: .abbreviated, time: .shortened))")
+                        .font(.caption).foregroundStyle(VITALPalette.muted)
+                } else if healthWeight == nil {
+                    Text("Vikt visas automatiskt när Apple Hälsa har en registrerad mätning.")
+                        .font(.caption).foregroundStyle(VITALPalette.muted)
                 }
                 if weightJournal.entries.count > 1 {
+                    Text("Tidigare lokala registreringar")
+                        .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.muted)
                     Chart(weightJournal.chartEntries) { entry in
                         LineMark(x: .value("Datum", entry.date), y: .value("Vikt", entry.kilograms))
                             .foregroundStyle(VITALPalette.teal).interpolationMethod(.catmullRom)
@@ -271,48 +270,31 @@ private struct HealthOverviewView: View {
                             .foregroundStyle(VITALPalette.teal)
                     }
                     .chartYAxisLabel("kg")
-                    .frame(height: 150)
-                } else {
-                    Text("Registrera vikten regelbundet för att bygga din personliga viktkurva.")
-                        .font(.caption).foregroundStyle(VITALPalette.muted)
+                    .frame(height: 140)
                 }
                 if !weightJournal.entries.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Senaste registreringar").font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.muted)
+                    VStack(alignment: .leading, spacing: 7) {
+                        Text("Sparad äldre historik").font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.muted)
                         ForEach(weightJournal.entries.prefix(5)) { entry in
-                            HStack(spacing: 8) {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(entry.date.formatted(date: .abbreviated, time: .omitted))
-                                        .font(.caption).foregroundStyle(VITALPalette.muted)
-                                    if !entry.note.isEmpty {
-                                        Text(entry.note).font(.caption2).foregroundStyle(VITALPalette.muted).lineLimit(1)
-                                    }
-                                }
+                            HStack {
+                                Text(entry.date.formatted(date: .abbreviated, time: .omitted))
+                                    .font(.caption).foregroundStyle(VITALPalette.muted)
                                 Spacer()
                                 Text(String(format: "%.1f kg", entry.kilograms))
                                     .font(.subheadline.weight(.semibold).monospacedDigit()).foregroundStyle(VITALPalette.cloud)
-                                Menu {
-                                    Button { editingWeight = entry } label: { Label("Redigera", systemImage: "pencil") }
-                                    Button(role: .destructive) { weightJournal.delete(entry) } label: { Label("Radera", systemImage: "trash") }
-                                } label: {
-                                    Image(systemName: "ellipsis.circle").foregroundStyle(VITALPalette.muted).padding(.leading, 5)
-                                }
-                            }.padding(.vertical, 3)
+                            }
                         }
                     }
                 }
                 HStack {
                     Text("Målvikt").font(.caption).foregroundStyle(VITALPalette.muted)
                     Spacer()
-                    Button {
-                        showingTargetWeightEntry = true
-                    } label: {
+                    Button { showingTargetWeightEntry = true } label: {
                         HStack(spacing: 4) {
                             Text(weightJournal.targetWeight.map { String(format: "%.1f kg", $0) } ?? "Ange målvikt")
                             Image(systemName: "pencil").font(.caption2)
                         }
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(VITALPalette.teal)
+                        .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.teal)
                     }
                 }
                 if let current, let target = weightJournal.targetWeight {
@@ -321,155 +303,19 @@ private struct HealthOverviewView: View {
                         .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.teal)
                 }
                 if let change = weightJournal.change, let percent = weightJournal.percentageChange {
-                    VStack(alignment: .leading, spacing: 5) {
-                        HStack {
-                            Text("Förändring sedan första loggningen").font(.caption).foregroundStyle(VITALPalette.muted)
-                            Spacer()
-                            Text(String(format: "%+.1f kg", change)).font(.caption.weight(.semibold).monospacedDigit())
-                                .foregroundStyle(change <= 0 ? VITALPalette.teal : VITALPalette.amber)
-                        }
-                        HStack {
-                            Text("Relativ förändring från startvikten").font(.caption).foregroundStyle(VITALPalette.muted)
-                            Spacer()
-                            Text(String(format: "%+.1f %%", percent)).font(.caption.weight(.semibold).monospacedDigit())
-                                .foregroundStyle(percent <= 0 ? VITALPalette.teal : VITALPalette.amber)
-                        }
+                    HStack {
+                        Text("Förändring i äldre logg").font(.caption).foregroundStyle(VITALPalette.muted)
+                        Spacer()
+                        Text(String(format: "%+.1f kg · %+.1f %%", change, percent))
+                            .font(.caption.weight(.semibold).monospacedDigit()).foregroundStyle(change <= 0 ? VITALPalette.teal : VITALPalette.amber)
                     }
                 }
             }
-        }
-        .sheet(isPresented: $showingWeightEntry) {
-            WeightEntrySheet(journal: weightJournal)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-        }
-        .sheet(item: $editingWeight) { entry in
-            WeightEntrySheet(journal: weightJournal, entry: entry)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $showingTargetWeightEntry) {
             TargetWeightEntrySheet(journal: weightJournal)
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
-        }
-    }
-
-    private var medicationCard: some View {
-        VITALCard {
-            VStack(alignment: .leading, spacing: 13) {
-                HStack {
-                    Label("Läkemedel · Wegovy", systemImage: "cross.case.fill")
-                        .font(.headline).foregroundStyle(VITALPalette.cloud)
-                    Spacer()
-                    Text("Egen journal").font(.caption).foregroundStyle(VITALPalette.muted)
-                }
-                HStack(spacing: 10) {
-                    Button { showingDoseEntry = true } label: {
-                        Label("Registrera dos", systemImage: "plus")
-                            .font(.subheadline.weight(.semibold)).frame(maxWidth: .infinity).padding(.vertical, 11)
-                            .background(VITALPalette.teal.opacity(0.14), in: RoundedRectangle(cornerRadius: 12))
-                    }.foregroundStyle(VITALPalette.teal)
-                    Button { showingDoseReminder = true } label: {
-                        Label("Påminnelse", systemImage: "bell")
-                            .font(.subheadline.weight(.semibold)).frame(maxWidth: .infinity).padding(.vertical, 11)
-                            .background(VITALPalette.surfaceRaised, in: RoundedRectangle(cornerRadius: 12))
-                    }.foregroundStyle(VITALPalette.cloud)
-                }
-                if let latest = medicationJournal.doses.first {
-                    HStack(alignment: .firstTextBaseline) {
-                        Text(String(format: "%.2g mg", latest.milligrams))
-                            .font(.system(size: 29, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
-                        Text("senast registrerade dos").font(.caption).foregroundStyle(VITALPalette.muted)
-                        Spacer()
-                    }
-                    Text(latest.date.formatted(date: .abbreviated, time: .shortened))
-                        .font(.caption).foregroundStyle(VITALPalette.muted)
-                    ForEach(showAllMedicationDoses ? medicationJournal.doses : Array(medicationJournal.doses.prefix(5))) { dose in
-                        HStack(spacing: 8) {
-                            Text(dose.date.formatted(date: .abbreviated, time: .omitted))
-                                .foregroundStyle(VITALPalette.muted)
-                            Spacer()
-                            Text(String(format: "%.2g mg", dose.milligrams))
-                                .foregroundStyle(VITALPalette.cloud).monospacedDigit()
-                            Menu {
-                                Button { editingDose = dose } label: { Label("Redigera", systemImage: "pencil") }
-                                Button(role: .destructive) { medicationJournal.deleteDose(dose) } label: { Label("Radera", systemImage: "trash") }
-                            } label: { Image(systemName: "ellipsis.circle").foregroundStyle(VITALPalette.muted) }
-                        }.font(.caption)
-                    }
-                    if medicationJournal.doses.count > 5 {
-                        Button(showAllMedicationDoses ? "Visa färre doser" : "Visa alla doser") {
-                            showAllMedicationDoses.toggle()
-                        }
-                        .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.teal)
-                    }
-                } else {
-                    Text("Registrera doserna enligt din ordination för att bygga en tydlig historik.")
-                        .font(.caption).foregroundStyle(VITALPalette.muted)
-                }
-                Divider().overlay(VITALPalette.track)
-                HStack {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("Biverkningar och mående").font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
-                        Text("\(medicationJournal.effects.count) registreringar").font(.caption).foregroundStyle(VITALPalette.muted)
-                    }
-                    Spacer()
-                    Button { showingSideEffectEntry = true } label: {
-                        Label("Logga", systemImage: "plus.circle")
-                            .font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.teal)
-                    }
-                }
-                ForEach(showAllMedicationEffects ? medicationJournal.effects : Array(medicationJournal.effects.prefix(2))) { effect in
-                    HStack(alignment: .top) {
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(effect.title).font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
-                            Text(effect.date.formatted(date: .abbreviated, time: .shortened))
-                                .font(.caption2).foregroundStyle(VITALPalette.muted)
-                        }
-                        Spacer()
-                        Text("Intensitet \(effect.severity)/5")
-                            .font(.caption).foregroundStyle(VITALPalette.amber)
-                        Menu {
-                            Button { editingEffect = effect } label: { Label("Redigera", systemImage: "pencil") }
-                            Button(role: .destructive) { medicationJournal.deleteEffect(effect) } label: { Label("Radera", systemImage: "trash") }
-                        } label: { Image(systemName: "ellipsis.circle").foregroundStyle(VITALPalette.muted) }
-                    }
-                }
-                if medicationJournal.effects.count > 2 {
-                    Button(showAllMedicationEffects ? "Visa färre biverkningar" : "Visa alla biverkningar") {
-                        showAllMedicationEffects.toggle()
-                    }
-                    .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.teal)
-                }
-                if let reminder = medicationJournal.reminderDate {
-                    Label("Nästa påminnelse: \(reminder.formatted(date: .abbreviated, time: .shortened))",
-                          systemImage: "bell.badge")
-                        .font(.caption).foregroundStyle(VITALPalette.teal)
-                }
-                Text("Journalen ersätter inte ordination eller råd från vården. Doser och påminnelser ställs in av dig.")
-                    .font(.caption2).foregroundStyle(VITALPalette.muted)
-            }
-        }
-        .sheet(isPresented: $showingDoseEntry) {
-            DoseEntrySheet(journal: medicationJournal)
-                .presentationDetents([.medium, .large]).presentationDragIndicator(.visible)
-        }
-        .sheet(item: $editingDose) { entry in
-            DoseEntrySheet(journal: medicationJournal, entry: entry)
-                .presentationDetents([.medium, .large]).presentationDragIndicator(.visible)
-        }
-        .sheet(isPresented: $showingSideEffectEntry) {
-            SideEffectEntrySheet(journal: medicationJournal)
-                .presentationDetents([.medium, .large]).presentationDragIndicator(.visible)
-        }
-        .sheet(item: $editingEffect) { entry in
-            SideEffectEntrySheet(journal: medicationJournal, entry: entry)
-                .presentationDetents([.medium, .large]).presentationDragIndicator(.visible)
-        }
-        .sheet(isPresented: $showingDoseReminder) {
-            DoseReminderSheet(journal: medicationJournal)
-                .presentationDetents([.medium]).presentationDragIndicator(.visible)
         }
     }
 
