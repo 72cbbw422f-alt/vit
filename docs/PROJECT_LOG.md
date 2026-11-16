@@ -570,3 +570,13 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Om en valfri HealthKit-datatyp inte finns tillgänglig ska inte grundläggande sömn-, puls- och aktivitetsläsning blockeras.
 - Kärntyperna är fortsatt obligatoriska för appens nuvarande huvudflöde.
 - CI för ändringen inväntar körning 293.
+
+
+## 2026-11-16 – Vikt och blodtryck via Apple Hälsa
+- HealthKitStore läser nu senaste viktmätningen med tidsstämpel.
+- HealthKitStore läser blodtryck som en korrelerad systolisk/diastolisk mätning och konverterar till mmHg.
+- Hälsovyn prioriterar Apple Hälsa för aktuell vikt och blodtryck.
+- Nya manuella registreringsknappar och formulär har tagits bort från dessa kort.
+- Tidigare lokala vikt- och blodtrycksregistreringar finns kvar som läsbar äldre historik.
+- Lagt till tester för blodtrycksparets formattering och validering.
+- CI och verifiering på fysisk iPhone återstår.
