@@ -69,3 +69,65 @@ enum RecoveryEngine {
         min(max(value, lower), upper)
     }
 }
+
+
+/// Converts captured recovery components into cautious, explainable wellness guidance.
+/// The threshold is a product heuristic, not a clinical cutoff.
+struct RecoveryGuidance {
+    let title: String
+    let detail: String
+    let recommendation: String
+    let attentionSignals: [String]
+    let hasAttentionSignal: Bool
+}
+
+enum RecoveryGuidancePolicy {
+    static let attentionThreshold = 85.0
+
+    static func evaluate(sleep: Double?, hrv: Double?, restingPulse: Double?) -> RecoveryGuidance {
+        guard let sleep, let hrv, let restingPulse,
+              sleep.isFinite, hrv.isFinite, restingPulse.isFinite else {
+            return RecoveryGuidance(
+                title: "Samlar nattens värden",
+                detail: "VITAL saknar tillräckligt underlag för att jämföra alla återhämtningssignaler med din personliga baslinje.",
+                recommendation: "Följ dagsformen och invänta mer hälsodata innan återhämtningen bedöms.",
+                attentionSignals: [],
+                hasAttentionSignal: false
+            )
+        }
+
+        var signals: [String] = []
+        if sleep < attentionThreshold { signals.append("Sömnen var kortare än din personliga normalnivå.") }
+        if hrv < attentionThreshold { signals.append("HRV låg under din personliga baslinje.") }
+        if restingPulse < attentionThreshold { signals.append("Vilopulsen låg över din personliga baslinje.") }
+
+        guard !signals.isEmpty else {
+            return RecoveryGuidance(
+                title: "Inga tydliga avvikelser",
+                detail: "De tre nattliga signalerna ligger nära eller över dina personliga referensnivåer.",
+                recommendation: "Fortsätt enligt din vanliga plan och anpassa dagen efter hur du känner dig.",
+                attentionSignals: [],
+                hasAttentionSignal: false
+            )
+        }
+
+        let recommendation: String
+        if signals.count >= 2 {
+            recommendation = "Flera signaler avviker samtidigt. Överväg lättare aktivitet och prioritera återhämtning."
+        } else if sleep < attentionThreshold {
+            recommendation = "Prioritera en lugnare start och ge sömnen extra utrymme kommande natt."
+        } else if hrv < attentionThreshold {
+            recommendation = "Var uppmärksam på dagsformen och undvik att öka träningsintensiteten i onödan."
+        } else {
+            recommendation = "Håll koll på dagsformen och välj lättare aktivitet om kroppen känns belastad."
+        }
+
+        return RecoveryGuidance(
+            title: signals.count >= 2 ? "Flera signaler att uppmärksamma" : "En signal att uppmärksamma",
+            detail: signals.joined(separator: " "),
+            recommendation: recommendation,
+            attentionSignals: signals,
+            hasAttentionSignal: true
+        )
+    }
+}

@@ -1,7 +1,6 @@
 import Foundation
 import Combine
 import HealthKit
-import UserNotifications
 
 @MainActor
 final class HealthKitStore: ObservableObject {
@@ -9,7 +8,6 @@ final class HealthKitStore: ObservableObject {
     @Published private(set) var isAvailable = HKHealthStore.isHealthDataAvailable()
     @Published private(set) var authorizationRequested = false
     @Published private(set) var backgroundSleepDeliveryEnabled = false
-    @Published private(set) var eveningNotificationStatus = "Inte kontrollerad"
     @Published private(set) var lastError: String?
     @Published private(set) var morningReport: DailyReportSnapshot?
     @Published private(set) var eveningReport: DailyReportSnapshot?
@@ -55,7 +53,6 @@ final class HealthKitStore: ObservableObject {
             try await store.requestAuthorization(toShare: [], read: readTypes)
             authorizationRequested = true
             await startSleepObservation()
-            await scheduleEveningReportNotification()
             await refresh()
         } catch {
             lastError = error.localizedDescription
@@ -91,54 +88,6 @@ final class HealthKitStore: ObservableObject {
                     self?.lastError = "Apple Hälsa bekräftade inte bakgrundsuppdatering av sömndata."
                 }
             }
-        }
-    }
-
-    /// Check notification settings first; request permission only when iOS
-    /// reports that the user has not yet made a choice.
-    private func scheduleEveningReportNotification() async {
-        let center = UNUserNotificationCenter.current()
-        do {
-            var settings = await center.notificationSettings()
-            if settings.authorizationStatus == .notDetermined {
-                _ = try await center.requestAuthorization(options: [.alert, .sound])
-                settings = await center.notificationSettings()
-            }
-
-            switch settings.authorizationStatus {
-            case .authorized, .provisional, .ephemeral:
-                eveningNotificationStatus = "Aktiverad"
-            case .denied:
-                eveningNotificationStatus = "Avstängd i iOS"
-                await center.removePendingNotificationRequests(
-                    withIdentifiers: ["vital.evening-report.daily"]
-                )
-                return
-            case .notDetermined:
-                eveningNotificationStatus = "Behörighet ej vald"
-                return
-            @unknown default:
-                eveningNotificationStatus = "Okänd behörighetsstatus"
-                return
-            }
-
-            let content = UNMutableNotificationContent()
-            content.title = "Dags för kvällsrapporten"
-            content.body = "Öppna VITAL för att uppdatera hälsodatan och skapa kvällens rapport."
-            content.sound = .default
-            var components = DateComponents()
-            components.hour = EveningReportTriggerPolicy.defaultHour
-            components.minute = 0
-            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
-            let request = UNNotificationRequest(
-                identifier: "vital.evening-report.daily",
-                content: content,
-                trigger: trigger
-            )
-            try await center.add(request)
-        } catch {
-            eveningNotificationStatus = "Kunde inte schemaläggas"
-            lastError = "Kunde inte schemalägga kvällspåminnelsen: \(error.localizedDescription)"
         }
     }
 
@@ -210,7 +159,6 @@ final class HealthKitStore: ObservableObject {
         }
         snapshot = updatedSnapshot
         createMorningReportIfEligible(from: updatedSnapshot, sleepSession: sleepSession, capturedAt: now)
-        createEveningReportIfEligible(from: updatedSnapshot, capturedAt: now)
     }
 
 
@@ -242,11 +190,15 @@ final class HealthKitStore: ObservableObject {
         guard decision.shouldCreateSnapshot else { return }
         guard let sleepSession else { return }
         let day = calendar.startOfDay(for: sleepSession.end)
+        let recovery = healthSnapshot.recoveryResult
         let candidate = DailyReportSnapshot(
             kind: .morning,
             localDay: day,
             capturedAt: capturedAt,
-            recoveryScore: healthSnapshot.recoveryResult.score,
+            recoveryScore: recovery.score,
+            sleepComponentScore: recovery.sleepComponent,
+            hrvComponentScore: recovery.hrvComponent,
+            restingPulseComponentScore: recovery.restingPulseComponent,
             bodyBatteryScore: healthSnapshot.bodyBattery?.score,
             sleepDurationSeconds: healthSnapshot.sleepDuration,
             hrvMilliseconds: healthSnapshot.overnightHRV,
@@ -259,35 +211,6 @@ final class HealthKitStore: ObservableObject {
         UserDefaults.standard.set(data, forKey: reportArchiveKey)
         reportHistory = Array(reportArchive.snapshots.reversed())
         morningReport = candidate
-    }
-
-    /// Capture the first successful refresh at or after the local evening time.
-    /// iOS does not guarantee that the app is executing at exactly 21:00.
-    private func createEveningReportIfEligible(from healthSnapshot: HealthSnapshot, capturedAt: Date) {
-        let calendar = Calendar.current
-        let decision = EveningReportTriggerPolicy.evaluate(
-            eventDate: capturedAt,
-            reportDay: capturedAt,
-            calendar: calendar
-        )
-        guard decision.shouldCreateSnapshot else { return }
-        let candidate = DailyReportSnapshot(
-            kind: .evening,
-            localDay: calendar.startOfDay(for: capturedAt),
-            capturedAt: capturedAt,
-            recoveryScore: healthSnapshot.recoveryResult.score,
-            bodyBatteryScore: healthSnapshot.bodyBattery?.score,
-            sleepDurationSeconds: healthSnapshot.sleepDuration,
-            hrvMilliseconds: healthSnapshot.hrv,
-            restingHeartRateBPM: healthSnapshot.restingHeartRate,
-            steps: healthSnapshot.steps,
-            activeEnergyKcal: healthSnapshot.activeEnergy
-        )
-        guard reportArchive.appendIfAbsent(candidate, calendar: calendar),
-              let data = try? JSONEncoder().encode(reportArchive) else { return }
-        UserDefaults.standard.set(data, forKey: reportArchiveKey)
-        reportHistory = Array(reportArchive.snapshots.reversed())
-        eveningReport = candidate
     }
 
     private func loadPersonalBaselines(asOf date: Date) async -> (resting: PersonalBaseline, hrv: PersonalBaseline, sleep: PersonalBaseline) {

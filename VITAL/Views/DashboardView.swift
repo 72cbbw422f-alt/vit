@@ -48,42 +48,14 @@ struct DashboardView: View {
         }
     }
     private var statusCard: some View {
-        let result = health.snapshot.recoveryResult
-        let score = result.score
-        let statusTitle: String
-        let statusDetail: String
-        let recommendation: String
-        let recommendationSymbol: String
-        let statusTint: Color
-
-        if let score {
-            switch score {
-            case 80...100:
-                statusTitle = "God återhämtning"
-                statusDetail = "Dina tillgängliga nattvärden ligger sammantaget på en god nivå jämfört med din personliga baslinje."
-                recommendation = "Fortsätt enligt plan. Anpassa intensiteten efter dagsform."
-                recommendationSymbol = "sun.max.fill"
-                statusTint = VITALPalette.teal
-            case 60..<80:
-                statusTitle = "Måttlig återhämtning"
-                statusDetail = "Återhämtningen är inte på topp. Var uppmärksam på kroppens signaler under dagen."
-                recommendation = "Välj en balanserad dag och undvik att pressa intensiteten i onödan."
-                recommendationSymbol = "figure.walk"
-                statusTint = VITALPalette.amber
-            default:
-                statusTitle = "Prioritera återhämtning"
-                statusDetail = "Dina tillgängliga återhämtningssignaler talar för att kroppen kan behöva en lugnare dag."
-                recommendation = "Överväg lättare aktivitet och prioritera vila."
-                recommendationSymbol = "leaf"
-                statusTint = VITALPalette.amber
-            }
-        } else {
-            statusTitle = "Bygger din personliga bild"
-            statusDetail = "VITAL behöver fler jämförbara nattvärden innan återhämtningen kan bedömas på ett tillförlitligt sätt."
-            recommendation = "Följ din vanliga rutin tills mer underlag finns."
-            recommendationSymbol = "chart.xyaxis.line"
-            statusTint = VITALPalette.muted
-        }
+        let summary = health.morningReport
+        let guidance = RecoveryGuidancePolicy.evaluate(
+            sleep: summary?.sleepComponentScore,
+            hrv: summary?.hrvComponentScore,
+            restingPulse: summary?.restingPulseComponentScore
+        )
+        let score = summary?.recoveryScore
+        let statusTint = guidance.hasAttentionSignal ? VITALPalette.amber : VITALPalette.teal
 
         return VITALCard {
             VStack(alignment: .leading, spacing: 16) {
@@ -92,7 +64,7 @@ struct DashboardView: View {
                         Text("DAGENS ÅTERHÄMTNING")
                             .font(.subheadline.weight(.semibold)).tracking(0.7)
                             .foregroundStyle(VITALPalette.muted)
-                        Text("Nattens återhämtning inför idag")
+                        Text("Fryst sammanfattning av nattens data")
                             .font(.caption).foregroundStyle(VITALPalette.muted)
                     }
                     Spacer()
@@ -112,18 +84,37 @@ struct DashboardView: View {
                         Text("AV 100")
                             .font(.caption.weight(.bold)).tracking(0.8)
                             .foregroundStyle(statusTint)
-                        Text(statusTitle)
+                        Text(summary == nil ? "Inväntar morgonsammanfattning" : guidance.title)
                             .font(.headline.weight(.semibold))
                             .foregroundStyle(VITALPalette.cloud)
                     }
                 }
 
-                Text(statusDetail)
+                Text(summary == nil
+                     ? "Sammanfattningen skapas när huvudsömnen har registrerats och nattens data har hunnit synkroniseras."
+                     : guidance.detail)
                     .font(.subheadline).foregroundStyle(VITALPalette.muted)
                     .fixedSize(horizontal: false, vertical: true)
 
+                if !guidance.attentionSignals.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label("VÄRT ATT UPPMÄRKSAMMA", systemImage: "exclamationmark.circle")
+                            .font(.caption2.weight(.bold)).tracking(0.6)
+                            .foregroundStyle(VITALPalette.amber)
+                        ForEach(guidance.attentionSignals, id: \.self) { signal in
+                            HStack(alignment: .top, spacing: 8) {
+                                Circle().fill(VITALPalette.amber).frame(width: 6, height: 6).padding(.top, 6)
+                                Text(signal).font(.caption).foregroundStyle(VITALPalette.cloud)
+                            }
+                        }
+                    }
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(VITALPalette.amber.opacity(0.09), in: RoundedRectangle(cornerRadius: 15))
+                }
+
                 HStack(spacing: 10) {
-                    Image(systemName: recommendationSymbol)
+                    Image(systemName: guidance.hasAttentionSignal ? "leaf" : "figure.walk")
                         .font(.headline).foregroundStyle(statusTint)
                         .frame(width: 34, height: 34)
                         .background(statusTint.opacity(0.13), in: RoundedRectangle(cornerRadius: 11))
@@ -131,7 +122,7 @@ struct DashboardView: View {
                         Text("DAGENS RÅD")
                             .font(.caption2.weight(.bold)).tracking(0.7)
                             .foregroundStyle(statusTint)
-                        Text(recommendation)
+                        Text(guidance.recommendation)
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(VITALPalette.cloud)
                             .fixedSize(horizontal: false, vertical: true)
@@ -143,26 +134,31 @@ struct DashboardView: View {
 
                 HStack(spacing: 7) {
                     Image(systemName: "moon.stars")
-                    Text("Sömn")
+                    Text(summary?.sleepDurationSeconds.map(Self.formatSleepDuration) ?? "—")
                     Spacer()
-                    Text(health.snapshot.sleepText).monospacedDigit()
-                    Text("·")
                     Text("HRV")
-                    Text(health.snapshot.overnightHRV.map { "\(Int($0.rounded())) ms" } ?? "—")
-                        .monospacedDigit()
+                    Text(summary?.hrvMilliseconds.map { "\(Int($0.rounded())) ms" } ?? "—")
+                    Text("·")
+                    Text("Vilopuls")
+                    Text(summary?.restingHeartRateBPM.map { "\(Int($0.rounded())) bpm" } ?? "—")
                 }
                 .font(.caption.weight(.medium))
                 .foregroundStyle(VITALPalette.muted)
 
-                if score == nil {
+                if let summary {
+                    Text("Sparad \(summary.capturedAt.formatted(date: .omitted, time: .shortened)) · värdena ändras inte under dagen")
+                        .font(.caption2).foregroundStyle(VITALPalette.muted)
+                } else {
                     Text("Personlig baslinje · \(baselineStatus)")
                         .font(.caption2).foregroundStyle(VITALPalette.amber)
-                } else {
-                    Text("Preliminär wellness-uppskattning · inte ett medicinskt mått")
-                        .font(.caption2).foregroundStyle(VITALPalette.muted)
                 }
             }
         }
+    }
+
+    private static func formatSleepDuration(_ duration: TimeInterval) -> String {
+        let totalMinutes = max(0, Int(duration) / 60)
+        return "\(totalMinutes / 60) h \(String(format: "%02d", totalMinutes % 60)) min"
     }
     private var moodJournalCard: some View {
         let latest = moodJournal.entries.last

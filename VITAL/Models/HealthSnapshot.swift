@@ -99,6 +99,9 @@ struct DailyReportSnapshot: Codable, Equatable, Identifiable {
     let timeZoneIdentifier: String
     let capturedAt: Date
     let recoveryScore: Int?
+    let sleepComponentScore: Double?
+    let hrvComponentScore: Double?
+    let restingPulseComponentScore: Double?
     let bodyBatteryScore: Int?
     let sleepDurationSeconds: TimeInterval?
     let hrvMilliseconds: Double?
@@ -112,6 +115,9 @@ struct DailyReportSnapshot: Codable, Equatable, Identifiable {
         localDay: Date,
         capturedAt: Date,
         recoveryScore: Int?,
+        sleepComponentScore: Double? = nil,
+        hrvComponentScore: Double? = nil,
+        restingPulseComponentScore: Double? = nil,
         bodyBatteryScore: Int?,
         sleepDurationSeconds: TimeInterval?,
         hrvMilliseconds: Double?,
@@ -127,6 +133,9 @@ struct DailyReportSnapshot: Codable, Equatable, Identifiable {
         self.timeZoneIdentifier = calendar.timeZone.identifier
         self.capturedAt = capturedAt
         self.recoveryScore = recoveryScore
+        self.sleepComponentScore = sleepComponentScore
+        self.hrvComponentScore = hrvComponentScore
+        self.restingPulseComponentScore = restingPulseComponentScore
         self.bodyBatteryScore = bodyBatteryScore
         self.sleepDurationSeconds = sleepDurationSeconds
         self.hrvMilliseconds = hrvMilliseconds
@@ -138,7 +147,8 @@ struct DailyReportSnapshot: Codable, Equatable, Identifiable {
     /// Backward-compatible decoding for archives created before day keys existed.
     private enum CodingKeys: String, CodingKey {
         case id, kind, localDay, localDayKey, timeZoneIdentifier, capturedAt
-        case recoveryScore, bodyBatteryScore, sleepDurationSeconds
+        case recoveryScore, sleepComponentScore, hrvComponentScore, restingPulseComponentScore
+        case bodyBatteryScore, sleepDurationSeconds
         case hrvMilliseconds, restingHeartRateBPM, steps, activeEnergyKcal
     }
 
@@ -149,6 +159,9 @@ struct DailyReportSnapshot: Codable, Equatable, Identifiable {
         localDay = try values.decode(Date.self, forKey: .localDay)
         capturedAt = try values.decode(Date.self, forKey: .capturedAt)
         recoveryScore = try values.decodeIfPresent(Int.self, forKey: .recoveryScore)
+        sleepComponentScore = try values.decodeIfPresent(Double.self, forKey: .sleepComponentScore)
+        hrvComponentScore = try values.decodeIfPresent(Double.self, forKey: .hrvComponentScore)
+        restingPulseComponentScore = try values.decodeIfPresent(Double.self, forKey: .restingPulseComponentScore)
         bodyBatteryScore = try values.decodeIfPresent(Int.self, forKey: .bodyBatteryScore)
         sleepDurationSeconds = try values.decodeIfPresent(TimeInterval.self, forKey: .sleepDurationSeconds)
         hrvMilliseconds = try values.decodeIfPresent(Double.self, forKey: .hrvMilliseconds)
@@ -168,6 +181,9 @@ struct DailyReportSnapshot: Codable, Equatable, Identifiable {
         try values.encode(timeZoneIdentifier, forKey: .timeZoneIdentifier)
         try values.encode(capturedAt, forKey: .capturedAt)
         try values.encodeIfPresent(recoveryScore, forKey: .recoveryScore)
+        try values.encodeIfPresent(sleepComponentScore, forKey: .sleepComponentScore)
+        try values.encodeIfPresent(hrvComponentScore, forKey: .hrvComponentScore)
+        try values.encodeIfPresent(restingPulseComponentScore, forKey: .restingPulseComponentScore)
         try values.encodeIfPresent(bodyBatteryScore, forKey: .bodyBatteryScore)
         try values.encodeIfPresent(sleepDurationSeconds, forKey: .sleepDurationSeconds)
         try values.encodeIfPresent(hrvMilliseconds, forKey: .hrvMilliseconds)
