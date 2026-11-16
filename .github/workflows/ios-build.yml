@@ -46,13 +46,20 @@ jobs:
           APP="$RUNNER_TEMP/VITAL-Simulator/Build/Products/Debug-iphonesimulator/VITAL.app"
           test -d "$APP"
           xcrun simctl install "$DEVICE_ID" "$APP"
-          xcrun simctl launch "$DEVICE_ID" se.vital.health
-          sleep 8
-          if ! xcrun simctl spawn "$DEVICE_ID" launchctl list | grep -F "se.vital.health" >/dev/null; then
-            xcrun simctl spawn "$DEVICE_ID" log show --last 2m --style compact --predicate 'process == "VITAL"' || true
-            echo "VITAL exited shortly after launch."
+          LAUNCH_OUTPUT="$(xcrun simctl launch "$DEVICE_ID" se.vital.health)"
+          echo "$LAUNCH_OUTPUT"
+          APP_PID="$(printf '%s\\n' "$LAUNCH_OUTPUT" | awk -F': ' '/se.vital.health:/ {print $NF; exit}')"
+          if ! [[ "$APP_PID" =~ ^[0-9]+$ ]]; then
+            echo "Could not read VITAL process ID from simulator launch output."
             exit 1
           fi
+          sleep 8
+          if ! xcrun simctl spawn "$DEVICE_ID" /bin/kill -0 "$APP_PID"; then
+            xcrun simctl spawn "$DEVICE_ID" log show --last 2m --style compact --predicate 'process == "VITAL"' || true
+            echo "VITAL process $APP_PID exited shortly after launch."
+            exit 1
+          fi
+          echo "VITAL remained running in the simulator (PID $APP_PID)."
       - name: Archive unsigned iOS device build (validation only)
         run: |
           xcodebuild \
