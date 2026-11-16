@@ -291,3 +291,12 @@ Status betyder:
 - [x] Behålla tidigare lokala journalposter som äldre historik
 - [ ] Verifiera HealthKit-korrelationer, enheter och tidsstämplar på fysisk iPhone
 - [ ] Bygga historiska vikt- och blodtrycksgrafer från HealthKit-sampel
+
+
+## Uppdatering 2026-11-16 – Uppstart och fysisk verifiering
+- [x] Ändra simulator-smoketestet till PID-baserad processkontroll efter `simctl launch`
+- [x] Korrigera shell-formatsträngen som används för att läsa PID från launch-utdata
+- [ ] Få godkänd CI-körning med lyckad simulatorstart och kvarvarande app-process
+- [ ] Granska simulatorloggar vid eventuell processavslutning
+- [ ] Undersöka FlareStore-signerad IPA och dess entitlements om fysisk iPhone fortfarande kraschar
+- [ ] Verifiera installation och uppstart på fysisk iPhone innan ny release betraktas som fungerande
