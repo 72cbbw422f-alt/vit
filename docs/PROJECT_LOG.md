@@ -580,3 +580,11 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Tidigare lokala vikt- och blodtrycksregistreringar finns kvar som läsbar äldre historik.
 - Lagt till tester för blodtrycksparets formattering och validering.
 - CI och verifiering på fysisk iPhone återstår.
+
+
+## 2026-11-16 – Simulatorstart: förbättrad verifiering
+- Den tidigare smoke-testkontrollen sökte efter appens bundle-ID i `launchctl list`. Loggen visade att simulatorn faktiskt startade VITAL och returnerade ett PID, men kontrollen hittade inte processen med den metoden och gav därför ett falskt negativt resultat.
+- Smoke-testet ändrades till att läsa PID direkt från `simctl launch` och kontrollera att processen fortfarande finns efter åtta sekunder.
+- Vid oväntad processavslutning skrivs relevanta simulatorloggar ut för felsökning.
+- Vid eftergranskning upptäcktes ett dubblerat escape-tecken i shell-kommandots `printf`-format, vilket kunde hindra PID-parsningen. Formatsträngen är korrigerad i workflow-filen.
+- Ingen appkrasch är ännu bekräftad av simulatorloggarna. Den tidigare fysiska iPhone-kraschen är fortfarande olöst och måste verifieras separat.
