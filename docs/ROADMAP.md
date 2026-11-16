@@ -274,3 +274,9 @@ Status betyder:
 - [x] Formatera syremättnad från HealthKit-andel till procent
 - [x] Behålla saknade/ogiltiga värden som saknade
 - [ ] Verifiera datatillgänglighet och enheter på fysisk iPhone/Apple Watch
+
+
+## Uppdatering 2026-11-16 – Robust HealthKit-behörighet
+- [x] Säkerställ att valfria mätvärden inte blockerar grundläggande HealthKit-auktorisering
+- [x] Behåll saknade valfria mätvärden som saknade
+- [ ] Verifiera ändringen i CI och på fysisk iPhone
