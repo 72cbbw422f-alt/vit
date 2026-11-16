@@ -141,8 +141,8 @@ final class HealthKitStore: ObservableObject {
         async let stepsValue = todaySum(.stepCount, unit: .count())
         async let energyValue = todaySum(.activeEnergyBurned, unit: .kilocalorie())
         async let weightValue = latestQuantity(.bodyMass, unit: .gramUnit(with: .kilo))
-        async let respiratoryRateValue = latestQuantity(.respiratoryRate, unit: HKUnit.count().unitDivided(by: .minute()))
-        async let oxygenSaturationValue = latestQuantity(.oxygenSaturation, unit: .percent())
+        async let respiratoryRateSample = latestQuantitySample(.respiratoryRate, unit: HKUnit.count().unitDivided(by: .minute()))
+        async let oxygenSaturationSample = latestQuantitySample(.oxygenSaturation, unit: .percent())
         async let baselines = loadPersonalBaselines(asOf: now)
 
         let baselineValues = await baselines
@@ -171,8 +171,10 @@ final class HealthKitStore: ObservableObject {
             steps: await stepsValue,
             activeEnergy: await energyValue,
             latestWeight: await weightValue,
-            respiratoryRate: await respiratoryRateValue,
-            oxygenSaturation: await oxygenSaturationValue,
+            respiratoryRate: await respiratoryRateSample?.value,
+            respiratoryRateDate: await respiratoryRateSample?.date,
+            oxygenSaturation: await oxygenSaturationSample?.value,
+            oxygenSaturationDate: await oxygenSaturationSample?.date,
             restingHeartRateBaseline: baselineValues.resting,
             hrvBaseline: baselineValues.hrv,
             sleepBaseline: baselineValues.sleep,
@@ -345,6 +347,24 @@ final class HealthKitStore: ObservableObject {
                         return DailyBaselineSample(day: day, value: longest.duration / 3600)
                     }
                     continuation.resume(returning: daily)
+                }
+            store.execute(query)
+        }
+    }
+
+    private func latestQuantitySample(
+        _ identifier: HKQuantityTypeIdentifier,
+        unit: HKUnit
+    ) async -> (value: Double, date: Date)? {
+        guard let type = HKObjectType.quantityType(forIdentifier: identifier) else { return nil }
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1,
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { _, samples, _ in
+                    guard let sample = samples?.first as? HKQuantitySample else {
+                        continuation.resume(returning: nil)
+                        return
+                    }
+                    continuation.resume(returning: (sample.quantity.doubleValue(for: unit), sample.endDate))
                 }
             store.execute(query)
         }
