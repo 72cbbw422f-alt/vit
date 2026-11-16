@@ -161,3 +161,11 @@ Varje ny DailyReportSnapshot lagrar en lokal dagnyckel (`yyyy-MM-dd`) och tidszo
 
 ## Valfria HealthKit-mätvärden
 Andningsfrekvens och syremättnad läggs till i läsbehörighetsmängden endast om respektive HealthKit-typ finns tillgänglig. Om en av dessa valfria typer saknas får det inte stoppa auktorisering eller hämtning av kärndata som sömn, puls och aktivitet. Ett saknat sampel är fortfarande ett saknat värde; HealthKit ger inte appen en säker generell signal för att skilja nekad läsbehörighet från att ingen data finns.
+
+
+## Vikt och blodtryck från HealthKit
+- Senaste kroppsmassa hämtas som HealthKit quantity sample med värde i kg och sampelns sluttid.
+- Blodtryck hämtas som en sammanhängande HealthKit bloodPressure-korrelation. Systoliskt och diastoliskt värde måste finnas i samma korrelation.
+- Båda blodtrycksvärdena konverteras till mmHg och visas endast när paret är komplett och rimligt.
+- UI prioriterar HealthKit-data. Äldre lokala journalposter behålls som historik och exponeras inte längre som nya registreringsflöden.
+- Tillgänglighet och korrekt dataläsning måste verifieras med enhet som har HealthKit-data.
