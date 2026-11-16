@@ -32,8 +32,25 @@ jobs:
             -scheme VITAL \
             -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/VITAL-Simulator" \
             CODE_SIGNING_ALLOWED=NO \
             build
+      - name: Launch app in iOS Simulator
+        run: |
+          DEVICE_ID="$(xcrun simctl list devices available | grep -m1 -E 'iPhone .*\\([A-F0-9-]+\\)' | sed -E 's/.*\\(([A-F0-9-]+)\\).*/\\1/')"
+          test -n "$DEVICE_ID"
+          xcrun simctl boot "$DEVICE_ID" 2>/dev/null || true
+          xcrun simctl bootstatus "$DEVICE_ID" -b
+          APP="$RUNNER_TEMP/VITAL-Simulator/Build/Products/Debug-iphonesimulator/VITAL.app"
+          test -d "$APP"
+          xcrun simctl install "$DEVICE_ID" "$APP"
+          xcrun simctl launch "$DEVICE_ID" se.vital.health
+          sleep 8
+          if ! xcrun simctl spawn "$DEVICE_ID" launchctl list | grep -F "se.vital.health" >/dev/null; then
+            xcrun simctl spawn "$DEVICE_ID" log show --last 2m --style compact --predicate 'process == "VITAL"' || true
+            echo "VITAL exited shortly after launch."
+            exit 1
+          fi
       - name: Archive unsigned iOS device build (validation only)
         run: |
           xcodebuild \
