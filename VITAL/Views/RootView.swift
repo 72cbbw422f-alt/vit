@@ -151,6 +151,8 @@ private struct HealthOverviewView: View {
     @State private var editingDose: MedicationDose?
     @State private var showingSideEffectEntry = false
     @State private var editingEffect: MedicationEffect?
+    @State private var showAllMedicationDoses = false
+    @State private var showAllMedicationEffects = false
     @State private var showingDoseReminder = false
     @State private var showingWeightEntry = false
     @State private var editingWeight: WeightEntry?
@@ -351,7 +353,7 @@ private struct HealthOverviewView: View {
                     }
                     Text(latest.date.formatted(date: .abbreviated, time: .shortened))
                         .font(.caption).foregroundStyle(VITALPalette.muted)
-                    ForEach(medicationJournal.doses.prefix(5)) { dose in
+                    ForEach(showAllMedicationDoses ? medicationJournal.doses : Array(medicationJournal.doses.prefix(5))) { dose in
                         HStack(spacing: 8) {
                             Text(dose.date.formatted(date: .abbreviated, time: .omitted))
                                 .foregroundStyle(VITALPalette.muted)
@@ -363,6 +365,12 @@ private struct HealthOverviewView: View {
                                 Button(role: .destructive) { medicationJournal.deleteDose(dose) } label: { Label("Radera", systemImage: "trash") }
                             } label: { Image(systemName: "ellipsis.circle").foregroundStyle(VITALPalette.muted) }
                         }.font(.caption)
+                    }
+                    if medicationJournal.doses.count > 5 {
+                        Button(showAllMedicationDoses ? "Visa färre doser" : "Visa alla doser") {
+                            showAllMedicationDoses.toggle()
+                        }
+                        .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.teal)
                     }
                 } else {
                     Text("Registrera doserna enligt din ordination för att bygga en tydlig historik.")
@@ -380,7 +388,7 @@ private struct HealthOverviewView: View {
                             .font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.teal)
                     }
                 }
-                ForEach(medicationJournal.effects.prefix(2)) { effect in
+                ForEach(showAllMedicationEffects ? medicationJournal.effects : Array(medicationJournal.effects.prefix(2))) { effect in
                     HStack(alignment: .top) {
                         VStack(alignment: .leading, spacing: 3) {
                             Text(effect.title).font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
@@ -395,6 +403,12 @@ private struct HealthOverviewView: View {
                             Button(role: .destructive) { medicationJournal.deleteEffect(effect) } label: { Label("Radera", systemImage: "trash") }
                         } label: { Image(systemName: "ellipsis.circle").foregroundStyle(VITALPalette.muted) }
                     }
+                }
+                if medicationJournal.effects.count > 2 {
+                    Button(showAllMedicationEffects ? "Visa färre biverkningar" : "Visa alla biverkningar") {
+                        showAllMedicationEffects.toggle()
+                    }
+                    .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.teal)
                 }
                 if let reminder = medicationJournal.reminderDate {
                     Label("Nästa påminnelse: \(reminder.formatted(date: .abbreviated, time: .shortened))",
