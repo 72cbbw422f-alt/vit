@@ -300,3 +300,13 @@ Status betyder:
 - [ ] Granska simulatorloggar vid eventuell processavslutning
 - [ ] Undersöka FlareStore-signerad IPA och dess entitlements om fysisk iPhone fortfarande kraschar
 - [ ] Verifiera installation och uppstart på fysisk iPhone innan ny release betraktas som fungerande
+
+
+## Uppdatering 2026-11-16 – HealthKit-auktorisering
+- [x] Identifiera kraschen via simulatorns exception-logg
+- [x] Ta bort blodtryckets korrelationstyp från `requestAuthorization(read:)`
+- [x] Behålla systoliskt och diastoliskt som begärda lästyper
+- [x] Behålla korrelationsfrågan för att hämta ett parat blodtrycksvärde
+- [ ] Verifiera att appen passerar HealthKit-auktorisering i simulatorn
+- [ ] Utvärdera simulatorns varning om saknat HealthKit-entitlement separat
+- [ ] Bygg ny IPA först efter godkänd CI och verifierad simulatorstart
