@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main]
 
+# Keep only the newest build for this branch; each commit otherwise queues a full macOS build.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: macos-15
