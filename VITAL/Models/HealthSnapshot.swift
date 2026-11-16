@@ -9,6 +9,10 @@ struct HealthSnapshot {
     var steps: Double?
     var activeEnergy: Double?
     var latestWeight: Double?
+    var latestWeightDate: Date?
+    var systolicBloodPressure: Double?
+    var diastolicBloodPressure: Double?
+    var bloodPressureDate: Date?
     /// Latest HealthKit respiratory rate in breaths per minute.
     var respiratoryRate: Double?
     var respiratoryRateDate: Date?
@@ -59,6 +63,14 @@ struct HealthSnapshot {
     var hrvText: String {
         guard let hrv else { return "—" }
         return "\(Int(hrv.rounded())) ms"
+    }
+    var bloodPressureText: String {
+        guard let systolicBloodPressure, let diastolicBloodPressure,
+              systolicBloodPressure.isFinite, diastolicBloodPressure.isFinite,
+              systolicBloodPressure > diastolicBloodPressure,
+              (60...260).contains(systolicBloodPressure),
+              (30...160).contains(diastolicBloodPressure) else { return "—" }
+        return "\(Int(systolicBloodPressure.rounded()))/\(Int(diastolicBloodPressure.rounded()))"
     }
     var respiratoryRateText: String {
         guard let respiratoryRate, respiratoryRate.isFinite, respiratoryRate > 0 else { return "—" }
