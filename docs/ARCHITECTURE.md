@@ -157,3 +157,7 @@ Varje ny DailyReportSnapshot lagrar en lokal dagnyckel (`yyyy-MM-dd`) och tidszo
 - HealthKit lagrar syremättnad som en andel; presentationen omvandlar exempelvis 0,975 till 98 %.
 - Saknade, icke-finita eller orimliga värden visas som saknade.
 - Tillgången till dessa mätvärden beror på kompatibel enhet och datakällor i Apple Hälsa; appen hittar inte på reservvärden.
+
+
+## Valfria HealthKit-mätvärden
+Andningsfrekvens och syremättnad läggs till i läsbehörighetsmängden endast om respektive HealthKit-typ finns tillgänglig. Om en av dessa valfria typer saknas får det inte stoppa auktorisering eller hämtning av kärndata som sömn, puls och aktivitet. Ett saknat sampel är fortfarande ett saknat värde; HealthKit ger inte appen en säker generell signal för att skilja nekad läsbehörighet från att ingen data finns.
