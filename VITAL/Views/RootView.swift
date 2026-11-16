@@ -660,7 +660,7 @@ private struct HealthOverviewView: View {
     init() {
         let today = Calendar.current.startOfDay(for: .now)
         let savedDay = UserDefaults.standard.object(forKey: dateKey) as? Date
-        if savedDay.map({ Calendar.current.isDate($0, inSameDayAs: today) }) != true {
+        if WaterDayPolicy.shouldReset(savedDay: savedDay, now: .now, calendar: .current) {
             UserDefaults.standard.set(today, forKey: dateKey)
             UserDefaults.standard.set([Int](), forKey: entriesKey)
         }
@@ -679,14 +679,14 @@ private struct HealthOverviewView: View {
     func refreshDay() {
         let today = Calendar.current.startOfDay(for: .now)
         let savedDay = UserDefaults.standard.object(forKey: dateKey) as? Date
-        guard savedDay.map({ Calendar.current.isDate($0, inSameDayAs: today) }) != true else { return }
+        guard WaterDayPolicy.shouldReset(savedDay: savedDay, now: .now, calendar: .current) else { return }
         UserDefaults.standard.set(today, forKey: dateKey)
         additions = []
         total = 0
         persist()
     }
     func add(_ amount: Int) {
-        guard [150, 250, 500].contains(amount) else { return }
+        guard WaterDayPolicy.isValidAmount(amount) else { return }
         refreshDay()
         additions.append(amount); persist()
     }
