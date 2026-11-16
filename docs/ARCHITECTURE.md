@@ -148,3 +148,12 @@ VITAL läser först UNUserNotificationCenter notificationSettings. Systemdialoge
 
 ## Stabil rapportdag över tidszoner
 Varje ny DailyReportSnapshot lagrar en lokal dagnyckel (`yyyy-MM-dd`) och tidszonsidentifieraren som gällde när rapporten skapades. Arkivets dubblettskydd använder dagnyckeln i stället för att räkna om äldre datum med enhetens nuvarande tidszon. Dashboarden visar datumetiketten från den sparade nyckeln. Äldre arkiv utan dessa fält kan fortfarande avkodas och använder den tidigare datumjämförelsen.
+
+
+## Andning och syremättnad – HealthKit
+- HealthKitStore begär läsbehörighet för andningsfrekvens (`respiratoryRate`) och syremättnad (`oxygenSaturation`).
+- Senaste tillgängliga värde hämtas separat från nattens återhämtningsmått.
+- Andningsfrekvens visas i andetag/minut.
+- HealthKit lagrar syremättnad som en andel; presentationen omvandlar exempelvis 0,975 till 98 %.
+- Saknade, icke-finita eller orimliga värden visas som saknade.
+- Tillgången till dessa mätvärden beror på kompatibel enhet och datakällor i Apple Hälsa; appen hittar inte på reservvärden.
