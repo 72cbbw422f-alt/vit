@@ -370,3 +370,15 @@ Status betyder:
 - [ ] Validera heuristiska trösklar och rekommendationer mot verkliga användningsdata innan de betraktas som slutliga
 - [ ] CI och visuell simulatorgranskning efter denna ändring
 - [ ] Fysisk iPhone-verifiering med HealthKit-data
+
+
+## Uppdatering 2026-11-17 – CI och rapportstädning
+
+- [x] Full CI-kedja godkänd på commit `cc243c9`: tester, simulatorbuild/start, enhetsarkiv och IPA-paketering
+- [x] Ta bort oanvänd kvällsrapport-state från HealthKitStore
+- [x] Ta bort oanvänd rapportvisning från DashboardView
+- [x] Behålla bakåtkompatibel avkodning av äldre kvällsrapporter
+- [ ] Köra CI på den efterföljande städningscommiten
+- [ ] Fysisk iPhone-verifiering av HealthKit-auktorisering, bakgrundsleverans och HealthKit-värden
+- [ ] Kontrollera FlareStore-signerad IPA och entitlements på den fysiska enheten
+- [ ] Visuell granskning av dashboardens tom-, vänt-, fel- och datatillstånd

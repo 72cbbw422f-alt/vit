@@ -230,3 +230,20 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Äldre rapportarkiv bevaras; inga lokala historikposter raderas.
 - Fyra enhetstester tillagda för en avvikande signal, flera signaler, saknade data och neutralt läge.
 - Status före körning: ej verifierat. Resultat ska fyllas i efter CI.
+
+
+## 2026-11-17 – Full CI-kedja godkänd
+
+- GitHub Actions run [43980719580](https://github.com/72cbbw422f-alt/vit/actions/runs/43980719580), commit `cc243c927606c5ab960a0d0b3b27718f1788f006`: **success**.
+- Godkända steg: `swift test`, iOS Simulator-build, PID-baserat simulator-smoketest, osignerat iOS-enhetsarkiv, kontroll av inbäddad appikon, IPA-paketering och uppladdning av båda artefakterna.
+- Artefakt `VITAL-unsigned-IPA`: 1 342 956 byte. Artefakt `VITAL-unsigned-device-archive`: 2 740 207 byte. Båda har sju dagars retention och måste hämtas via Actions innan de löper ut.
+- IPA:n är avsiktligt osignerad. Den måste signeras med FlareStore eller annat kompatibelt verktyg innan installation. CI-resultatet bevisar inte att den tidigare fysiska iPhone-kraschen är löst.
+- Varningar i arkivsteget: iOS-orienteringskonfiguration och äldre headermap-inställning. De stoppade inte bygget men ska städas separat.
+- HealthKit-entitlement och faktisk HealthKit-auktorisering/dataåtkomst måste fortfarande verifieras på fysisk enhet.
+
+## 2026-11-17 – Avveckling av kvarvarande kvällsrapportkod
+
+- Efter den godkända CI-körningen togs den oanvända `eveningReport`-publiceringen och tilldelningen bort från HealthKitStore.
+- Oanvända vyer för morgon-/kvällsrapport och rapportsektionen togs bort från DashboardView. Det aktiva huvudkortet Dagens återhämtning är den enda morgonsammanfattningen i dashboarden.
+- Arkivmodellens `DailyReportKind.evening` och äldre poster behålls för att gamla lokala arkiv fortsatt ska kunna avkodas.
+- Denna städning kräver en ny CI-körning; den tidigare godkända körningen gäller commit `cc243c9`, inte den nya städningscommiten.

@@ -82,6 +82,19 @@ final class RecoveryEngineTests: XCTestCase {
         XCTAssertTrue(guidance.attentionSignals.isEmpty)
     }
 
+    func testRecoveryGuidanceTreatsThresholdAsInclusive() {
+        let guidance = RecoveryGuidancePolicy.evaluate(sleep: 85, hrv: 85, restingPulse: 85)
+        XCTAssertFalse(guidance.hasAttentionSignal)
+        XCTAssertTrue(guidance.title.contains("Inga"))
+    }
+
+    func testRecoveryGuidanceRejectsNonFiniteComponentsAsMissing() {
+        let guidance = RecoveryGuidancePolicy.evaluate(sleep: 90, hrv: .nan, restingPulse: 95)
+        XCTAssertFalse(guidance.hasAttentionSignal)
+        XCTAssertTrue(guidance.title.contains("Samlar"))
+        XCTAssertTrue(guidance.attentionSignals.isEmpty)
+    }
+
     func testRecoveryGuidanceIsNeutralWhenSignalsAreNearBaseline() {
         let guidance = RecoveryGuidancePolicy.evaluate(sleep: 90, hrv: 92, restingPulse: 94)
         XCTAssertFalse(guidance.hasAttentionSignal)

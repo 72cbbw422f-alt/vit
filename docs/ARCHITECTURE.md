@@ -169,3 +169,14 @@ Andningsfrekvens och syremättnad läggs till i läsbehörighetsmängden endast 
 - Båda blodtrycksvärdena konverteras till mmHg och visas endast när paret är komplett och rimligt.
 - UI prioriterar HealthKit-data. Äldre lokala journalposter behålls som historik och exponeras inte längre som nya registreringsflöden.
 - Tillgänglighet och korrekt dataläsning måste verifieras med enhet som har HealthKit-data.
+
+
+## Aktuell verifierad implementation – 2026-11-17
+
+- `HealthSnapshot.recoveryResult` kopplar nu ihop de personliga baslinjerna, nattliga HealthKit-värdena och `RecoveryEngine`.
+- RecoveryEngine kräver minst 14 giltiga dagar för var och en av de tre baslinjerna. Baslinjerna beräknas från de 30 avslutade kalenderdagarna före aktuell dag.
+- Återhämtningspoängen är en produktmässig wellness-uppskattning: sömn 40 %, HRV 35 % och vilopuls 25 %. Komponenterna begränsas till 0–100. Vilopulskomponenten minskar med 5 poäng per bpm över den personliga medianen. Dessa vikter och omräkningar är heuristiker, inte kliniskt validerade gränser.
+- Dashboardens huvudkort använder enbart den sparade morgonsnapshoten för återhämtningspoäng, nattvärden och komponentbaserade råd. En senare HealthKit-refresh skriver inte om snapshoten.
+- Vägledningspolicyn flaggar komponenter under 85. Gränsen är en produktheuristik. Saknas en av de tre komponenterna visas neutralt vänteläge och inga signaler fabriceras.
+- Kvällsrapporten är avvecklad som användarflöde: ingen ny kvällssnapshot, schemaläggning eller visningskod. Datamodellen och arkivet kan fortfarande avkoda och bevara äldre kvällsposter för bakåtkompatibilitet.
+- CI-run 43980719580 på commit `cc243c9` verifierade kärntester, simulatorbuild, simulatorstart, osignerat iOS-enhetsarkiv, appikon och IPA-paketering. Detta är inte en verifiering av HealthKit-data eller installation på fysisk iPhone.

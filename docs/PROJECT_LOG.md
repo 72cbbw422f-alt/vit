@@ -667,3 +667,10 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Kvällspåminnelsen visas inte längre i startsidans vanestatus.
 - Kodändring: VITAL/Views/DashboardView.swift, commits b12e4691c0c71200defd24b4305dd3d853af9f8f och 630c2f82653f4b3c813c861dcc906be68b38e304.
 - Status: Första UI-iteration incheckad. CI efter ändringen och visuell kontroll på simulator/iPhone återstår. Dagsrådens poängintervall är preliminära UI-regler och ska granskas/valideras innan de betraktas som medicinskt eller träningsmässigt beslutsunderlag.
+
+
+## 2026-11-17 – CI-resultat och rapportkodstädning
+
+Full CI-kedja godkänd på `cc243c927606c5ab960a0d0b3b27718f1788f006` (run 43980719580): Swift-kärntester, iOS Simulator-build och processkontrollerad simulatorstart, osignerat iOS-arkiv, appikonvalidering och osignerad IPA-paketering. Artefakterna laddades upp. De är inte signerade och ingen fysisk iPhone-installation är därmed bekräftad.
+
+Efter denna körning togs överbliven, oanvänd kvällsrapport-state och rapportvy-kod bort. Arkivets Codable-modell för äldre kvällsrapporter bevaras. Den nya städningscommiten ska genomgå en ny CI-körning innan den betraktas som verifierad.
