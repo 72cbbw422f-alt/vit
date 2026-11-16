@@ -31,13 +31,15 @@ final class HealthKitStore: ObservableObject {
               let heartRate = HKObjectType.quantityType(forIdentifier: .heartRate),
               let steps = HKObjectType.quantityType(forIdentifier: .stepCount),
               let energy = HKObjectType.quantityType(forIdentifier: .activeEnergyBurned),
-              let weight = HKObjectType.quantityType(forIdentifier: .bodyMass) else {
+              let weight = HKObjectType.quantityType(forIdentifier: .bodyMass),
+              let respiratoryRate = HKObjectType.quantityType(forIdentifier: .respiratoryRate),
+              let oxygenSaturation = HKObjectType.quantityType(forIdentifier: .oxygenSaturation) else {
             lastError = "Kunde inte läsa in alla hälsodatatyper."
             return
         }
         loadReportArchive()
         do {
-            try await store.requestAuthorization(toShare: [], read: [sleep, resting, hrv, heartRate, steps, energy, weight])
+            try await store.requestAuthorization(toShare: [], read: [sleep, resting, hrv, heartRate, steps, energy, weight, respiratoryRate, oxygenSaturation])
             authorizationRequested = true
             await startSleepObservation()
             await scheduleEveningReportNotification()
@@ -139,6 +141,8 @@ final class HealthKitStore: ObservableObject {
         async let stepsValue = todaySum(.stepCount, unit: .count())
         async let energyValue = todaySum(.activeEnergyBurned, unit: .kilocalorie())
         async let weightValue = latestQuantity(.bodyMass, unit: .gramUnit(with: .kilo))
+        async let respiratoryRateValue = latestQuantity(.respiratoryRate, unit: HKUnit.count().unitDivided(by: .minute()))
+        async let oxygenSaturationValue = latestQuantity(.oxygenSaturation, unit: .percent())
         async let baselines = loadPersonalBaselines(asOf: now)
 
         let baselineValues = await baselines
@@ -167,6 +171,8 @@ final class HealthKitStore: ObservableObject {
             steps: await stepsValue,
             activeEnergy: await energyValue,
             latestWeight: await weightValue,
+            respiratoryRate: await respiratoryRateValue,
+            oxygenSaturation: await oxygenSaturationValue,
             restingHeartRateBaseline: baselineValues.resting,
             hrvBaseline: baselineValues.hrv,
             sleepBaseline: baselineValues.sleep,
