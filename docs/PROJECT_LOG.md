@@ -534,3 +534,17 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - Korrigerade notisernas identifierare så att varje schemalagd tid får sitt eget indexbaserade ID och kan tas bort eller ersättas korrekt.
 - CI fångade först ett saknat funktionsargument; detta rättades. Därefter upptäcktes och korrigerades även interpoleringen i notis-ID:n.
 - Slutlig verifiering inväntar CI.
+
+
+## 2026-11-16 – Andningsfrekvens och syremättnad
+### Genomfört
+- Utökat HealthKit-läsbehörigheten med andningsfrekvens och syremättnad.
+- Hämtar senaste tillgängliga värden separat från nattlig återhämtningsberäkning.
+- Lagt till två mätvärden i Hälsa-fliken.
+- Syremättnad konverteras från HealthKit:s andel till procent i presentationen.
+- Saknade och ogiltiga värden förblir saknade.
+- Lagt till enhetstester för formattering och validering.
+
+### Kvar
+- CI för ändringen ska godkännas.
+- Verifiera datatillgänglighet och faktiska enheter på fysisk iPhone/Apple Watch.
