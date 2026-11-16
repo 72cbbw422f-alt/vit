@@ -212,7 +212,6 @@ private struct HealthOverviewView: View {
                         }
                         weightCard
                         waterTrackerCard
-                        medicationCard
                         bloodPressureCard
                         progressPhotosCard
                         VITALCard {
