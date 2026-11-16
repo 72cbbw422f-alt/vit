@@ -148,7 +148,7 @@ struct DashboardView: View {
                     Text(health.snapshot.sleepText).monospacedDigit()
                     Text("·")
                     Text("HRV")
-                    Text(health.snapshot.overnightHRV.map { "\\(Int($0.rounded())) ms" } ?? "—")
+                    Text(health.snapshot.overnightHRV.map { "\(Int($0.rounded())) ms" } ?? "—")
                         .monospacedDigit()
                 }
                 .font(.caption.weight(.medium))
