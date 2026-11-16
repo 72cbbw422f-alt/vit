@@ -31,15 +31,21 @@ final class HealthKitStore: ObservableObject {
               let heartRate = HKObjectType.quantityType(forIdentifier: .heartRate),
               let steps = HKObjectType.quantityType(forIdentifier: .stepCount),
               let energy = HKObjectType.quantityType(forIdentifier: .activeEnergyBurned),
-              let weight = HKObjectType.quantityType(forIdentifier: .bodyMass),
-              let respiratoryRate = HKObjectType.quantityType(forIdentifier: .respiratoryRate),
-              let oxygenSaturation = HKObjectType.quantityType(forIdentifier: .oxygenSaturation) else {
-            lastError = "Kunde inte läsa in alla hälsodatatyper."
+              let weight = HKObjectType.quantityType(forIdentifier: .bodyMass) else {
+            lastError = "Kunde inte läsa in grundläggande hälsodatatyper."
             return
+        }
+        // Optional metrics must never prevent access to core sleep and activity data.
+        var readTypes: Set<HKObjectType> = [sleep, resting, hrv, heartRate, steps, energy, weight]
+        if let respiratoryRate = HKObjectType.quantityType(forIdentifier: .respiratoryRate) {
+            readTypes.insert(respiratoryRate)
+        }
+        if let oxygenSaturation = HKObjectType.quantityType(forIdentifier: .oxygenSaturation) {
+            readTypes.insert(oxygenSaturation)
         }
         loadReportArchive()
         do {
-            try await store.requestAuthorization(toShare: [], read: [sleep, resting, hrv, heartRate, steps, energy, weight, respiratoryRate, oxygenSaturation])
+            try await store.requestAuthorization(toShare: [], read: readTypes)
             authorizationRequested = true
             await startSleepObservation()
             await scheduleEveningReportNotification()
