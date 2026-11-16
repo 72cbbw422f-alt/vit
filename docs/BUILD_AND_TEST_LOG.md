@@ -221,3 +221,12 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Simulatorbuild och enhetstester för den nya dashboarden: inväntar aktuell CI.
 - Visuell granskning i simulator och fysisk iPhone: ej utförd.
 - Status: Implementerat i källkod, ännu inte verifierat.
+
+
+## 2026-11-17 – Fryst sammanfattning och borttagning av kvällsflöde
+- Ändrade filer: HealthSnapshot.swift, RecoveryEngine.swift, HealthKitStore.swift och DashboardView.swift.
+- Tillagt: frysta komponentpoäng i morgonsnapshoten och signalbaserad vägledningspolicy.
+- Borttaget: notisbehörighet enbart för kvällsrapporten, schemaläggning av kvällsrapportnotis och skapande av nya kvällssnapshots.
+- Äldre rapportarkiv bevaras; inga lokala historikposter raderas.
+- Fyra enhetstester tillagda för en avvikande signal, flera signaler, saknade data och neutralt läge.
+- Status före körning: ej verifierat. Resultat ska fyllas i efter CI.

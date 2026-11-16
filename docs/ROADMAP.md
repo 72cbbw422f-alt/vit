@@ -357,3 +357,16 @@ Status betyder:
 - [ ] Avveckla kvällsrapportens schemaläggning och notisflöde på ett bakåtkompatibelt sätt
 - [ ] Köra CI och granska den nya dashboarden visuellt i simulator
 - [ ] Verifiera HealthKit-data och gränssnitt på fysisk iPhone
+
+
+## Uppdatering 2026-11-17 – Fryst sammanfattning och signalbaserade råd
+- [x] Spara sömn-, HRV- och vilopulskomponenter i morgonsnapshoten
+- [x] Visa återhämtningspoäng och nattvärden från fryst snapshot under hela dagen
+- [x] Identifiera vilka personliga återhämtningssignaler som avviker
+- [x] Visa neutralt tillstånd när nödvändiga komponenter saknas
+- [x] Avveckla schemaläggning av kvällsrapportnotis
+- [x] Sluta skapa nya kvällsrapportsnapshots utan att radera äldre lokala poster
+- [x] Lägga till enhetstester för vägledningspolicyn
+- [ ] Validera heuristiska trösklar och rekommendationer mot verkliga användningsdata innan de betraktas som slutliga
+- [ ] CI och visuell simulatorgranskning efter denna ändring
+- [ ] Fysisk iPhone-verifiering med HealthKit-data

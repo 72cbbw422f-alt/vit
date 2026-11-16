@@ -57,3 +57,11 @@ Slutpoängen avrundas till heltal.
 - HealthKitStore använder nu längsta grupperade sömnperioden som huvudsömn, med senast avslutade period som tie-breaker.
 - Syftet är att inte låta en kortare senare tupplur ersätta huvudsömnen.
 - Heuristiken är inte kliniskt validerad och kan vara fel vid skiftarbete eller atypiska sömnmönster. Verklig HealthKit-verifiering krävs.
+
+
+## Uppdatering 2026-11-17 – Fryst morgonsammanfattning och signalbaserad vägledning
+- Morgonsammanfattningen sparar komponentpoängen för sömn, HRV och vilopuls tillsammans med totalpoängen. Fälten är valfria vid avkodning så äldre lokala arkiv fortsätter fungera.
+- Startsidan läser poäng, nattvärden och vägledning från den frysta morgonsammanfattningen. Senare HealthKit-uppdateringar under dagen får inte skriva om sammanfattningen.
+- Vägledningen pekar ut vilka komponenter som avviker från den personliga referensen. En komponentpoäng under 85 markeras som en uppmärksamhetssignal. Detta är en preliminär produktheuristik, inte en medicinsk gräns eller validerad träningsregel.
+- Om data saknas visas ett neutralt vänteläge; inga avvikelsesignaler eller rekommendationer konstrueras från saknade värden.
+- Kvällsrapportens schemaläggning och skapande av nya kvällssnapshots tas bort. Äldre sparade snapshots bevaras i arkivet för bakåtkompatibilitet, men visas inte i det nya gränssnittet.

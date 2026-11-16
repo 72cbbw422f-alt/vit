@@ -59,4 +59,33 @@ final class RecoveryEngineTests: XCTestCase {
         XCTAssertEqual(result.hrvComponent, 100)
         XCTAssertEqual(result.restingPulseComponent, 100)
     }
+
+    func testRecoveryGuidanceIdentifiesPoorSleepAgainstPersonalBaseline() {
+        let guidance = RecoveryGuidancePolicy.evaluate(sleep: 78, hrv: 96, restingPulse: 98)
+        XCTAssertTrue(guidance.hasAttentionSignal)
+        XCTAssertEqual(guidance.attentionSignals.count, 1)
+        XCTAssertTrue(guidance.attentionSignals[0].contains("Sömnen"))
+        XCTAssertTrue(guidance.recommendation.contains("sömnen"))
+    }
+
+    func testRecoveryGuidanceHighlightsMultipleSignals() {
+        let guidance = RecoveryGuidancePolicy.evaluate(sleep: 78, hrv: 72, restingPulse: 80)
+        XCTAssertEqual(guidance.attentionSignals.count, 3)
+        XCTAssertTrue(guidance.title.contains("Flera"))
+        XCTAssertTrue(guidance.recommendation.contains("lättare aktivitet"))
+    }
+
+    func testRecoveryGuidanceDoesNotInventAdviceWhenDataIsMissing() {
+        let guidance = RecoveryGuidancePolicy.evaluate(sleep: 90, hrv: nil, restingPulse: 95)
+        XCTAssertFalse(guidance.hasAttentionSignal)
+        XCTAssertTrue(guidance.title.contains("Samlar"))
+        XCTAssertTrue(guidance.attentionSignals.isEmpty)
+    }
+
+    func testRecoveryGuidanceIsNeutralWhenSignalsAreNearBaseline() {
+        let guidance = RecoveryGuidancePolicy.evaluate(sleep: 90, hrv: 92, restingPulse: 94)
+        XCTAssertFalse(guidance.hasAttentionSignal)
+        XCTAssertTrue(guidance.title.contains("Inga"))
+    }
+
 }
