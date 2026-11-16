@@ -563,3 +563,10 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 - GitHub Actions har fått en concurrency-grupp per workflow och branch.
 - En ny push på samma branch ska avbryta äldre överflödiga byggen så att endast senaste koden prioriteras.
 - Äldre körningar som startats innan regeln infördes kan fortfarande behöva avslutas separat.
+
+
+## 2026-11-16 – Robust HealthKit-auktorisering
+- Gjorde andningsfrekvens och syremättnad valfria i behörighetsmängden.
+- Om en valfri HealthKit-datatyp inte finns tillgänglig ska inte grundläggande sömn-, puls- och aktivitetsläsning blockeras.
+- Kärntyperna är fortsatt obligatoriska för appens nuvarande huvudflöde.
+- CI för ändringen inväntar körning 293.
