@@ -196,3 +196,10 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Inga uppenbara force unwraps eller direkta fatalError-anrop hittades i den granskade uppstartsvägen.
 - Detta är en statisk kodgranskning, inte ett körtest. Den fastställer inte orsaken till kraschen på fysisk iPhone.
 - Nästa diagnostiska underlag: resultat från PID-baserat simulator-smoketest samt vid behov crashrapport eller signerad IPA med dess entitlements.
+
+
+## 2026-11-16 – Dokumentationscommit och ny CI-trigger
+- Den samlade dokumentationsuppdateringen för statisk uppstartsgranskning lades in på grenen `vital-3.0`.
+- Grenpekaren uppdaterades via Git Data API, vilket inte startade GitHub Actions som en vanlig push-händelse.
+- En efterföljande dokumentationspush används därför för att trigga workflow på den aktuella grenkoden.
+- Status för byggning och simulatorstart ska hämtas från den nya körningen; äldre körning 43921250780 avslutades som avbruten och verifierar inte den senaste dokumentationen.
