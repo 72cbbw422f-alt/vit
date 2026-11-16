@@ -179,3 +179,12 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - CI-artifakt `VITAL-unsigned-IPA` hämtades och öppnades. IPA:n innehåller `Payload/VITAL.app` med arm64 Mach-O-binär och Info.plist.
 - Verifierade metadata: bundle ID `se.vital.health`, visningsnamn VITAL, version 3.0 (build 1), minsta iOS 17.0, iPhone/iPad.
 - IPA:n är osignerad och saknar provisioning profile; den måste signeras via sideload-verktyget före installation. Ingen fysisk enhetsinstallation är ännu verifierad.
+
+
+## 2026-11-16 – Simulator-smoketest och CI-felsökning
+- Commit `4120ffc63ae70d960e1b7ae0e014d536edea5313`: smoke-testet ändrades från sökning i `launchctl list` till PID-kontroll baserad på resultatet från `simctl launch`.
+- Run 43889360011, attempt 2: fortfarande köad vid kontrollen den 2026-11-16. Ingen slutsats om simulatorstart eller build kan dras från en köad körning.
+- Korrigering vid eftergranskning: shell-formatsträngen för radbrytning i PID-parsningen hade dubblerad backslash. Detta korrigeras i en separat workflow-commit; den nya körningen måste verifiera att PID läses och att processen överlever kontrollintervallet.
+- Tidigare run 43874399827 föll på den gamla processidentifieringskontrollen. Loggen visade att `simctl launch` hade startat VITAL och returnerat PID 3393; felet var kontrollmetoden, inte bevis på appkrasch.
+- Fysisk iPhone: appen har tidigare rapporterats krascha direkt vid start efter FlareStore-signering. Ingen diagnostisk crashrapport har ännu kunnat granskas. Simulatorstart kan inte ersätta fysisk enhetsverifiering.
+- Status: Nytt simulator-smoketest väntar på CI. Ingen ny IPA ska lämnas ut som verifierad förrän byggstegen och simulatorstarten har passerat.
