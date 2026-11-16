@@ -265,3 +265,12 @@ Status betyder:
 - [ ] Utreda och dokumentera en försiktig, teoretisk semaglutidnivå-kurva; aldrig presentera den som uppmätt nivå eller doseringsråd
 - [ ] Utforma en samlad hälsotidslinje där vikt, doser, biverkningar, sömn och återhämtning kan jämföras utan att påstå orsakssamband
 - [ ] Lägga till integritetsvänlig export och säker lokal lagring för läkemedels- och viktjournal
+
+
+## Uppdatering 2026-11-16 – Fler HealthKit-mått
+- [x] Begära läsbehörighet för andningsfrekvens och syremättnad
+- [x] Hämta senaste tillgängliga värden från HealthKit
+- [x] Visa värdena separat i Hälsa-fliken
+- [x] Formatera syremättnad från HealthKit-andel till procent
+- [x] Behålla saknade/ogiltiga värden som saknade
+- [ ] Verifiera datatillgänglighet och enheter på fysisk iPhone/Apple Watch
