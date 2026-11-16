@@ -548,3 +548,18 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 ### Kvar
 - CI för ändringen ska godkännas.
 - Verifiera datatillgänglighet och faktiska enheter på fysisk iPhone/Apple Watch.
+
+
+## 2026-11-16 – Mätningarnas aktualitet
+
+- Andningsfrekvens och syremättnad hämtas nu som värde tillsammans med HealthKit-sampelns sluttid.
+- Hälsovyn visar separat datum och klockslag för respektive mätning.
+- Gränssnittet förtydligar att senaste registrerade mätning inte nödvändigtvis är ett realtidsvärde.
+- Saknad mätning visas som saknad, utan att skapa en påhittad tidsstämpel.
+- Simulatorbygge och enhetstester för denna ändring inväntar aktuell CI-körning.
+
+## 2026-11-16 – CI-kö
+
+- GitHub Actions har fått en concurrency-grupp per workflow och branch.
+- En ny push på samma branch ska avbryta äldre överflödiga byggen så att endast senaste koden prioriteras.
+- Äldre körningar som startats innan regeln infördes kan fortfarande behöva avslutas separat.
