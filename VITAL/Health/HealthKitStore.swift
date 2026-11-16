@@ -10,7 +10,6 @@ final class HealthKitStore: ObservableObject {
     @Published private(set) var backgroundSleepDeliveryEnabled = false
     @Published private(set) var lastError: String?
     @Published private(set) var morningReport: DailyReportSnapshot?
-    @Published private(set) var eveningReport: DailyReportSnapshot?
     @Published private(set) var reportHistory: [DailyReportSnapshot] = []
     private let store = HKHealthStore()
     private let baselineCalendar = Calendar.current
@@ -169,7 +168,6 @@ final class HealthKitStore: ObservableObject {
         reportArchive = decoded
         reportHistory = Array(decoded.snapshots.reversed())
         morningReport = decoded.snapshot(for: Date(), kind: .morning)
-        eveningReport = decoded.snapshot(for: Date(), kind: .evening)
     }
 
     /// Freeze the first eligible morning snapshot for the local wake-up day.
