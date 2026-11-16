@@ -212,3 +212,12 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Åtgärd i commit `88bcdd9e6638ecb3979e10619f152254d128d50a`: endast systoliskt och diastoliskt `HKQuantityType` begärs i read-authorization. Den befintliga korrelationsfrågan för att läsa ihop parade värden är kvar.
 - Ny simulator- och CI-verifiering återstår. Inga IPA-steg kördes i den misslyckade körningen eftersom smoke-testet stoppade workflow.
 - Notering: loggen innehåller även HealthKit-meddelanden om saknat HealthKit-entitlement i simulatorn. Dessa ska utvärderas separat efter att auktoriseringsundantaget är borta; de var inte den utlösande NSInvalidArgumentException som avslutade processen.
+
+
+## 2026-11-16 – Återhämtningsfokuserad dashboard, första iteration
+- Kodändring: dashboarden har fått huvudkortet Dagens återhämtning, kompakt nattlig sömn/HRV-rad och dagsråd; rapportsektionen och stressplatshållaren har tagits bort från startsidan.
+- Relevanta kodcommits: `b12e4691c0c71200defd24b4305dd3d853af9f8f` och `630c2f82653f4b3c813c861dcc906be68b38e304`.
+- En CI-körning för mellanliggande kodcommit avbröts på grund av efterföljande commit/concurrency. Den nya dokumentationscommiten används för att starta verifiering mot aktuell gren.
+- Simulatorbuild och enhetstester för den nya dashboarden: inväntar aktuell CI.
+- Visuell granskning i simulator och fysisk iPhone: ej utförd.
+- Status: Implementerat i källkod, ännu inte verifierat.
