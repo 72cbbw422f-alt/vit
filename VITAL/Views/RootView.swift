@@ -193,6 +193,18 @@ private struct HealthOverviewView: View {
                                 }
                             }
                         }
+                        VITALCard {
+                            VStack(alignment: .leading, spacing: 14) {
+                                Label("Andning & syresättning", systemImage: "lungs.fill")
+                                    .font(.headline).foregroundStyle(VITALPalette.cloud)
+                                HStack(spacing: 12) {
+                                    HealthValueTile(title: "Andningsfrekvens", value: health.snapshot.respiratoryRateText, tint: VITALPalette.violet)
+                                    HealthValueTile(title: "Syremättnad", value: health.snapshot.oxygenSaturationText, tint: VITALPalette.teal)
+                                }
+                                Text("Senaste tillgängliga mätningar från Apple Hälsa. Saknade värden visas som streck.")
+                                    .font(.caption).foregroundStyle(VITALPalette.muted)
+                            }
+                        }
                         weightCard
                         waterTrackerCard
                         medicationCard
