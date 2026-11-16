@@ -39,10 +39,11 @@ final class HealthKitStore: ObservableObject {
         var readTypes: Set<HKObjectType> = [sleep, resting, hrv, heartRate, steps, energy, weight]
         let systolicType = HKObjectType.quantityType(forIdentifier: .bloodPressureSystolic)
         let diastolicType = HKObjectType.quantityType(forIdentifier: .bloodPressureDiastolic)
-        let bloodPressureCorrelation = HKObjectType.correlationType(forIdentifier: .bloodPressure)
+        // Blood pressure correlations are queried as a paired sample below,
+        // but iOS rejects the correlation type in requestAuthorization(read:).
+        // Request read access for the systolic and diastolic quantity types only.
         if let systolicType { readTypes.insert(systolicType) }
         if let diastolicType { readTypes.insert(diastolicType) }
-        if let bloodPressureCorrelation { readTypes.insert(bloodPressureCorrelation) }
         if let respiratoryRate = HKObjectType.quantityType(forIdentifier: .respiratoryRate) {
             readTypes.insert(respiratoryRate)
         }
