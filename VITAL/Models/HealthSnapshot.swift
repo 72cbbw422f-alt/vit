@@ -9,6 +9,10 @@ struct HealthSnapshot {
     var steps: Double?
     var activeEnergy: Double?
     var latestWeight: Double?
+    /// Latest HealthKit respiratory rate in breaths per minute.
+    var respiratoryRate: Double?
+    /// Latest HealthKit oxygen saturation as a fraction (0.0–1.0).
+    var oxygenSaturation: Double?
     var restingHeartRateBaseline: PersonalBaseline?
     var hrvBaseline: PersonalBaseline?
     var sleepBaseline: PersonalBaseline?
@@ -53,6 +57,15 @@ struct HealthSnapshot {
     var hrvText: String {
         guard let hrv else { return "—" }
         return "\(Int(hrv.rounded())) ms"
+    }
+    var respiratoryRateText: String {
+        guard let respiratoryRate, respiratoryRate.isFinite, respiratoryRate > 0 else { return "—" }
+        return "\(Int(respiratoryRate.rounded())) andetag/min"
+    }
+    var oxygenSaturationText: String {
+        guard let oxygenSaturation, oxygenSaturation.isFinite,
+              (0...1).contains(oxygenSaturation) else { return "—" }
+        return "\(Int((oxygenSaturation * 100).rounded())) %"
     }
 }
 
