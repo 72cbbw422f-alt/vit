@@ -37,7 +37,7 @@ jobs:
             build
       - name: Launch app in iOS Simulator
         run: |
-          DEVICE_ID="$(xcrun simctl list devices available | grep -m1 -E 'iPhone .*\\([A-F0-9-]+\\)' | sed -E 's/.*\\(([A-F0-9-]+)\\).*/\\1/')"
+          DEVICE_ID="$(xcrun simctl list devices available | awk -F '[()]' '/iPhone/ {print $2; exit}')"
           test -n "$DEVICE_ID"
           xcrun simctl boot "$DEVICE_ID" 2>/dev/null || true
           xcrun simctl bootstatus "$DEVICE_ID" -b
