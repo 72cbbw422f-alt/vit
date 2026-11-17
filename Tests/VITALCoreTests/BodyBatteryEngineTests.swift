@@ -96,8 +96,14 @@ final class BodyBatteryEngineTests: XCTestCase {
             overnightRecoveryScore: 80, restingHeartRateBaselineBPM: 60,
             heartRateSamples: samples([62, 62, 62, 62, 62], spacing: 900),
             activeEnergySamples: [
-                TimedHealthValue(timestamp: wake.addingTimeInterval(1800), value: 80,
-                                 startTimestamp: wake.addingTimeInterval(900))
+                TimedHealthValue(timestamp: wake.addingTimeInterval(900), value: 20,
+                                 startTimestamp: wake),
+                TimedHealthValue(timestamp: wake.addingTimeInterval(1800), value: 20,
+                                 startTimestamp: wake.addingTimeInterval(900)),
+                TimedHealthValue(timestamp: wake.addingTimeInterval(2700), value: 20,
+                                 startTimestamp: wake.addingTimeInterval(1800)),
+                TimedHealthValue(timestamp: wake.addingTimeInterval(3600), value: 20,
+                                 startTimestamp: wake.addingTimeInterval(2700))
             ]
         ))
         XCTAssertEqual(result.recoveryGain, 0, accuracy: 0.001)
