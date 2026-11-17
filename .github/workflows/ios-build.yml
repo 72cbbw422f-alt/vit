@@ -14,7 +14,7 @@ concurrency:
 jobs:
   build:
     runs-on: macos-15
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,30 +36,6 @@ jobs:
             -derivedDataPath "$RUNNER_TEMP/VITAL-Simulator" \
             CODE_SIGNING_ALLOWED=NO \
             build
-      - name: Launch app in iOS Simulator
-        timeout-minutes: 5
-        run: |
-          DEVICE_ID="$(xcrun simctl list devices available | awk -F '[()]' '/iPhone/ {print $2; exit}')"
-          test -n "$DEVICE_ID"
-          xcrun simctl boot "$DEVICE_ID" 2>/dev/null || true
-          xcrun simctl bootstatus "$DEVICE_ID" -b
-          APP="$RUNNER_TEMP/VITAL-Simulator/Build/Products/Debug-iphonesimulator/VITAL.app"
-          test -d "$APP"
-          xcrun simctl install "$DEVICE_ID" "$APP"
-          LAUNCH_OUTPUT="$(xcrun simctl launch "$DEVICE_ID" se.vital.health)"
-          echo "$LAUNCH_OUTPUT"
-          APP_PID="$(printf '%s\n' "$LAUNCH_OUTPUT" | awk -F': ' '/se.vital.health:/ {print $NF; exit}')"
-          if ! [[ "$APP_PID" =~ ^[0-9]+$ ]]; then
-            echo "Could not read VITAL process ID from simulator launch output."
-            exit 1
-          fi
-          sleep 8
-          if ! xcrun simctl spawn "$DEVICE_ID" /bin/kill -0 "$APP_PID"; then
-            xcrun simctl spawn "$DEVICE_ID" log show --last 2m --style compact --predicate 'process == "VITAL"' || true
-            echo "VITAL process $APP_PID exited shortly after launch."
-            exit 1
-          fi
-          echo "VITAL remained running in the simulator (PID $APP_PID)."
       - name: Archive unsigned iOS device build (validation only)
         run: |
           xcodebuild \
@@ -74,6 +50,7 @@ jobs:
           APP="$RUNNER_TEMP/VITAL-unsigned.xcarchive/Products/Applications/VITAL.app"
           test -s "$APP/Assets.car"
           /usr/libexec/PlistBuddy -c 'Print :CFBundleIcons:CFBundlePrimaryIcon:CFBundleIconName' "$APP/Info.plist" >/dev/null
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist"
       - name: Package unsigned IPA for sideload signing
         run: |
           mkdir -p "$RUNNER_TEMP/ipa/Payload"
@@ -81,6 +58,7 @@ jobs:
           test -d "$RUNNER_TEMP/ipa/Payload/VITAL.app"
           (cd "$RUNNER_TEMP/ipa" && /usr/bin/zip -qry "$RUNNER_TEMP/VITAL-unsigned.ipa" Payload)
           test -s "$RUNNER_TEMP/VITAL-unsigned.ipa"
+          /usr/bin/unzip -l "$RUNNER_TEMP/VITAL-unsigned.ipa"
       - name: Upload unsigned IPA for sideload signing
         uses: actions/upload-artifact@v4
         with:
@@ -95,3 +73,29 @@ jobs:
           path: ${{ runner.temp }}/VITAL-unsigned.xcarchive
           if-no-files-found: error
           retention-days: 7
+      # Run the simulator smoke test after packaging so a slow first simulator boot
+      # cannot prevent delivery of the unsigned device IPA artifact.
+      - name: Launch app in iOS Simulator
+        timeout-minutes: 10
+        run: |
+          DEVICE_ID="$(xcrun simctl list devices available | awk -F '[()]' '/iPhone/ {print $2; exit}')"
+          test -n "$DEVICE_ID"
+          xcrun simctl boot "$DEVICE_ID" 2>/dev/null || true
+          xcrun simctl bootstatus "$DEVICE_ID" -b
+          APP="$RUNNER_TEMP/VITAL-Simulator/Build/Products/Debug-iphonesimulator/VITAL.app"
+          test -d "$APP"
+          xcrun simctl install "$DEVICE_ID" "$APP"
+          LAUNCH_OUTPUT="$(xcrun simctl launch "$DEVICE_ID" se.vital.health)"
+          echo "$LAUNCH_OUTPUT"
+          APP_PID="$(printf '%s\\n' "$LAUNCH_OUTPUT" | awk -F': ' '/se.vital.health:/ {print $NF; exit}')"
+          if ! [[ "$APP_PID" =~ ^[0-9]+$ ]]; then
+            echo "Could not read VITAL process ID from simulator launch output."
+            exit 1
+          fi
+          sleep 8
+          if ! xcrun simctl spawn "$DEVICE_ID" /bin/kill -0 "$APP_PID"; then
+            xcrun simctl spawn "$DEVICE_ID" log show --last 2m --style compact --predicate 'process == "VITAL"' || true
+            echo "VITAL process $APP_PID exited shortly after launch."
+            exit 1
+          fi
+          echo "VITAL remained running in the simulator (PID $APP_PID)."
