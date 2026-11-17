@@ -72,7 +72,9 @@ final class BodyBatteryEngineTests: XCTestCase {
                 TimedHealthValue(timestamp: wake.addingTimeInterval(1800), value: 100,
                                  startTimestamp: wake.addingTimeInterval(1200)),
                 TimedHealthValue(timestamp: wake.addingTimeInterval(4000), value: 500,
-                                 startTimestamp: wake.addingTimeInterval(3700))
+                                 startTimestamp: wake.addingTimeInterval(3700)),
+                TimedHealthValue(timestamp: wake.addingTimeInterval(2000), value: 900,
+                                 startTimestamp: wake.addingTimeInterval(2500))
             ]
         ))
         XCTAssertEqual(result.activeEnergyKcal, 100, accuracy: 0.001)
