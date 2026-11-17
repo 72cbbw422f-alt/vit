@@ -68,7 +68,7 @@ enum BodyBatteryEngine {
             cardiovascularLoad += (elevation / 60) * hours * 18
             let nextElevation = max(next.value - resting, 0)
             let averageHeartRate = (current.value + next.value) / 2
-            let hasActivity = input.activeEnergySamples.contains { sample in
+            let hasActivity = energySamples.contains { sample in
                 guard Self.isValidEnergySample(sample) else { return false }
                 let sampleStart = sample.startTimestamp ?? sample.timestamp
                 return sampleStart < next.timestamp && sample.timestamp > current.timestamp
@@ -79,13 +79,12 @@ enum BodyBatteryEngine {
             }
         }
 
-        let energy = input.activeEnergySamples
-            .filter {
-                let intervalStart = $0.startTimestamp ?? $0.timestamp
-                return Self.isValidEnergySample($0) &&
-                    intervalStart >= input.wakeTime && $0.timestamp <= input.asOf
-            }
-            .reduce(0) { $0 + $1.value }
+        let energySamples = Self.nonOverlappingEnergySamples(
+            input.activeEnergySamples,
+            wakeTime: input.wakeTime,
+            asOf: input.asOf
+        )
+        let energy = energySamples.reduce(0) { $0 + $1.value }
         guard energy.isFinite, cardiovascularLoad.isFinite else {
             return BodyBatteryResult(score: nil, heartRateSampleCount: heartRates.count,
                 activeEnergyKcal: 0, cardiovascularLoad: 0, activityLoad: 0, recoveryGain: 0,
@@ -106,6 +105,34 @@ enum BodyBatteryEngine {
             activeEnergyKcal: energy, cardiovascularLoad: cardiovascularLoad,
             activityLoad: activityLoad, recoveryGain: recoveryGain,
             explanation: "Provisorisk uppskattning från morgonens återhämtning, pulsbelastning, aktiv energi och sammanhängande viloperioder. Beräkningen är en förenklad välmåendemodell.")
+    }
+
+    private static func nonOverlappingEnergySamples(
+        _ samples: [TimedHealthValue],
+        wakeTime: Date,
+        asOf: Date
+    ) -> [TimedHealthValue] {
+        let candidates = samples.filter { sample in
+            let start = sample.startTimestamp ?? sample.timestamp
+            return isValidEnergySample(sample) && start >= wakeTime && sample.timestamp <= asOf
+        }.sorted {
+            let lhsStart = $0.startTimestamp ?? $0.timestamp
+            let rhsStart = $1.startTimestamp ?? $1.timestamp
+            if lhsStart == rhsStart { return $0.timestamp < $1.timestamp }
+            return lhsStart < rhsStart
+        }
+
+        var accepted: [TimedHealthValue] = []
+        var occupiedUntil = wakeTime
+        for sample in candidates {
+            let start = sample.startTimestamp ?? sample.timestamp
+            // HealthKit may return overlapping energy intervals from multiple sources.
+            // Keep the first interval and conservatively discard later overlaps.
+            guard start >= occupiedUntil else { continue }
+            accepted.append(sample)
+            occupiedUntil = max(occupiedUntil, sample.timestamp)
+        }
+        return accepted
     }
 
     private static func isValidEnergySample(_ sample: TimedHealthValue) -> Bool {
