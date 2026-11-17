@@ -16,6 +16,8 @@ final class HealthKitStore: ObservableObject {
     private var sleepObserverQuery: HKObserverQuery?
     private let reportArchiveKey = "vital.dailyReportArchive.v1"
     private var reportArchive = ReportSnapshotArchive()
+    private var isRefreshing = false
+    private var refreshRequestedAgain = false
 
     func requestAccessAndRefresh() async {
         guard isAvailable else {
@@ -91,6 +93,12 @@ final class HealthKitStore: ObservableObject {
     }
 
     func refresh() async {
+        // Coalesce overlapping foreground/background refresh requests into one follow-up pass.
+        guard !isRefreshing else {
+            refreshRequestedAgain = true
+            return
+        }
+        isRefreshing = true
         lastError = nil
         let now = Date()
         async let sleepSessionValue = latestSleepSession()
@@ -158,6 +166,11 @@ final class HealthKitStore: ObservableObject {
             ))
         }
         snapshot = updatedSnapshot
+        isRefreshing = false
+        if refreshRequestedAgain {
+            refreshRequestedAgain = false
+            await refresh()
+        }
     }
 
 
