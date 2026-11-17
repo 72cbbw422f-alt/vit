@@ -18,6 +18,7 @@ struct BodyBatteryResult {
     let activeEnergyKcal: Double
     let cardiovascularLoad: Double
     let activityLoad: Double
+    let recoveryGain: Double
     let explanation: String
 }
 
@@ -25,6 +26,9 @@ enum BodyBatteryEngine {
     static let maximumHeartRateGap: TimeInterval = 15 * 60
     static let minimumHeartRateSamples = 3
     static let minimumHeartRateSpan: TimeInterval = 30 * 60
+    static let recoveryHeartRateMarginBPM = 5.0
+    static let recoveryPointsPerHour = 1.5
+    static let maximumDailyRecoveryGain = 12.0
 
     /// Estimates remaining daytime capacity from the morning recovery score.
     /// HR load integrates elevation above personal resting HR over sample intervals;
@@ -52,6 +56,7 @@ enum BodyBatteryEngine {
         }
 
         var cardiovascularLoad = 0.0
+        var recoveryHours = 0.0
         for index in 0..<(heartRates.count - 1) {
             let current = heartRates[index]
             let next = heartRates[index + 1]
@@ -60,6 +65,17 @@ enum BodyBatteryEngine {
             let hours = interval / 3600
             let elevation = max(current.value - resting, 0)
             cardiovascularLoad += (elevation / 60) * hours * 18
+            let nextElevation = max(next.value - resting, 0)
+            let averageHeartRate = (current.value + next.value) / 2
+            let hasActivity = input.activeEnergySamples.contains { sample in
+                let sampleStart = sample.startTimestamp ?? sample.timestamp
+                return sampleStart < next.timestamp && sample.timestamp > current.timestamp &&
+                    sample.value.isFinite && sample.value > 0
+            }
+            if averageHeartRate <= resting + recoveryHeartRateMarginBPM,
+               nextElevation <= recoveryHeartRateMarginBPM, !hasActivity {
+                recoveryHours += hours
+            }
         }
 
         let energy = input.activeEnergySamples
@@ -70,13 +86,14 @@ enum BodyBatteryEngine {
             }
             .reduce(0) { $0 + $1.value }
         let activityLoad = energy * 0.025
+        let recoveryGain = min(recoveryHours * recoveryPointsPerHour, maximumDailyRecoveryGain)
         let totalLoad = cardiovascularLoad + activityLoad
-        let score = max(0, min(100, Int((Double(start) - totalLoad).rounded())))
+        let score = max(0, min(100, Int((Double(start) - totalLoad + recoveryGain).rounded())))
 
         return BodyBatteryResult(score: score, heartRateSampleCount: heartRates.count,
             activeEnergyKcal: energy, cardiovascularLoad: cardiovascularLoad,
-            activityLoad: activityLoad,
-            explanation: "Provisorisk uppskattning från morgonens återhämtning, pulsbelastning och aktiv energi. Modellen laddar ännu inte upp under vila.")
+            activityLoad: activityLoad, recoveryGain: recoveryGain,
+            explanation: "Provisorisk uppskattning från morgonens återhämtning, pulsbelastning, aktiv energi och sammanhängande viloperioder. Beräkningen är en förenklad välmåendemodell.")
     }
 
     private static func unavailable(_ explanation: String) -> BodyBatteryResult {

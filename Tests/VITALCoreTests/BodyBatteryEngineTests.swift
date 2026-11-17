@@ -78,6 +78,41 @@ final class BodyBatteryEngineTests: XCTestCase {
         XCTAssertEqual(result.activeEnergyKcal, 100, accuracy: 0.001)
     }
 
+
+    func testSustainedRestNearPersonalRestingRateAddsRecovery() {
+        let result = BodyBatteryEngine.calculate(BodyBatteryInputs(
+            wakeTime: wake, asOf: wake.addingTimeInterval(3600),
+            overnightRecoveryScore: 80, restingHeartRateBaselineBPM: 60,
+            heartRateSamples: samples([62, 62, 62, 62, 62], spacing: 900),
+            activeEnergySamples: []
+        ))
+        XCTAssertEqual(result.recoveryGain, 1.5, accuracy: 0.001)
+        XCTAssertGreaterThan(result.score ?? 0, 80)
+    }
+
+    func testActivityIntervalsDoNotEarnRestRecovery() {
+        let result = BodyBatteryEngine.calculate(BodyBatteryInputs(
+            wakeTime: wake, asOf: wake.addingTimeInterval(3600),
+            overnightRecoveryScore: 80, restingHeartRateBaselineBPM: 60,
+            heartRateSamples: samples([62, 62, 62, 62, 62], spacing: 900),
+            activeEnergySamples: [
+                TimedHealthValue(timestamp: wake.addingTimeInterval(1800), value: 80,
+                                 startTimestamp: wake.addingTimeInterval(900))
+            ]
+        ))
+        XCTAssertEqual(result.recoveryGain, 0, accuracy: 0.001)
+    }
+
+    func testDailyRecoveryGainIsCapped() {
+        let result = BodyBatteryEngine.calculate(BodyBatteryInputs(
+            wakeTime: wake, asOf: wake.addingTimeInterval(8 * 3600),
+            overnightRecoveryScore: 80, restingHeartRateBaselineBPM: 60,
+            heartRateSamples: samples(Array(repeating: 60, count: 33), spacing: 900),
+            activeEnergySamples: []
+        ))
+        XCTAssertEqual(result.recoveryGain, BodyBatteryEngine.maximumDailyRecoveryGain, accuracy: 0.001)
+    }
+
     private func samples(_ values: [Double], spacing: TimeInterval = 900) -> [TimedHealthValue] {
         values.enumerated().map {
             TimedHealthValue(timestamp: wake.addingTimeInterval(Double($0.offset) * spacing), value: $0.element)
