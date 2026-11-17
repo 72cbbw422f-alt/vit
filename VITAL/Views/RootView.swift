@@ -22,7 +22,7 @@ private func decodeJournal<T: Decodable>(_ type: T.Type, key: String) -> T? {
 struct RootView: View {
     var body: some View {
         TabView {
-            DashboardView().tabItem { Label("Idag", systemImage: "house.fill") }
+            VITALDashboardView().tabItem { Label("Idag", systemImage: "house.fill") }
             InsightsView().tabItem { Label("Insikter", systemImage: "chart.xyaxis.line") }
             ActivityView().tabItem { Label("Aktivitet", systemImage: "figure.walk") }
             HealthOverviewView().tabItem { Label("Hälsa", systemImage: "heart.text.square") }
