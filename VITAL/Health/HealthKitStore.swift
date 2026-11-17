@@ -91,6 +91,7 @@ final class HealthKitStore: ObservableObject {
     }
 
     func refresh() async {
+        lastError = nil
         let now = Date()
         async let sleepSessionValue = latestSleepSession()
         async let overnightHRVSamples = recentTimedQuantitySamples(.heartRateVariabilitySDNN, unit: .secondUnit(with: .milli))
@@ -208,6 +209,15 @@ final class HealthKitStore: ObservableObject {
         UserDefaults.standard.set(data, forKey: reportArchiveKey)
         reportHistory = Array(reportArchive.snapshots.reversed())
         morningReport = candidate
+    }
+
+    private func recordQueryError(_ error: Error, context: String) {
+        let message = "\(context): \(error.localizedDescription)"
+        if let existing = lastError, !existing.contains(message) {
+            lastError = existing + "\n" + message
+        } else {
+            lastError = message
+        }
     }
 
     private func loadPersonalBaselines(asOf date: Date) async -> (resting: PersonalBaseline, hrv: PersonalBaseline, sleep: PersonalBaseline) {
@@ -374,7 +384,14 @@ final class HealthKitStore: ObservableObject {
         let predicate = HKQuery.predicateForSamples(withStart: start, end: end)
         return await withCheckedContinuation { continuation in
             let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit,
-                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { _, samples, _ in
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { [weak self] _, samples, error in
+                    if let error {
+                        Task { @MainActor [weak self] in
+                            self?.recordQueryError(error, context: "Sömndata")
+                        }
+                        continuation.resume(returning: nil)
+                        return
+                    }
                     let asleepValues = [
                         HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue,
                         HKCategoryValueSleepAnalysis.asleepCore.rawValue,
