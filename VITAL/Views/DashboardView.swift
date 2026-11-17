@@ -48,114 +48,61 @@ struct DashboardView: View {
         }
     }
     private var statusCard: some View {
-        let summary = health.morningReport
-        let guidance = RecoveryGuidancePolicy.evaluate(
-            sleep: summary?.sleepComponentScore,
-            hrv: summary?.hrvComponentScore,
-            restingPulse: summary?.restingPulseComponentScore
-        )
-        let score = summary?.recoveryScore
+        let recovery = health.snapshot.recoveryResult
+        let guidance = RecoveryGuidancePolicy.evaluate(sleep: recovery.sleepComponent, hrv: recovery.hrvComponent, restingPulse: recovery.restingPulseComponent)
         let statusTint = guidance.hasAttentionSignal ? VITALPalette.amber : VITALPalette.teal
-
         return VITALCard {
             VStack(alignment: .leading, spacing: 16) {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("DAGENS ÅTERHÄMTNING")
-                            .font(.subheadline.weight(.semibold)).tracking(0.7)
-                            .foregroundStyle(VITALPalette.muted)
-                        Text("Fryst sammanfattning av nattens data")
-                            .font(.caption).foregroundStyle(VITALPalette.muted)
+                        Text("NATTENS ÅTERHÄMTNING").font(.subheadline.weight(.semibold)).tracking(0.7).foregroundStyle(VITALPalette.muted)
+                        Text("Jämfört med din personliga baslinje").font(.caption).foregroundStyle(VITALPalette.muted)
                     }
                     Spacer()
-                    Image(systemName: "sparkles")
-                        .font(.title3.weight(.semibold))
-                        .foregroundStyle(statusTint)
-                        .frame(width: 42, height: 42)
-                        .background(statusTint.opacity(0.13), in: RoundedRectangle(cornerRadius: 14))
+                    Image(systemName: "moon.stars.fill").font(.title3.weight(.semibold)).foregroundStyle(statusTint)
+                        .frame(width: 42, height: 42).background(statusTint.opacity(0.13), in: RoundedRectangle(cornerRadius: 14))
                 }
-
                 HStack(spacing: 18) {
-                    ScoreRing(score: score, tint: statusTint, size: 112)
+                    ScoreRing(score: recovery.score, tint: statusTint, size: 112)
                     VStack(alignment: .leading, spacing: 6) {
-                        Text(score.map(String.init) ?? "—")
-                            .font(.system(size: 42, weight: .bold, design: .rounded))
-                            .foregroundStyle(VITALPalette.cloud).monospacedDigit()
-                        Text("AV 100")
-                            .font(.caption.weight(.bold)).tracking(0.8)
-                            .foregroundStyle(statusTint)
-                        Text(summary == nil ? "Inväntar morgonsammanfattning" : guidance.title)
-                            .font(.headline.weight(.semibold))
-                            .foregroundStyle(VITALPalette.cloud)
+                        Text(recovery.score.map(String.init) ?? "—").font(.system(size: 42, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud).monospacedDigit()
+                        Text("AV 100").font(.caption.weight(.bold)).tracking(0.8).foregroundStyle(statusTint)
+                        Text(guidance.title).font(.headline.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
                     }
                 }
-
-                Text(summary == nil
-                     ? "Sammanfattningen skapas när huvudsömnen har registrerats och nattens data har hunnit synkroniseras."
-                     : guidance.detail)
-                    .font(.subheadline).foregroundStyle(VITALPalette.muted)
-                    .fixedSize(horizontal: false, vertical: true)
-
+                Text(recovery.score == nil ? recovery.explanation : guidance.detail).font(.subheadline).foregroundStyle(VITALPalette.muted).fixedSize(horizontal: false, vertical: true)
                 if !guidance.attentionSignals.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
-                        Label("VÄRT ATT UPPMÄRKSAMMA", systemImage: "exclamationmark.circle")
-                            .font(.caption2.weight(.bold)).tracking(0.6)
-                            .foregroundStyle(VITALPalette.amber)
+                        Label("VÄRT ATT UPPMÄRKSAMMA", systemImage: "exclamationmark.circle").font(.caption2.weight(.bold)).tracking(0.6).foregroundStyle(VITALPalette.amber)
                         ForEach(guidance.attentionSignals, id: \.self) { signal in
                             HStack(alignment: .top, spacing: 8) {
                                 Circle().fill(VITALPalette.amber).frame(width: 6, height: 6).padding(.top, 6)
                                 Text(signal).font(.caption).foregroundStyle(VITALPalette.cloud)
                             }
                         }
-                    }
-                    .padding(12)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(VITALPalette.amber.opacity(0.09), in: RoundedRectangle(cornerRadius: 15))
+                    }.padding(12).frame(maxWidth: .infinity, alignment: .leading).background(VITALPalette.amber.opacity(0.09), in: RoundedRectangle(cornerRadius: 15))
                 }
-
                 HStack(spacing: 10) {
-                    Image(systemName: guidance.hasAttentionSignal ? "leaf" : "figure.walk")
-                        .font(.headline).foregroundStyle(statusTint)
-                        .frame(width: 34, height: 34)
-                        .background(statusTint.opacity(0.13), in: RoundedRectangle(cornerRadius: 11))
+                    Image(systemName: guidance.hasAttentionSignal ? "leaf" : "figure.walk").font(.headline).foregroundStyle(statusTint).frame(width: 34, height: 34).background(statusTint.opacity(0.13), in: RoundedRectangle(cornerRadius: 11))
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("DAGENS RÅD")
-                            .font(.caption2.weight(.bold)).tracking(0.7)
-                            .foregroundStyle(statusTint)
-                        Text(guidance.recommendation)
-                            .font(.subheadline.weight(.medium))
-                            .foregroundStyle(VITALPalette.cloud)
-                            .fixedSize(horizontal: false, vertical: true)
+                        Text("DAGENS RÅD").font(.caption2.weight(.bold)).tracking(0.7).foregroundStyle(statusTint)
+                        Text(guidance.recommendation).font(.subheadline.weight(.medium)).foregroundStyle(VITALPalette.cloud).fixedSize(horizontal: false, vertical: true)
                     }
-                }
-                .padding(13)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(VITALPalette.surfaceRaised, in: RoundedRectangle(cornerRadius: 16))
-
+                }.padding(13).frame(maxWidth: .infinity, alignment: .leading).background(VITALPalette.surfaceRaised, in: RoundedRectangle(cornerRadius: 16))
                 HStack(spacing: 7) {
                     Image(systemName: "moon.stars")
-                    Text(summary?.sleepDurationSeconds.map(Self.formatSleepDuration) ?? "—")
+                    Text(health.snapshot.sleepText)
                     Spacer()
                     Text("HRV")
-                    Text(summary?.hrvMilliseconds.map { "\(Int($0.rounded())) ms" } ?? "—")
+                    Text(health.snapshot.overnightHRV.map { "\(Int($0.rounded())) ms" } ?? "—")
                     Text("·")
                     Text("Vilopuls")
-                    Text(summary?.restingHeartRateBPM.map { "\(Int($0.rounded())) bpm" } ?? "—")
-                }
-                .font(.caption.weight(.medium))
-                .foregroundStyle(VITALPalette.muted)
-
-                if let summary {
-                    Text("Sparad \(summary.capturedAt.formatted(date: .omitted, time: .shortened)) · värdena ändras inte under dagen")
-                        .font(.caption2).foregroundStyle(VITALPalette.muted)
-                } else {
-                    Text("Personlig baslinje · \(baselineStatus)")
-                        .font(.caption2).foregroundStyle(VITALPalette.amber)
-                }
+                    Text(health.snapshot.overnightRestingHeartRate.map { "\(Int($0.rounded())) bpm" } ?? "—")
+                }.font(.caption.weight(.medium)).foregroundStyle(VITALPalette.muted)
+                Text("Över natten · Kroppsbatteriet följer dagens förändringar separat").font(.caption2).foregroundStyle(VITALPalette.muted)
             }
         }
     }
-
     private static func formatSleepDuration(_ duration: TimeInterval) -> String {
         let totalMinutes = max(0, Int(duration) / 60)
         return "\(totalMinutes / 60) h \(String(format: "%02d", totalMinutes % 60)) min"
@@ -255,9 +202,10 @@ struct DashboardView: View {
     }
     private var metricGrid: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-            MetricCard(title: "SÖMN", value: health.snapshot.sleepText, detail: health.snapshot.sleepDuration == nil ? "Ingen sömndata" : "Apple Hälsa", accent: VITALPalette.violet)
-            MetricCard(title: "HRV", value: health.snapshot.hrvText, detail: health.snapshot.hrv == nil ? "Ingen mätning" : "Senaste registrering", accent: VITALPalette.teal)
-            MetricCard(title: "VILOPULS", value: health.snapshot.restingHeartRateText, detail: health.snapshot.restingHeartRate == nil ? "Ingen mätning" : "Senaste registrering", accent: VITALPalette.teal)
+            MetricCard(title: "SÖMN", value: health.snapshot.sleepText, detail: health.snapshot.sleepDuration == nil ? "Ingen sömndata" : "Senaste huvudsömn", accent: VITALPalette.violet)
+            MetricCard(title: "NATT-HRV", value: health.snapshot.overnightHRV.map { "\(Int($0.rounded())) ms" } ?? "—", detail: health.snapshot.overnightHRV == nil ? "Ingen nattmätning" : "Under sömn", accent: VITALPalette.teal)
+            MetricCard(title: "NATTPULS", value: health.snapshot.overnightRestingHeartRate.map { "\(Int($0.rounded())) bpm" } ?? "—", detail: health.snapshot.overnightRestingHeartRate == nil ? "Ingen nattmätning" : "Under sömn", accent: VITALPalette.teal)
+            MetricCard(title: "SENASTE HRV", value: health.snapshot.hrvText, detail: health.snapshot.hrv == nil ? "Ingen mätning" : "Senaste registrering", accent: VITALPalette.violet)
         }
     }
     private var energyCard: some View {
