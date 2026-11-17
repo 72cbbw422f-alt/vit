@@ -225,8 +225,14 @@ struct DashboardView: View {
                     }
                     Spacer()
                 }
-                Text(battery?.score == nil ? "Inväntar tillräckligt underlag" : "Dagens beräknade energinivå")
-                    .font(.caption).foregroundStyle(VITALPalette.muted)
+                if let battery, battery.score == nil {
+                    Text(battery.explanation)
+                        .font(.caption).foregroundStyle(VITALPalette.muted)
+                        .fixedSize(horizontal: false, vertical: true)
+                } else {
+                    Text("Dagens beräknade energinivå")
+                        .font(.caption).foregroundStyle(VITALPalette.muted)
+                }
                 if let battery, battery.score != nil {
                     HStack(spacing: 8) {
                         Label("\(battery.heartRateSampleCount) pulsmätningar", systemImage: "heart")
