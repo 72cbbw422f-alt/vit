@@ -274,15 +274,8 @@ final class HealthKitStore: ObservableObject {
                     let intervals = ((samples as? [HKCategorySample]) ?? [])
                         .filter { asleepValues.contains($0.value) }
                         .map { SleepInterval(start: $0.startDate, end: $0.endDate) }
-                    let sessions = SleepSessionCalculator.sessions(intervals: intervals)
-                    // One representative sleep session per local wake-up date. If there are
-                    // multiple sessions that day, retain the longest; naps are not summed.
-                    let byDay = Dictionary(grouping: sessions) {
-                        Calendar.current.startOfDay(for: $0.end)
-                    }
-                    let daily = byDay.compactMap { day, sessions -> DailyBaselineSample? in
-                        guard let longest = sessions.max(by: { $0.duration < $1.duration }) else { return nil }
-                        return DailyBaselineSample(day: day, value: longest.duration / 3600)
+                    let daily = SleepSessionCalculator.dailyPrimarySessions(intervals: intervals).map {
+                        DailyBaselineSample(day: Calendar.current.startOfDay(for: $0.end), value: $0.duration / 3600)
                     }
                     continuation.resume(returning: daily)
                 }

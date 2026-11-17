@@ -74,6 +74,27 @@ final class SleepSessionCalculatorTests: XCTestCase {
         XCTAssertEqual(selected?.start, date(15, 1, 1))
     }
 
+    func testDailyPrimarySessionsExcludeShortNapsWhenMainSleepExists() {
+        let intervals = [
+            SleepInterval(start: date(14, 22), end: date(15, 6, 30)),
+            SleepInterval(start: date(15, 13), end: date(15, 14))
+        ]
+        let daily = SleepSessionCalculator.dailyPrimarySessions(intervals: intervals)
+        XCTAssertEqual(daily.count, 1)
+        XCTAssertEqual(daily.first?.start, date(14, 22))
+        XCTAssertEqual(daily.first?.duration, 8.5 * 3600)
+    }
+
+    func testDailyPrimarySessionsKeepLongestSessionWhenOnlyShortSleepExists() {
+        let intervals = [
+            SleepInterval(start: date(14, 1), end: date(14, 2)),
+            SleepInterval(start: date(14, 8), end: date(14, 10))
+        ]
+        let daily = SleepSessionCalculator.dailyPrimarySessions(intervals: intervals)
+        XCTAssertEqual(daily.count, 1)
+        XCTAssertEqual(daily.first?.start, date(14, 8))
+    }
+
     func testPrimarySessionUsesLatestEndWhenDurationsTieOnSameDay() {
         let intervals = [
             SleepInterval(start: date(15, 1), end: date(15, 3)),

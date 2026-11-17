@@ -65,6 +65,27 @@ enum SleepSessionCalculator {
         return result.filter { $0.duration > 0 }
     }
 
+    /// Returns one representative main sleep per local wake-up date.
+    /// When a substantial sleep exists, shorter naps are excluded; on days
+    /// containing only short sessions, the longest session is retained.
+    static func dailyPrimarySessions(
+        intervals: [SleepInterval],
+        maximumWakeGap: TimeInterval = 90 * 60,
+        calendar: Calendar = .current
+    ) -> [SleepSession] {
+        let grouped = sessions(intervals: intervals, maximumWakeGap: maximumWakeGap)
+        let byDay = Dictionary(grouping: grouped) { calendar.startOfDay(for: $0.end) }
+        return byDay.keys.sorted().compactMap { day in
+            guard let daySessions = byDay[day] else { return nil }
+            let substantial = daySessions.filter { $0.duration >= minimumPrimarySleepDuration }
+            let candidates = substantial.isEmpty ? daySessions : substantial
+            return candidates.max { lhs, rhs in
+                if lhs.duration == rhs.duration { return lhs.end < rhs.end }
+                return lhs.duration < rhs.duration
+            }
+        }
+    }
+
     /// Selects the main sleep from the most recent local wake-up date.
     /// Within that wake-up date the longest session wins, so a later nap does
     /// not replace the night's sleep and yesterday's longer sleep cannot win
