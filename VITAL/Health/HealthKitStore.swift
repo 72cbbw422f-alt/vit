@@ -68,8 +68,11 @@ final class HealthKitStore: ObservableObject {
               let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else { return }
 
         let query = HKObserverQuery(sampleType: sleepType, predicate: nil) { [weak self] _, completion, error in
-            guard error == nil else {
-                completion()
+            if let error {
+                Task { @MainActor [weak self] in
+                    self?.recordQueryError(error, context: "Sömnsynk i bakgrunden")
+                    completion()
+                }
                 return
             }
             Task { @MainActor [weak self] in
@@ -84,9 +87,9 @@ final class HealthKitStore: ObservableObject {
             Task { @MainActor [weak self] in
                 self?.backgroundSleepDeliveryEnabled = success
                 if let error {
-                    self?.lastError = "Bakgrundsuppdatering av sömndata kunde inte aktiveras: \(error.localizedDescription)"
+                    self?.recordQueryError(error, context: "Bakgrundsuppdatering av sömndata")
                 } else if !success {
-                    self?.lastError = "Apple Hälsa bekräftade inte bakgrundsuppdatering av sömndata."
+                    self?.recordStatusMessage("Apple Hälsa bekräftade inte bakgrundsuppdatering av sömndata.")
                 }
             }
         }
@@ -226,6 +229,14 @@ final class HealthKitStore: ObservableObject {
 
     private func recordQueryError(_ error: Error, context: String) {
         let message = "\(context): \(error.localizedDescription)"
+        if let existing = lastError, !existing.contains(message) {
+            lastError = existing + "\n" + message
+        } else {
+            lastError = message
+        }
+    }
+
+    private func recordStatusMessage(_ message: String) {
         if let existing = lastError, !existing.contains(message) {
             lastError = existing + "\n" + message
         } else {
