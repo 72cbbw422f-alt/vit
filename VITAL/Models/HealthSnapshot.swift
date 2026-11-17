@@ -47,21 +47,21 @@ struct HealthSnapshot {
     }
 
     var sleepText: String {
-        guard let sleepDuration, sleepDuration.isFinite, sleepDuration > 0, sleepDuration < Double(Int.max) else { return "—" }
+        guard let sleepDuration, sleepDuration.isFinite, sleepDuration >= 1800, sleepDuration <= 24 * 3600 else { return "—" }
         let hours = Int(sleepDuration) / 3600
         let minutes = (Int(sleepDuration) % 3600) / 60
         return "\(hours) h \(String(format: "%02d", minutes)) min"
     }
     var stepsText: String {
-        guard let steps, steps.isFinite, steps >= 0, steps < Double(Int.max) else { return "—" }
+        guard let steps, steps.isFinite, steps >= 0, steps <= 200_000 else { return "—" }
         return Int(steps).formatted()
     }
     var restingHeartRateText: String {
-        guard let restingHeartRate, restingHeartRate.isFinite, restingHeartRate > 0, restingHeartRate < Double(Int.max) else { return "—" }
+        guard let restingHeartRate, restingHeartRate.isFinite, (25...220).contains(restingHeartRate) else { return "—" }
         return "\(Int(restingHeartRate.rounded())) bpm"
     }
     var hrvText: String {
-        guard let hrv, hrv.isFinite, hrv > 0, hrv < Double(Int.max) else { return "—" }
+        guard let hrv, hrv.isFinite, (1...300).contains(hrv) else { return "—" }
         return "\(Int(hrv.rounded())) ms"
     }
     var bloodPressureText: String {
@@ -79,7 +79,7 @@ struct HealthSnapshot {
     }
     var oxygenSaturationText: String {
         guard let oxygenSaturation, oxygenSaturation.isFinite,
-              (0...1).contains(oxygenSaturation) else { return "—" }
+              (0.5...1).contains(oxygenSaturation) else { return "—" }
         return "\(Int((oxygenSaturation * 100).rounded())) %"
     }
 }
