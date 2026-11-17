@@ -20,29 +20,34 @@ Status betyder:
 - [ ] Verifiera HealthKit-behörigheter och verklig dataläsning
 
 ## Fas 2 – Dashboard
-- [ ] Matcha referensbildernas layout, marginaler, typografi och kortproportioner
-- [ ] Byt ut graflinjeplatshållare mot riktiga tidsserier
-- [ ] Lägg till tom-, laddnings- och felstater
+- [~] Grundläggande Midnight-designsystem och fyra flikar finns; full visuell avstämning mot referensbilderna återstår
+- [x] Ersätta illustrativa grafer med riktiga datakällor eller tydliga tomlägen
+- [~] Huvudkort för nattlig återhämtning med poängring, signaler och dagsråd implementerat; visuell finjustering och datavalidering återstår
+- [~] Tom- och saknat-underlagstillstånd finns på flera vyer; full genomgång av laddnings- och felstater återstår
 - [ ] Säkerställ tillgänglighet och dynamisk textstorlek
-- [ ] Lägg till uppdatering och tydlig senaste uppdateringstid
+- [x] Lägg till uppdatering och senaste uppdateringstid där relevant
 
 ## Fas 3 – Hälsodata
-- [ ] Verifiera sömnsammanställning utan dubbelräkning av överlappande sömnsegment
-- [ ] Läs HRV SDNN med korrekt enhet och tidsfönster
-- [ ] Läs vilopuls, steg, aktiv energi, vikt och blodtryck där tillgängligt
-- [ ] Definiera datakvalitet, källor och färskhet för varje mätvärde
-- [ ] Lägg till historiska tidsserier
+- [x] Implementera sömnsammanställning utan dubbelräkning av överlappande segment
+- [x] Läs HRV SDNN med separat nattfönster och senaste värde
+- [x] Läs vilopuls, steg, aktiv energi, vikt och blodtryck där tillgängligt
+- [x] Läsa andningsfrekvens och syremättnad när HealthKit-typer finns
+- [~] Datakälla, tidsstämpel och saknat-underlagstillstånd visas för flera mått; full konsekvent granskning återstår
+- [ ] Verifiera verkliga HealthKit-serier och blodtryckskorrelationer på fysisk iPhone
+- [ ] Lägg till historiska tidsserier för vikt och blodtryck
 
 ## Fas 4 – Återhämtning och energi
-- [ ] Specificera nattligt återhämtningsvärde
-- [ ] Specificera dynamiskt kroppsbatteri separat
-- [ ] Definiera personlig baslinje, datakrav och hantering av saknade värden
-- [ ] Validera modeller mot verkliga data och visa förklaringar
-- [ ] Håll prognos och historik visuellt åtskilda
+- [x] Implementera nattligt återhämtningsvärde med sömn, HRV och vilopuls
+- [x] Implementera dynamiskt kroppsbatteri separat
+- [x] Definiera personliga baslinjer, datakrav och hantering av saknade värden
+- [~] Visa förklaringar och signalbaserade råd; heuristikerna behöver valideras mot verkliga data
+- [x] Håll nattlig återhämtning och dagens kroppsbatteri visuellt åtskilda
+- [ ] Verifiera tidsfönster, baslinjer och poäng på fysisk iPhone
 
 ## Fas 5 – Rapporter och notiser
-- [x] Händelsestyrd morgonrapport efter huvudsömn, med väntetid och fryst snapshot
-- [x] Kvällsrapport vid första säkra refresh efter 21:00 och lokal påminnelse
+- [x] Historisk fryst morgonrapportmodell och arkiv finns kvar för bakåtkompatibilitet
+- [x] Avveckla aktivt kvällsrapportflöde och kvällsrapportnotis
+- [~] Dashboarden visar aktuell nattåterhämtning; historisk rapportvy och användarupplevelse behöver slutlig avstämning
 - [ ] Påminnelser om blodtryck morgon och kväll
 - [ ] Notiser och stöd för Apple Watch där plattformen tillåter
 - [ ] Hantera iOS-begränsningar för bakgrundskörning och schemaläggning
@@ -382,3 +387,10 @@ Status betyder:
 - [ ] Fysisk iPhone-verifiering av HealthKit-auktorisering, bakgrundsleverans och HealthKit-värden
 - [ ] Kontrollera FlareStore-signerad IPA och entitlements på den fysiska enheten
 - [ ] Visuell granskning av dashboardens tom-, vänt-, fel- och datatillstånd
+
+
+## 2026-11-17 – Korrigering av status och aktuell designriktning
+- Dashboardens huvudkort använder nu aktuell `HealthSnapshot.recoveryResult`, inte den frysta morgonrapporten. Den äldre snapshotmodellen bevaras för historik/bakåtkompatibilitet.
+- Nya manuella registreringsflöden för vikt och blodtryck är borttagna; tidigare lokala poster är läsbara som äldre historik. Målvikt är fortfarande en frivillig inställning.
+- Den beslutade designriktningen är Midnight Navy med etablerade teal-, violet- och amber-accenter. Designsystemet finns, men samtliga fyra flikar är ännu inte visuellt slutgranskade.
+- Run 44037409691 på commit `0a06959` har passerat kärntester, simulatorbuild, osignerat arkiv, ikonvalidering och IPA-uppladdning. Simulatorns processkontroll pågår; fysisk iPhone är inte verifierad.

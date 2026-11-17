@@ -136,3 +136,11 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - HealthKit-behörigheter ska breddas stegvis efter funktion: begär endast datatyper som VITAL faktiskt använder och förklara nyttan före systemdialogen.
 - VITAL ska fortsatt skilja mellan Apple Hälsa-data, manuellt registrerade uppgifter, beräknade uppskattningar och saknade värden.
 - Ingen fullständig kost- eller kaloriregistrering ingår i detta beslut; fokus är hälsa, behandling, viktutveckling och återhämtning.
+
+
+## 2026-11-17 – Förtydligande: aktuell återhämtning kontra fryst historik
+- Dashboardens återhämtningskort ska använda den aktuella `HealthSnapshot.recoveryResult` som räknas från tillgängliga nattvärden och personliga baslinjer.
+- Den frysta morgonrapporten är en historisk snapshotmodell. Den får inte förväxlas med dashboardens levande status eller uppdateras i efterhand.
+- Kvällsrapportens aktiva flöde är avvecklat; äldre arkivposter bevaras endast för bakåtkompatibilitet.
+- Midnight Navy och den etablerade paletten gäller fortsatt. Designsystemets färgtoken får inte bytas ut utan ett uttryckligt nytt designbeslut.
+- Designriktningen är fastställd, men färdig designstatus kräver visuell granskning av samtliga fyra flikar och deras tom-, laddnings-, fel- och datatillstånd.

@@ -674,3 +674,22 @@ Kalkylatorn är nu implementerad och testfallen är skrivna. HealthKitStore häm
 Full CI-kedja godkänd på `cc243c927606c5ab960a0d0b3b27718f1788f006` (run 43980719580): Swift-kärntester, iOS Simulator-build och processkontrollerad simulatorstart, osignerat iOS-arkiv, appikonvalidering och osignerad IPA-paketering. Artefakterna laddades upp. De är inte signerade och ingen fysisk iPhone-installation är därmed bekräftad.
 
 Efter denna körning togs överbliven, oanvänd kvällsrapport-state och rapportvy-kod bort. Arkivets Codable-modell för äldre kvällsrapporter bevaras. Den nya städningscommiten ska genomgå en ny CI-körning innan den betraktas som verifierad.
+
+
+## 2026-11-17 – Dashboardens återhämtningskort och byggkedja
+
+### Kodgranskning
+- Dashboardens huvudkort använder nu `health.snapshot.recoveryResult` och `RecoveryGuidancePolicy` direkt.
+- Kortet visar nattlig återhämtning, personlig baslinjekontext, avvikande komponenter, dagsråd och nattens sömn/HRV/vilopuls.
+- Kroppsbatteriet visas separat och fortsätter att följa dagens belastningsdata.
+- Vikt- och blodtryckskorten använder HealthKit som primär källa; äldre lokala journalposter visas som historik. Målvikt är fortsatt en frivillig inställning.
+
+### Byggkedja
+- Commit `0a069594e56946849d0ad9fa86518a716b2ae1e2` korrigerar PID-parsningen i simulator-smoketestet.
+- CI run `44037409691`: kärntester, simulatorbuild, osignerat iOS-arkiv, appikonvalidering och IPA-paketering/uppladdning har passerat.
+- Vid loggtillfället pågår simulatorns slutliga processkontroll. Ingen fysisk iPhone-installation eller HealthKit-dataläsning är därmed verifierad.
+
+### Kvar
+- Slutföra simulator-smoketestet och dokumentera slutresultatet.
+- Visuell granskning av Idag, Insikter, Aktivitet och Hälsa.
+- Fysisk iPhone-verifiering av HealthKit-auktorisering, data, notiser och sideload-signering.

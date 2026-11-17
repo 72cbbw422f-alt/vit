@@ -35,20 +35,21 @@ docs/
 - `RootView`: fyra huvudflikar.
 - `DashboardView`: dagens hälsostatus och översikt.
 
-## HealthKit-data i första implementationen
-- Sömnanalys
-- Vilopuls
-- HRV SDNN
-- Steg
-- Aktiv energi
+## HealthKit-data i aktuell implementation
+- Sömnanalys och grupperade sömnperioder
+- HRV SDNN och vilopuls, både senaste värden och separata nattvärden
+- Personliga baslinjer för sömn, HRV och vilopuls
+- Steg och aktiv energi
 - Kroppsvikt
+- Blodtryck som sammanhållen systolisk/diastolisk korrelation
+- Andningsfrekvens och syremättnad när datatyper och mätningar finns tillgängliga
 
-Blodtryck, träningspass, andningsfrekvens, syremättnad och andra datatyper är ännu inte inkopplade i första kodsteget.
+Träningspass är inte ännu en fullständig aktivitetsdatakälla. Tillgängliga HealthKit-värden beror på användarens enheter, datakällor och behörigheter.
 
 ## Arkitekturprinciper framåt
 - Håll datainsamling, beräkningar och presentation separerade.
 - Beräkningar ska vara testbara utan HealthKit.
-- Använd en tidsstämplad snapshot för morgonrapporten.
+- Håll historiska rapport-snapshots oföränderliga och åtskilda från dashboardens aktuella HealthKit-baserade återhämtningsstatus.
 - Håll kroppsbatteriets löpande tillstånd separat från nattlig återhämtning.
 - Låt UI visa datakälla, tidsstämpel och datatillgänglighet.
 - Ge inte UI ansvar för att hitta på eller uppskatta saknade mätvärden.
@@ -65,7 +66,7 @@ Blodtryck, träningspass, andningsfrekvens, syremättnad och andra datatyper är
 - `VITAL/Models/RecoveryEngine.swift` innehåller den rena återhämtningsfunktionen utan beroende till HealthKit eller SwiftUI.
 - `Package.swift` exponerar modellen som Swift Package så att den kan testas separat.
 - `Tests/VITALCoreTests/RecoveryEngineTests.swift` innehåller tester för baslinjekrav, saknade värden, normalisering och begränsning av komponentpoäng.
-- Modellen är ännu inte kopplad till HealthKitStore eller dashboarden. Det är avsiktligt tills baslinje- och sömnperiodslogiken är implementerad och verifierad.
+- Modellen är kopplad till HealthSnapshot via nattvärden och personliga baslinjer. CI verifierar kod och tester; verkliga HealthKit-data måste fortfarande verifieras på fysisk iPhone.
 
 
 ## Sömnperiodsberäkning
@@ -80,7 +81,7 @@ Blodtryck, träningspass, andningsfrekvens, syremättnad och andra datatyper är
 - Minst 14 distinkta dagar krävs.
 - `HealthKitStore` hämtar nu historiska HRV SDNN- och vilopulssampel för de 30 avslutade kalenderdagarna före idag.
 - Sömnsegment hämtas för samma period, slås ihop till sömnperioder och reduceras till den längsta perioden per lokal uppvakningsdag. Tupplurar summeras alltså inte med nattsömnen.
-- Resultaten sparas i `HealthSnapshot` som tre separata baslinjeobjekt. Detta är datainsamling och baslinjeberäkning; återhämtningsmotorn är ännu inte inkopplad i dashboarden.
+- Resultaten sparas i `HealthSnapshot` som tre separata baslinjeobjekt och används av RecoveryEngine i dashboardens återhämtningskort.
 - HealthKit-frågorna kräver verifiering på fysisk iPhone. Om HealthKit inte returnerar data ska baslinjen förbli ej redo.
 
 
@@ -88,7 +89,7 @@ Blodtryck, träningspass, andningsfrekvens, syremättnad och andra datatyper är
 - `OvernightMetricSelector.swift` är en fristående kärnmodell för att välja HRV- och vilopulsvärden inom en explicit `SleepSession`.
 - Modellen returnerar median och antal giltiga sampel per mätvärde.
 - Den gör inget antagande om att nattliga sampel måste finnas. Saknade värden förblir nil.
-- Modellen är ännu inte ansluten till HealthKitStore eller RecoveryEngine. Integrationen inväntar verifiering av HealthKit:s faktiska tidsstämplar, särskilt för vilopuls.
+- Modellen används av HealthKitStore för att välja nattvärden inom vald sömnperiod. Faktiska sampeltidsstämplar och vilopulsens lämplighet måste fortfarande verifieras på fysisk iPhone.
 
 
 ## HealthKit – nattlig återhämtning
@@ -109,7 +110,7 @@ Blodtryck, träningspass, andningsfrekvens, syremättnad och andra datatyper är
 - Indata: morgonens återhämtningspoäng, personlig vilopulsbaslinje, tidsstämplade pulssampel, tidsstämplade aktiva energisampel samt uppvakningstid och beräkningstid.
 - Pulslast integreras endast mellan sampel med högst 15 minuters mellanrum. Minst tre sampel över minst 30 minuter krävs.
 - Aktiv energi summeras inom vakenperioden. Saknat underlag ger nil-poäng.
-- Prototypen minskar från morgonens värde och modellerar ännu inte återhämtning under vila. HealthKit-frågor och UI-integration är nästa steg.
+- Nuvarande modell minskar från nattens återhämtningsvärde och modellerar ännu inte återladdning under vila. Resultatet visas som en preliminär uppskattning.
 
 
 ## Kroppsbatteri – HealthKit-flöde
@@ -171,12 +172,19 @@ Andningsfrekvens och syremättnad läggs till i läsbehörighetsmängden endast 
 - Tillgänglighet och korrekt dataläsning måste verifieras med enhet som har HealthKit-data.
 
 
-## Aktuell verifierad implementation – 2026-11-17
+## Aktuell implementation – kodgranskad 2026-11-17 (CI pågår)
 
 - `HealthSnapshot.recoveryResult` kopplar nu ihop de personliga baslinjerna, nattliga HealthKit-värdena och `RecoveryEngine`.
 - RecoveryEngine kräver minst 14 giltiga dagar för var och en av de tre baslinjerna. Baslinjerna beräknas från de 30 avslutade kalenderdagarna före aktuell dag.
 - Återhämtningspoängen är en produktmässig wellness-uppskattning: sömn 40 %, HRV 35 % och vilopuls 25 %. Komponenterna begränsas till 0–100. Vilopulskomponenten minskar med 5 poäng per bpm över den personliga medianen. Dessa vikter och omräkningar är heuristiker, inte kliniskt validerade gränser.
-- Dashboardens huvudkort använder enbart den sparade morgonsnapshoten för återhämtningspoäng, nattvärden och komponentbaserade råd. En senare HealthKit-refresh skriver inte om snapshoten.
+- Dashboardens huvudkort använder `health.snapshot.recoveryResult` direkt: aktuell HealthKit-snapshot, nattvärden och personliga baslinjer. Det är alltså inte den frysta historiska morgonrapporten som styr kortet. Senare HealthKit-refresh kan uppdatera dashboardens aktuella värden.
 - Vägledningspolicyn flaggar komponenter under 85. Gränsen är en produktheuristik. Saknas en av de tre komponenterna visas neutralt vänteläge och inga signaler fabriceras.
 - Kvällsrapporten är avvecklad som användarflöde: ingen ny kvällssnapshot, schemaläggning eller visningskod. Datamodellen och arkivet kan fortfarande avkoda och bevara äldre kvällsposter för bakåtkompatibilitet.
-- CI-run 43980719580 på commit `cc243c9` verifierade kärntester, simulatorbuild, simulatorstart, osignerat iOS-enhetsarkiv, appikon och IPA-paketering. Detta är inte en verifiering av HealthKit-data eller installation på fysisk iPhone.
+- Tidigare CI-run 43980719580 på commit `cc243c9` verifierade kärntester, simulatorbuild, simulatorstart, osignerat iOS-enhetsarkiv, appikon och IPA-paketering. Nyare run 44037409691 på commit `0a06959` har vid denna dokumentationsuppdatering passerat kärntester, simulatorbuild, arkivering, ikonkontroll och IPA-uppladdning; simulatorns slutliga processkontroll pågår. CI verifierar inte HealthKit-data eller installation på fysisk iPhone.
+
+
+## Hälsa-fliken – aktuell datakälla och historik
+- Aktuell vikt och blodtryck hämtas automatiskt från Apple Hälsa när tillgängligt.
+- Nya manuella mätformulär för vikt och blodtryck är borttagna. Äldre lokala journalposter visas endast som historik.
+- Målvikt är en separat frivillig användarinställning och ska inte blandas ihop med manuell viktmätning.
+- Läkemedelsdos, biverkningar, vätska och framstegsbilder är separata journal-/verktygsfunktioner, inte HealthKit-mätvärden.
