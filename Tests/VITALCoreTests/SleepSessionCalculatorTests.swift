@@ -68,7 +68,7 @@ final class SleepSessionCalculatorTests: XCTestCase {
     func testOnlyShortSleepSessionsFallBackToLatestWakeDate() {
         let intervals = [
             SleepInterval(start: date(14, 22), end: date(14, 23, 30)),
-            SleepInterval(start: date(15, 1), end: date(15, 2, 30))
+            SleepInterval(start: date(15, 1, 1), end: date(15, 2, 31))
         ]
         let selected = SleepSessionCalculator.primarySession(intervals: intervals)
         XCTAssertEqual(selected?.start, date(15, 1))
