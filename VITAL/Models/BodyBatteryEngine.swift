@@ -56,6 +56,13 @@ enum BodyBatteryEngine {
                 explanation: "För få pulsmätningar för att uppskatta kroppsbatteriet.")
         }
 
+        let energySamples = Self.nonOverlappingEnergySamples(
+            input.activeEnergySamples,
+            wakeTime: input.wakeTime,
+            asOf: input.asOf
+        )
+        let energy = energySamples.reduce(0) { $0 + $1.value }
+
         var cardiovascularLoad = 0.0
         var recoveryHours = 0.0
         for index in 0..<(heartRates.count - 1) {
@@ -79,12 +86,6 @@ enum BodyBatteryEngine {
             }
         }
 
-        let energySamples = Self.nonOverlappingEnergySamples(
-            input.activeEnergySamples,
-            wakeTime: input.wakeTime,
-            asOf: input.asOf
-        )
-        let energy = energySamples.reduce(0) { $0 + $1.value }
         guard energy.isFinite, cardiovascularLoad.isFinite else {
             return BodyBatteryResult(score: nil, heartRateSampleCount: heartRates.count,
                 activeEnergyKcal: 0, cardiovascularLoad: 0, activityLoad: 0, recoveryGain: 0,
