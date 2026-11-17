@@ -44,6 +44,36 @@ final class SleepSessionCalculatorTests: XCTestCase {
         XCTAssertEqual(selected?.end, date(15, 6, 30))
     }
 
+
+    func testShortNapAfterMidnightDoesNotReplacePreviousMainSleep() {
+        let intervals = [
+            SleepInterval(start: date(14, 22), end: date(15, 6, 30)),
+            SleepInterval(start: date(16, 0, 30), end: date(16, 1, 30))
+        ]
+        let selected = SleepSessionCalculator.primarySession(intervals: intervals)
+        XCTAssertEqual(selected?.start, date(14, 22))
+        XCTAssertEqual(selected?.end, date(15, 6, 30))
+    }
+
+    func testDaytimeMainSleepIsEligibleForShiftWorker() {
+        let intervals = [
+            SleepInterval(start: date(14, 9), end: date(14, 16)),
+            SleepInterval(start: date(15, 1), end: date(15, 2))
+        ]
+        let selected = SleepSessionCalculator.primarySession(intervals: intervals)
+        XCTAssertEqual(selected?.start, date(14, 9))
+        XCTAssertEqual(selected?.duration, 7 * 3600)
+    }
+
+    func testOnlyShortSleepSessionsFallBackToLatestWakeDate() {
+        let intervals = [
+            SleepInterval(start: date(14, 22), end: date(14, 23, 30)),
+            SleepInterval(start: date(15, 1), end: date(15, 2, 30))
+        ]
+        let selected = SleepSessionCalculator.primarySession(intervals: intervals)
+        XCTAssertEqual(selected?.start, date(15, 1))
+    }
+
     func testPrimarySessionUsesLatestEndWhenDurationsTieOnSameDay() {
         let intervals = [
             SleepInterval(start: date(15, 1), end: date(15, 3)),

@@ -21,6 +21,8 @@ struct SleepSession {
 }
 
 enum SleepSessionCalculator {
+    static let minimumPrimarySleepDuration: TimeInterval = 3 * 60 * 60
+
     /// Merges overlapping asleep-stage intervals and groups segments separated
     /// by no more than the configured wake gap. Grouping never counts awake gaps
     /// as sleep duration.
@@ -73,8 +75,15 @@ enum SleepSessionCalculator {
         calendar: Calendar = .current
     ) -> SleepSession? {
         let grouped = sessions(intervals: intervals, maximumWakeGap: maximumWakeGap)
-        guard let latestWakeDay = grouped.map({ calendar.startOfDay(for: $0.end) }).max() else { return nil }
-        return grouped
+        guard !grouped.isEmpty else { return nil }
+
+        // A short nap after midnight must not displace the previous main sleep.
+        // Prefer sessions of at least three hours, regardless of clock time;
+        // this also supports shift workers who sleep during the day.
+        let substantial = grouped.filter { $0.duration >= minimumPrimarySleepDuration }
+        let candidates = substantial.isEmpty ? grouped : substantial
+        guard let latestWakeDay = candidates.map({ calendar.startOfDay(for: $0.end) }).max() else { return nil }
+        return candidates
             .filter { calendar.isDate($0.end, inSameDayAs: latestWakeDay) }
             .max { lhs, rhs in
                 if lhs.duration == rhs.duration { return lhs.end < rhs.end }

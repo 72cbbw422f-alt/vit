@@ -69,9 +69,9 @@ enum BodyBatteryEngine {
             let nextElevation = max(next.value - resting, 0)
             let averageHeartRate = (current.value + next.value) / 2
             let hasActivity = input.activeEnergySamples.contains { sample in
-                guard Self.isValidEnergySample(sample) else { return false }
                 let sampleStart = sample.startTimestamp ?? sample.timestamp
-                return sampleStart < next.timestamp && sample.timestamp > current.timestamp
+                return sampleStart < next.timestamp && sample.timestamp > current.timestamp &&
+                    sample.value.isFinite && sample.value > 0
             }
             if averageHeartRate <= resting + recoveryHeartRateMarginBPM,
                nextElevation <= recoveryHeartRateMarginBPM, !hasActivity {
@@ -82,8 +82,8 @@ enum BodyBatteryEngine {
         let energy = input.activeEnergySamples
             .filter {
                 let intervalStart = $0.startTimestamp ?? $0.timestamp
-                return Self.isValidEnergySample($0) &&
-                    intervalStart >= input.wakeTime && $0.timestamp <= input.asOf
+                return intervalStart >= input.wakeTime && $0.timestamp <= input.asOf &&
+                    $0.value.isFinite && $0.value > 0
             }
             .reduce(0) { $0 + $1.value }
         let activityLoad = energy * 0.025
@@ -95,14 +95,6 @@ enum BodyBatteryEngine {
             activeEnergyKcal: energy, cardiovascularLoad: cardiovascularLoad,
             activityLoad: activityLoad, recoveryGain: recoveryGain,
             explanation: "Provisorisk uppskattning från morgonens återhämtning, pulsbelastning, aktiv energi och sammanhängande viloperioder. Beräkningen är en förenklad välmåendemodell.")
-    }
-
-    private static func isValidEnergySample(_ sample: TimedHealthValue) -> Bool {
-        guard sample.value.isFinite, sample.value > 0 else { return false }
-        if let start = sample.startTimestamp {
-            return start < sample.timestamp
-        }
-        return true
     }
 
     private static func unavailable(_ explanation: String) -> BodyBatteryResult {
