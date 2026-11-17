@@ -49,6 +49,14 @@ final class PersonalBaselineCalculatorTests: XCTestCase {
         XCTAssertEqual(result.median, 50)
     }
 
+    func testMedianOfLargeFiniteValuesRemainsFinite() {
+        let samples = (0..<14).map { DailyBaselineSample(day: day($0), value: Double.greatestFiniteMagnitude) }
+        let result = PersonalBaselineCalculator.calculate(samples: samples, windowStart: day(0), windowEnd: day(30), calendar: calendar)
+        XCTAssertTrue(result.isReady)
+        XCTAssertEqual(result.median, Double.greatestFiniteMagnitude)
+        XCTAssertTrue(result.median?.isFinite == true)
+    }
+
     func testInvalidWindowReturnsNotReady() {
         let result = PersonalBaselineCalculator.calculate(samples: [], windowStart: day(10), windowEnd: day(0), calendar: calendar)
         XCTAssertFalse(result.isReady)
