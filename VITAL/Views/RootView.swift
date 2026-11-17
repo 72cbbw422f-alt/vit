@@ -101,12 +101,14 @@ private struct InsightsView: View {
                             InsightMetric(title: "HRV", value: health.snapshot.hrvText, symbol: "waveform.path", tint: VITALPalette.teal)
                         }
                         VITALCard {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Label("Personlig baslinje", systemImage: "person.crop.circle")
+                            VStack(alignment: .leading, spacing: 10) {
+                                Label("Din normala nivå", systemImage: "person.crop.circle")
                                     .font(.headline).foregroundStyle(VITALPalette.cloud)
-                                baselineRow("Sömn", days: health.snapshot.sleepBaseline?.validDays ?? 0)
-                                baselineRow("HRV", days: health.snapshot.hrvBaseline?.validDays ?? 0)
-                                baselineRow("Vilopuls", days: health.snapshot.restingHeartRateBaseline?.validDays ?? 0)
+                                baselineValueRow("Sömn", value: health.snapshot.sleepBaseline?.median, suffix: "h", decimals: 1)
+                                baselineValueRow("HRV", value: health.snapshot.hrvBaseline?.median, suffix: "ms", decimals: 0)
+                                baselineValueRow("Vilopuls", value: health.snapshot.restingHeartRateBaseline?.median, suffix: "bpm", decimals: 0)
+                                Text("Median från de senaste 30 dagarna. Kräver minst 14 giltiga dagar per mätvärde.")
+                                    .font(.caption2).foregroundStyle(VITALPalette.muted)
                             }
                         }
                         Text("Trender visas endast när sparade mätvärden finns. VITAL fyller aldrig ut luckor med uppskattade datapunkter.")
@@ -117,6 +119,19 @@ private struct InsightsView: View {
             .toolbar(.hidden, for: .navigationBar)
         }
     }
+    private func baselineValueRow(_ title: String, value: Double?, suffix: String, decimals: Int) -> some View {
+        HStack {
+            Text(title).foregroundStyle(VITALPalette.muted)
+            Spacer()
+            if let value, value.isFinite, value > 0 {
+                Text("\(String(format: "%.*f", decimals, value)) \(suffix)")
+                    .font(.subheadline.monospacedDigit()).foregroundStyle(VITALPalette.cloud)
+            } else {
+                Text("Samlar data").font(.subheadline).foregroundStyle(VITALPalette.amber)
+            }
+        }.padding(.vertical, 3)
+    }
+
     private func baselineRow(_ title: String, days: Int) -> some View {
         HStack {
             Text(title).foregroundStyle(VITALPalette.muted)
