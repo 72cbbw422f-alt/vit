@@ -49,4 +49,18 @@ final class OvernightMetricSelectorTests: XCTestCase {
         )
         XCTAssertEqual(result.hrvMilliseconds, 50)
     }
+    func testMedianOfLargeFiniteOvernightValuesDoesNotOverflow() {
+        let value = Double.greatestFiniteMagnitude
+        let result = OvernightMetricSelector.select(
+            hrv: [
+                TimedHealthValue(timestamp: date(1).addingTimeInterval(24 * 60 * 60), value: value),
+                TimedHealthValue(timestamp: date(2).addingTimeInterval(24 * 60 * 60), value: value)
+            ],
+            restingHeartRate: [],
+            sleepSession: session
+        )
+        XCTAssertEqual(result.hrvMilliseconds, value)
+        XCTAssertTrue(result.hrvMilliseconds?.isFinite == true)
+    }
+
 }
