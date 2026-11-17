@@ -44,11 +44,33 @@ private struct InsightsView: View {
                     VStack(alignment: .leading, spacing: 16) {
                         pageHeader("Insikter", subtitle: "Dina mönster över tid")
                         VITALCard {
+                            let recovery = health.snapshot.recoveryResult
+                            VStack(alignment: .leading, spacing: 12) {
+                                Label("Aktuell återhämtning", systemImage: "waveform.path.ecg")
+                                    .font(.headline).foregroundStyle(VITALPalette.cloud)
+                                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                                    Text(recovery.score.map(String.init) ?? "—")
+                                        .font(.system(size: 38, weight: .bold, design: .rounded))
+                                        .foregroundStyle(VITALPalette.teal).monospacedDigit()
+                                    Text("av 100 · senaste sömn")
+                                        .font(.caption).foregroundStyle(VITALPalette.muted)
+                                }
+                                Text(recovery.explanation)
+                                    .font(.caption).foregroundStyle(VITALPalette.muted)
+                                Divider().overlay(VITALPalette.track)
+                                baselineRow("Sömn", days: health.snapshot.sleepBaseline?.validDays ?? 0)
+                                baselineRow("HRV", days: health.snapshot.hrvBaseline?.validDays ?? 0)
+                                baselineRow("Vilopuls", days: health.snapshot.restingHeartRateBaseline?.validDays ?? 0)
+                                Text("Värdet räknas om när VITAL hämtar nya data från Apple Hälsa. Baslinjen bygger på tillgängliga mätningar från de senaste 30 dagarna.")
+                                    .font(.caption2).foregroundStyle(VITALPalette.muted)
+                            }
+                        }
+                        VITALCard {
                             VStack(alignment: .leading, spacing: 14) {
-                                Label("Återhämtning", systemImage: "waveform.path.ecg")
+                                Label("Historisk återhämtning", systemImage: "clock.arrow.circlepath")
                                     .font(.headline).foregroundStyle(VITALPalette.cloud)
                                 if recoveryReports.isEmpty {
-                                    EmptyChartState(symbol: "chart.xyaxis.line", title: "Ingen trend ännu", detail: "Morgonrapporter med giltiga återhämtningsvärden visas här när de finns.")
+                                    EmptyChartState(symbol: "chart.xyaxis.line", title: "Ingen trend ännu", detail: "Äldre sparade morgonvärden visas här. Den aktuella återhämtningen visas separat ovan.")
                                 } else {
                                     Chart {
                                         ForEach(Array(recoveryReports.enumerated()), id: \.element.id) { item in
@@ -69,7 +91,7 @@ private struct InsightsView: View {
                                         }
                                     }
                                     .frame(height: 180)
-                                    Text("\(recoveryReports.count) sparade morgonvärden")
+                                    Text("\(recoveryReports.count) äldre sparade morgonvärden")
                                         .font(.caption).foregroundStyle(VITALPalette.muted)
                                 }
                             }
