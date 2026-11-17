@@ -282,13 +282,13 @@ struct DashboardView: View {
     private var habitsCard: some View {
         VITALCard {
             VStack(alignment: .leading, spacing: 10) {
-                Text("Dagens vanor").font(.headline).foregroundStyle(VITALPalette.cloud)
+                Text("Hälsodata").font(.headline).foregroundStyle(VITALPalette.cloud)
                 HStack {
-                    Label("Datainsamling", systemImage: "heart.text.square").foregroundStyle(VITALPalette.cloud)
+                    Label("Datakälla", systemImage: "heart.text.square").foregroundStyle(VITALPalette.cloud)
                     Spacer(); Text(health.isAvailable ? "Apple Hälsa" : "Ej tillgängligt").font(.subheadline).foregroundStyle(VITALPalette.teal)
                 }
                 HStack {
-                    Label("Sömn i bakgrunden", systemImage: "moon.zzz").foregroundStyle(VITALPalette.cloud)
+                    Label("Sömnsynk i bakgrunden", systemImage: "moon.zzz").foregroundStyle(VITALPalette.cloud)
                     Spacer(); Text(health.backgroundSleepDeliveryEnabled ? "Aktiverad" : "Ej bekräftad")
                         .font(.caption).foregroundStyle(health.backgroundSleepDeliveryEnabled ? VITALPalette.teal : VITALPalette.amber)
                 }
