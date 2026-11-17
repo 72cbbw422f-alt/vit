@@ -259,7 +259,14 @@ final class HealthKitStore: ObservableObject {
         let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
         return await withCheckedContinuation { continuation in
             let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit,
-                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)]) { _, samples, _ in
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)]) { [weak self] _, samples, error in
+                    if let error {
+                        Task { @MainActor [weak self] in
+                            self?.recordQueryError(error, context: "Historisk hälsodata")
+                        }
+                        continuation.resume(returning: [])
+                        return
+                    }
                     let values = ((samples as? [HKQuantitySample]) ?? []).map {
                         DailyBaselineSample(day: $0.endDate, value: $0.quantity.doubleValue(for: unit))
                     }
@@ -274,7 +281,14 @@ final class HealthKitStore: ObservableObject {
         let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
         return await withCheckedContinuation { continuation in
             let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit,
-                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)]) { _, samples, _ in
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)]) { [weak self] _, samples, error in
+                    if let error {
+                        Task { @MainActor [weak self] in
+                            self?.recordQueryError(error, context: "Historisk sömndata")
+                        }
+                        continuation.resume(returning: [])
+                        return
+                    }
                     let asleepValues = [
                         HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue,
                         HKCategoryValueSleepAnalysis.asleepCore.rawValue,
