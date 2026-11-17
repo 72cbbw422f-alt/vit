@@ -55,7 +55,7 @@ enum OvernightMetricSelector {
         guard !sorted.isEmpty else { return nil }
         let middle = sorted.count / 2
         if sorted.count.isMultiple(of: 2) {
-            return (sorted[middle - 1] + sorted[middle]) / 2
+            let lower = sorted[middle - 1]\n            let upper = sorted[middle]\n            return lower + (upper - lower) / 2
         }
         return sorted[middle]
     }
