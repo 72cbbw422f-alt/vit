@@ -81,6 +81,21 @@ final class BodyBatteryEngineTests: XCTestCase {
     }
 
 
+    func testOverlappingActiveEnergyIntervalsAreNotDoubleCounted() {
+        let result = BodyBatteryEngine.calculate(BodyBatteryInputs(
+            wakeTime: wake, asOf: wake.addingTimeInterval(3600),
+            overnightRecoveryScore: 90, restingHeartRateBaselineBPM: 60,
+            heartRateSamples: samples([70, 70, 70, 70, 70], spacing: 900),
+            activeEnergySamples: [
+                TimedHealthValue(timestamp: wake.addingTimeInterval(1800), value: 100,
+                                 startTimestamp: wake),
+                TimedHealthValue(timestamp: wake.addingTimeInterval(2700), value: 250,
+                                 startTimestamp: wake.addingTimeInterval(900))
+            ]
+        ))
+        XCTAssertEqual(result.activeEnergyKcal, 100, accuracy: 0.001)
+    }
+
     func testOverflowingActiveEnergyDoesNotCrashOrProduceScore() {
         let result = BodyBatteryEngine.calculate(BodyBatteryInputs(
             wakeTime: wake, asOf: wake.addingTimeInterval(3600),
