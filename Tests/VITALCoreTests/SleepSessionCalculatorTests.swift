@@ -26,8 +26,8 @@ final class SleepSessionCalculatorTests: XCTestCase {
 
     func testLatestWakeDateWinsOverLongerPreviousNight() {
         let intervals = [
-            SleepInterval(start: date(14, 21), end: date(15, 6)),
-            SleepInterval(start: date(15, 0), end: date(15, 5, 30))
+            SleepInterval(start: date(13, 21), end: date(14, 6)),
+            SleepInterval(start: date(14, 23), end: date(15, 5, 30))
         ]
         let selected = SleepSessionCalculator.primarySession(intervals: intervals)
         XCTAssertEqual(selected?.start, date(15, 0))
