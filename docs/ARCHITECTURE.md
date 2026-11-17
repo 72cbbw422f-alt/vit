@@ -188,3 +188,10 @@ Andningsfrekvens och syremättnad läggs till i läsbehörighetsmängden endast 
 - Nya manuella mätformulär för vikt och blodtryck är borttagna. Äldre lokala journalposter visas endast som historik.
 - Målvikt är en separat frivillig användarinställning och ska inte blandas ihop med manuell viktmätning.
 - Läkemedelsdos, biverkningar, vätska och framstegsbilder är separata journal-/verktygsfunktioner, inte HealthKit-mätvärden.
+
+
+## Rapportarkiv – endast historisk kompatibilitet
+- `HealthKitStore` kan fortfarande avkoda äldre `DailyReportSnapshot`-poster från lokal lagring.
+- Den aktiva HealthKit-refreshen skapar inte längre nya frysta morgonrapporter.
+- Dashboardens aktuella återhämtningskort använder `HealthSnapshot.recoveryResult` direkt.
+- Äldre rapportmodeller får inte beskrivas som ett aktivt rapportflöde eller användas som källa för dagens status.

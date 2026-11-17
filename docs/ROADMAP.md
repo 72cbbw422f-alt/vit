@@ -394,3 +394,10 @@ Status betyder:
 - Nya manuella registreringsflöden för vikt och blodtryck är borttagna; tidigare lokala poster är läsbara som äldre historik. Målvikt är fortfarande en frivillig inställning.
 - Den beslutade designriktningen är Midnight Navy med etablerade teal-, violet- och amber-accenter. Designsystemet finns, men samtliga fyra flikar är ännu inte visuellt slutgranskade.
 - Run 44037409691 på commit `0a06959` har passerat kärntester, simulatorbuild, osignerat arkiv, ikonvalidering och IPA-uppladdning. Simulatorns processkontroll pågår; fysisk iPhone är inte verifierad.
+
+
+## 2026-11-17 – Rapportflöde avvecklat
+- [x] Ta bort automatisk skapning av nya frysta morgonrapporter från HealthKit-refresh
+- [x] Behålla äldre rapportarkiv enbart för bakåtkompatibilitet
+- [x] Låta startsidans återhämtningskort visa aktuell HealthKit-snapshot
+- [ ] Rensa oanvänd rapportstate och rapportpolicy efter kontroll av alla referenser och migreringsbehov

@@ -144,3 +144,10 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - Kvällsrapportens aktiva flöde är avvecklat; äldre arkivposter bevaras endast för bakåtkompatibilitet.
 - Midnight Navy och den etablerade paletten gäller fortsatt. Designsystemets färgtoken får inte bytas ut utan ett uttryckligt nytt designbeslut.
 - Designriktningen är fastställd, men färdig designstatus kräver visuell granskning av samtliga fyra flikar och deras tom-, laddnings-, fel- och datatillstånd.
+
+
+## 2026-11-17 – Avveckling av automatisk morgonrapport
+- Ingen ny fryst morgonrapport ska skapas automatiskt i bakgrunden.
+- Startsidan använder aktuell nattlig återhämtning från HealthKit-snapshoten och uppdateras när ny data hämtas.
+- Äldre rapportarkiv och Codable-modeller bevaras för bakåtkompatibilitet, men ska inte längre få nya poster eller styra startsidans innehåll.
+- Kvällsrapportflödet är fortsatt avvecklat.

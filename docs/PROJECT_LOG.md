@@ -693,3 +693,11 @@ Efter denna körning togs överbliven, oanvänd kvällsrapport-state och rapport
 - Slutföra simulator-smoketestet och dokumentera slutresultatet.
 - Visuell granskning av Idag, Insikter, Aktivitet och Hälsa.
 - Fysisk iPhone-verifiering av HealthKit-auktorisering, data, notiser och sideload-signering.
+
+
+## 2026-11-17 – Avvecklat automatisk rapportgenerering
+- Tog bort anropet som skapade och sparade en ny fryst morgonrapport vid HealthKit-refresh.
+- Dashboarden fortsätter att använda aktuell `HealthSnapshot.recoveryResult`.
+- Äldre rapportarkiv och avkodningsmodeller lämnas kvar för bakåtkompatibilitet; inga nya morgonposter skapas av det aktiva refreshflödet.
+- Korrigerade även symbolmappningen i dashboardens mätvärdeskort så natt-HRV, senaste HRV och nattpuls får relevanta ikoner.
+- Dessa kodändringar inväntar separat CI-verifiering.
