@@ -44,10 +44,12 @@ final class HealthSnapshotMetricFormattingTests: XCTestCase {
     }
 
     
-    func testRespiratoryRateRejectsValuesOutsideIntegerDisplayRange() {
+    func testRespiratoryRateRejectsPhysiologicallyImplausibleValues() {
         var snapshot = HealthSnapshot.empty
-        snapshot.respiratoryRate = Double.greatestFiniteMagnitude
-        XCTAssertEqual(snapshot.respiratoryRateText, "—")
+        for value in [0.0, 100.1, Double.greatestFiniteMagnitude] {
+            snapshot.respiratoryRate = value
+            XCTAssertEqual(snapshot.respiratoryRateText, "—")
+        }
     }
 
     func testCoreMetricsRejectNonFiniteAndOutOfRangeValues() {
