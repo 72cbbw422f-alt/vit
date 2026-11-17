@@ -263,11 +263,7 @@ struct DashboardView: View {
                         Text("\(Int(min(steps / 8000, 1) * 100)) % av målet")
                     }
                 }.font(.caption).foregroundStyle(VITALPalette.muted)
-                Divider().overlay(VITALPalette.track)
-                HStack {
-                    Label("Träning", systemImage: "figure.run").foregroundStyle(VITALPalette.cloud)
-                    Spacer(); Text("Aktivitetssammanställning kommer").font(.caption).foregroundStyle(VITALPalette.muted)
-                }
+
             }
         }
     }
