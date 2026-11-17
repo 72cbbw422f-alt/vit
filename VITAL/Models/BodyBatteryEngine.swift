@@ -51,7 +51,7 @@ enum BodyBatteryEngine {
               let first = heartRates.first, let last = heartRates.last,
               last.timestamp.timeIntervalSince(first.timestamp) >= minimumHeartRateSpan else {
             return BodyBatteryResult(score: nil, heartRateSampleCount: heartRates.count,
-                activeEnergyKcal: 0, cardiovascularLoad: 0, activityLoad: 0,
+                activeEnergyKcal: 0, cardiovascularLoad: 0, activityLoad: 0, recoveryGain: 0,
                 explanation: "För få pulsmätningar för att uppskatta kroppsbatteriet.")
         }
 
@@ -98,6 +98,6 @@ enum BodyBatteryEngine {
 
     private static func unavailable(_ explanation: String) -> BodyBatteryResult {
         BodyBatteryResult(score: nil, heartRateSampleCount: 0, activeEnergyKcal: 0,
-            cardiovascularLoad: 0, activityLoad: 0, explanation: explanation)
+            cardiovascularLoad: 0, activityLoad: 0, recoveryGain: 0, explanation: explanation)
     }
 }
