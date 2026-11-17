@@ -72,4 +72,32 @@ final class HealthSnapshotMetricFormattingTests: XCTestCase {
         XCTAssertEqual(snapshot.restingHeartRateText, "—")
         XCTAssertEqual(snapshot.hrvText, "—")
     }
+    func testCoreMetricsRejectPhysiologicallyImplausibleValues() {
+        var snapshot = HealthSnapshot.empty
+        snapshot.sleepDuration = 25 * 3600
+        snapshot.steps = 200_001
+        snapshot.restingHeartRate = 240
+        snapshot.hrv = 301
+        snapshot.oxygenSaturation = 0.2
+        XCTAssertEqual(snapshot.sleepText, "—")
+        XCTAssertEqual(snapshot.stepsText, "—")
+        XCTAssertEqual(snapshot.restingHeartRateText, "—")
+        XCTAssertEqual(snapshot.hrvText, "—")
+        XCTAssertEqual(snapshot.oxygenSaturationText, "—")
+    }
+
+    func testCoreMetricsAcceptValuesAtDefensiveBoundaries() {
+        var snapshot = HealthSnapshot.empty
+        snapshot.sleepDuration = 1800
+        snapshot.steps = 200_000
+        snapshot.restingHeartRate = 25
+        snapshot.hrv = 1
+        snapshot.oxygenSaturation = 0.5
+        XCTAssertNotEqual(snapshot.sleepText, "—")
+        XCTAssertNotEqual(snapshot.stepsText, "—")
+        XCTAssertNotEqual(snapshot.restingHeartRateText, "—")
+        XCTAssertNotEqual(snapshot.hrvText, "—")
+        XCTAssertNotEqual(snapshot.oxygenSaturationText, "—")
+    }
+
 }
