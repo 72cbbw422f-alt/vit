@@ -8,8 +8,15 @@ struct SleepInterval {
 struct SleepSession {
     let start: Date
     let end: Date
-    /// Sum of recorded asleep intervals; wake gaps are excluded.
+    /// Sum of recorded asleep intervals; awake gaps are excluded.
     let asleepDuration: TimeInterval
+
+    init(start: Date, end: Date, asleepDuration: TimeInterval? = nil) {
+        self.start = start
+        self.end = end
+        self.asleepDuration = asleepDuration ?? max(0, end.timeIntervalSince(start))
+    }
+
     var duration: TimeInterval { asleepDuration }
 }
 
@@ -56,13 +63,23 @@ enum SleepSessionCalculator {
         return result.filter { $0.duration > 0 }
     }
 
-    /// Selects the longest grouped sleep session as the primary sleep period.
-    /// If durations tie, the session ending latest wins.
-    static func primarySession(intervals: [SleepInterval], maximumWakeGap: TimeInterval = 90 * 60) -> SleepSession? {
-        sessions(intervals: intervals, maximumWakeGap: maximumWakeGap).max { lhs, rhs in
-            if lhs.duration == rhs.duration { return lhs.end < rhs.end }
-            return lhs.duration < rhs.duration
-        }
+    /// Selects the main sleep from the most recent local wake-up date.
+    /// Within that wake-up date the longest session wins, so a later nap does
+    /// not replace the night's sleep and yesterday's longer sleep cannot win
+    /// over a more recent night.
+    static func primarySession(
+        intervals: [SleepInterval],
+        maximumWakeGap: TimeInterval = 90 * 60,
+        calendar: Calendar = .current
+    ) -> SleepSession? {
+        let grouped = sessions(intervals: intervals, maximumWakeGap: maximumWakeGap)
+        guard let latestWakeDay = grouped.map({ calendar.startOfDay(for: $0.end) }).max() else { return nil }
+        return grouped
+            .filter { calendar.isDate($0.end, inSameDayAs: latestWakeDay) }
+            .max { lhs, rhs in
+                if lhs.duration == rhs.duration { return lhs.end < rhs.end }
+                return lhs.duration < rhs.duration
+            }
     }
 
     static func latestSession(intervals: [SleepInterval], maximumWakeGap: TimeInterval = 90 * 60) -> SleepSession? {

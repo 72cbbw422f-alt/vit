@@ -24,22 +24,38 @@ final class SleepSessionCalculatorTests: XCTestCase {
         XCTAssertEqual(session?.duration, 7.5 * 3600)
     }
 
-    func testLatestSessionSelectedAfterLongAwakeGap() {
-        let intervals = [SleepInterval(start: date(15, 1), end: date(15, 3)), SleepInterval(start: date(15, 8), end: date(15, 9, 30))]
-        XCTAssertEqual(SleepSessionCalculator.latestSessionDuration(intervals: intervals), 90 * 60)
+    func testLatestWakeDateWinsOverLongerPreviousNight() {
+        let intervals = [
+            SleepInterval(start: date(14, 21), end: date(15, 6)),
+            SleepInterval(start: date(15, 0), end: date(15, 5, 30))
+        ]
+        let selected = SleepSessionCalculator.primarySession(intervals: intervals)
+        XCTAssertEqual(selected?.start, date(15, 0))
+        XCTAssertEqual(selected?.duration, 5.5 * 3600)
     }
 
-    func testPrimarySessionPrefersMainSleepOverLaterNap() {
-        let intervals = [SleepInterval(start: date(14, 22), end: date(15, 6, 30)), SleepInterval(start: date(15, 13), end: date(15, 14))]
+    func testMainSleepWinsOverLaterNapOnSameWakeDate() {
+        let intervals = [
+            SleepInterval(start: date(14, 22), end: date(15, 6, 30)),
+            SleepInterval(start: date(15, 13), end: date(15, 14))
+        ]
         let selected = SleepSessionCalculator.primarySession(intervals: intervals)
         XCTAssertEqual(selected?.start, date(14, 22))
         XCTAssertEqual(selected?.end, date(15, 6, 30))
     }
 
-    func testPrimarySessionUsesLatestEndWhenDurationsTie() {
-        let intervals = [SleepInterval(start: date(14, 22), end: date(15, 2)), SleepInterval(start: date(15, 8), end: date(15, 12))]
+    func testPrimarySessionUsesLatestEndWhenDurationsTieOnSameDay() {
+        let intervals = [
+            SleepInterval(start: date(15, 1), end: date(15, 3)),
+            SleepInterval(start: date(15, 8), end: date(15, 10))
+        ]
         let selected = SleepSessionCalculator.primarySession(intervals: intervals)
         XCTAssertEqual(selected?.start, date(15, 8))
+    }
+
+    func testLegacySleepSessionInitializerStillDefaultsToElapsedDuration() {
+        let session = SleepSession(start: date(14, 22), end: date(15, 6))
+        XCTAssertEqual(session.duration, 8 * 3600)
     }
 
     func testInvalidIntervalsAreIgnored() {
