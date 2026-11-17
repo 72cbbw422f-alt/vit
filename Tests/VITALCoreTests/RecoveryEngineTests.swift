@@ -101,4 +101,32 @@ final class RecoveryEngineTests: XCTestCase {
         XCTAssertTrue(guidance.title.contains("Inga"))
     }
 
+    func testImplausibleInputsDoNotProduceRecoveryScore() {
+        let cases: [RecoveryInputs] = [
+            .init(sleepDurationHours: 30, baselineSleepHours: 8,
+                  hrvMilliseconds: 50, baselineHRVMilliseconds: 50,
+                  restingHeartRateBPM: 60, baselineRestingHeartRateBPM: 60,
+                  baselineDaysAvailable: 30),
+            .init(sleepDurationHours: 8, baselineSleepHours: 8,
+                  hrvMilliseconds: 500, baselineHRVMilliseconds: 50,
+                  restingHeartRateBPM: 60, baselineRestingHeartRateBPM: 60,
+                  baselineDaysAvailable: 30),
+            .init(sleepDurationHours: 8, baselineSleepHours: 8,
+                  hrvMilliseconds: 50, baselineHRVMilliseconds: 50,
+                  restingHeartRateBPM: 10, baselineRestingHeartRateBPM: 60,
+                  baselineDaysAvailable: 30),
+            .init(sleepDurationHours: 8, baselineSleepHours: 30,
+                  hrvMilliseconds: 50, baselineHRVMilliseconds: 50,
+                  restingHeartRateBPM: 60, baselineRestingHeartRateBPM: 60,
+                  baselineDaysAvailable: 30)
+        ]
+
+        for input in cases {
+            let result = RecoveryEngine.calculate(input)
+            XCTAssertNil(result.score)
+            XCTAssertTrue(result.isBaselineReady)
+            XCTAssertTrue(result.explanation.contains("saknas"))
+        }
+    }
+
 }
