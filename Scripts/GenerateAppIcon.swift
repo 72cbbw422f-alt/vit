@@ -1,55 +1,84 @@
 import AppKit
 import Foundation
 
-// VITAL's production icon: one unmistakable heart/ECG mark on a deep navy field.
-// Keep the artwork inside the safe area; iOS applies the rounded mask itself.
+// VITAL app icon — Midnight identity: luminous lime ring, heart and ECG pulse.
 let size = 1024
 let image = NSImage(size: NSSize(width: size, height: size))
 image.lockFocus()
 guard let context = NSGraphicsContext.current?.cgContext else { fatalError("No graphics context") }
 context.setAllowsAntialiasing(true)
 context.setShouldAntialias(true)
+
 let bounds = CGRect(x: 0, y: 0, width: size, height: size)
 let background = NSGradient(colors: [
-    NSColor(calibratedRed: 0.055, green: 0.095, blue: 0.19, alpha: 1),
-    NSColor(calibratedRed: 0.035, green: 0.055, blue: 0.14, alpha: 1)
+    NSColor(calibratedRed: 0.055, green: 0.090, blue: 0.165, alpha: 1),
+    NSColor(calibratedRed: 0.025, green: 0.045, blue: 0.095, alpha: 1)
 ])!
 background.draw(in: NSBezierPath(rect: bounds), angle: -45)
 
-// Soft ambient halo behind the symbol.
+// Subtle layered midnight waves along the lower edge.
+let waveOne = NSBezierPath()
+waveOne.move(to: NSPoint(x: 0, y: 0))
+waveOne.line(to: NSPoint(x: 0, y: 190))
+waveOne.curve(to: NSPoint(x: 1024, y: 115), controlPoint1: NSPoint(x: 300, y: 95), controlPoint2: NSPoint(x: 700, y: 245))
+waveOne.line(to: NSPoint(x: 1024, y: 0))
+waveOne.close()
+NSColor(calibratedRed: 0.10, green: 0.19, blue: 0.29, alpha: 0.34).setFill()
+waveOne.fill()
+
+let lime = NSColor(calibratedRed: 0.70, green: 0.94, blue: 0.28, alpha: 1)
+let glow = NSColor(calibratedRed: 0.63, green: 0.96, blue: 0.20, alpha: 0.28)
+
+// Soft halo.
 context.saveGState()
-context.setShadow(offset: .zero, blur: 54, color: NSColor(calibratedRed: 0.12, green: 0.82, blue: 0.78, alpha: 0.22).cgColor)
+context.setShadow(offset: .zero, blur: 70, color: glow.cgColor)
 let halo = NSBezierPath(ovalIn: CGRect(x: 205, y: 205, width: 614, height: 614))
-NSColor(calibratedRed: 0.08, green: 0.35, blue: 0.43, alpha: 0.16).setFill()
+NSColor(calibratedRed: 0.25, green: 0.42, blue: 0.12, alpha: 0.12).setFill()
 halo.fill()
 context.restoreGState()
 
-// Continuous heart outline, deliberately simple and legible at small sizes.
+// Open circular arc around the heart.
+let ring = NSBezierPath()
+ring.appendArc(withCenter: NSPoint(x: 512, y: 512), radius: 350, startAngle: 42, endAngle: 318, clockwise: false)
+ring.lineWidth = 25
+ring.lineCapStyle = .round
+context.saveGState()
+context.setShadow(offset: .zero, blur: 24, color: glow.cgColor)
+lime.setStroke()
+ring.stroke()
+context.restoreGState()
+
+// Heart outline.
 let heart = NSBezierPath()
-heart.move(to: NSPoint(x: 512, y: 260))
-heart.curve(to: NSPoint(x: 512, y: 760), controlPoint1: NSPoint(x: 250, y: 470), controlPoint2: NSPoint(x: 300, y: 690))
-heart.curve(to: NSPoint(x: 512, y: 260), controlPoint1: NSPoint(x: 724, y: 690), controlPoint2: NSPoint(x: 774, y: 470))
-heart.lineWidth = 34
+heart.move(to: NSPoint(x: 512, y: 315))
+heart.curve(to: NSPoint(x: 512, y: 735), controlPoint1: NSPoint(x: 280, y: 470), controlPoint2: NSPoint(x: 300, y: 655))
+heart.curve(to: NSPoint(x: 512, y: 315), controlPoint1: NSPoint(x: 724, y: 655), controlPoint2: NSPoint(x: 744, y: 470))
+heart.lineWidth = 29
 heart.lineJoinStyle = .round
 heart.lineCapStyle = .round
-let teal = NSColor(calibratedRed: 0.43, green: 0.88, blue: 0.83, alpha: 1)
-teal.setStroke()
+context.saveGState()
+context.setShadow(offset: .zero, blur: 22, color: glow.cgColor)
+lime.setStroke()
 heart.stroke()
+context.restoreGState()
 
-// ECG pulse forms the central identity mark.
+// ECG pulse across the center of the heart.
 let pulse = NSBezierPath()
-pulse.move(to: NSPoint(x: 275, y: 505))
-pulse.line(to: NSPoint(x: 405, y: 505))
-pulse.line(to: NSPoint(x: 458, y: 570))
-pulse.line(to: NSPoint(x: 520, y: 405))
-pulse.line(to: NSPoint(x: 578, y: 620))
-pulse.line(to: NSPoint(x: 625, y: 505))
-pulse.line(to: NSPoint(x: 748, y: 505))
-pulse.lineWidth = 31
+pulse.move(to: NSPoint(x: 300, y: 515))
+pulse.line(to: NSPoint(x: 415, y: 515))
+pulse.line(to: NSPoint(x: 463, y: 575))
+pulse.line(to: NSPoint(x: 520, y: 425))
+pulse.line(to: NSPoint(x: 575, y: 615))
+pulse.line(to: NSPoint(x: 625, y: 515))
+pulse.line(to: NSPoint(x: 724, y: 515))
+pulse.lineWidth = 27
 pulse.lineCapStyle = .round
 pulse.lineJoinStyle = .round
-NSColor(calibratedRed: 0.58, green: 0.96, blue: 0.91, alpha: 1).setStroke()
+context.saveGState()
+context.setShadow(offset: .zero, blur: 18, color: glow.cgColor)
+NSColor(calibratedRed: 0.83, green: 1.0, blue: 0.54, alpha: 1).setStroke()
 pulse.stroke()
+context.restoreGState()
 
 image.unlockFocus()
 guard let tiff = image.tiffRepresentation,
@@ -60,4 +89,4 @@ guard let tiff = image.tiffRepresentation,
 let output = URL(fileURLWithPath: "VITAL/Assets.xcassets/AppIcon.appiconset/AppIcon.png")
 try FileManager.default.createDirectory(at: output.deletingLastPathComponent(), withIntermediateDirectories: true)
 try png.write(to: output)
-print("Generated (output.path)")
+print("Generated \(output.path)")
