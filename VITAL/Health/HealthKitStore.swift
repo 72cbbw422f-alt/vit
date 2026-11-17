@@ -299,7 +299,12 @@ final class HealthKitStore: ObservableObject {
               let diastolicType = HKObjectType.quantityType(forIdentifier: .bloodPressureDiastolic) else { return nil }
         return await withCheckedContinuation { continuation in
             let query = HKSampleQuery(sampleType: correlationType, predicate: nil, limit: 1,
-                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { _, samples, _ in
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { [weak self] _, samples, error in
+                    if let error {
+                        Task { @MainActor [weak self] in self?.recordQueryError(error, context: "Blodtrycksdata") }
+                        continuation.resume(returning: nil)
+                        return
+                    }
                     guard let correlation = samples?.first as? HKCorrelation,
                           let systolic = correlation.objects(for: systolicType).first as? HKQuantitySample,
                           let diastolic = correlation.objects(for: diastolicType).first as? HKQuantitySample else {
@@ -324,7 +329,12 @@ final class HealthKitStore: ObservableObject {
         guard let type = HKObjectType.quantityType(forIdentifier: identifier) else { return nil }
         return await withCheckedContinuation { continuation in
             let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1,
-                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { _, samples, _ in
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { [weak self] _, samples, error in
+                    if let error {
+                        Task { @MainActor [weak self] in self?.recordQueryError(error, context: "Senaste hälsomätningen") }
+                        continuation.resume(returning: nil)
+                        return
+                    }
                     guard let sample = samples?.first as? HKQuantitySample else {
                         continuation.resume(returning: nil)
                         return
@@ -339,7 +349,12 @@ final class HealthKitStore: ObservableObject {
         guard let type = HKObjectType.quantityType(forIdentifier: identifier) else { return nil }
         return await withCheckedContinuation { continuation in
             let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1,
-                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { _, samples, _ in
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { [weak self] _, samples, error in
+                    if let error {
+                        Task { @MainActor [weak self] in self?.recordQueryError(error, context: "Senaste hälsomätningen") }
+                        continuation.resume(returning: nil)
+                        return
+                    }
                     continuation.resume(returning: (samples?.first as? HKQuantitySample)?.quantity.doubleValue(for: unit))
                 }
             store.execute(query)
@@ -350,7 +365,12 @@ final class HealthKitStore: ObservableObject {
         guard let type = HKObjectType.quantityType(forIdentifier: identifier) else { return nil }
         let predicate = HKQuery.predicateForSamples(withStart: Calendar.current.startOfDay(for: Date()), end: Date())
         return await withCheckedContinuation { continuation in
-            let query = HKStatisticsQuery(quantityType: type, quantitySamplePredicate: predicate, options: .cumulativeSum) { _, result, _ in
+            let query = HKStatisticsQuery(quantityType: type, quantitySamplePredicate: predicate, options: .cumulativeSum) { [weak self] _, result, error in
+                if let error {
+                    Task { @MainActor [weak self] in self?.recordQueryError(error, context: "Dagens aktivitetsdata") }
+                    continuation.resume(returning: nil)
+                    return
+                }
                 continuation.resume(returning: result?.sumQuantity()?.doubleValue(for: unit))
             }
             store.execute(query)
@@ -367,7 +387,12 @@ final class HealthKitStore: ObservableObject {
         let predicate = HKQuery.predicateForSamples(withStart: start, end: end)
         return await withCheckedContinuation { continuation in
             let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit,
-                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)]) { _, samples, _ in
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)]) { [weak self] _, samples, error in
+                    if let error {
+                        Task { @MainActor [weak self] in self?.recordQueryError(error, context: "Puls- och aktivitetsdata") }
+                        continuation.resume(returning: [])
+                        return
+                    }
                     let values = ((samples as? [HKQuantitySample]) ?? []).map {
                         TimedHealthValue(timestamp: $0.endDate, value: $0.quantity.doubleValue(for: unit), startTimestamp: $0.startDate)
                     }
