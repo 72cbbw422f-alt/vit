@@ -121,7 +121,7 @@ private struct InsightsView: View {
         HStack {
             Text(title).foregroundStyle(VITALPalette.muted)
             Spacer()
-            Text("\(days)/14 dagar").font(.subheadline.monospacedDigit()).foregroundStyle(days >= 14 ? VITALPalette.teal : VITALPalette.amber)
+            Text("\(days) giltiga dagar").font(.subheadline.monospacedDigit()).foregroundStyle(days >= 14 ? VITALPalette.teal : VITALPalette.amber)
         }.padding(.vertical, 5)
     }
 }
