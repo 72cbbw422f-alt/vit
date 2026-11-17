@@ -81,6 +81,20 @@ final class BodyBatteryEngineTests: XCTestCase {
     }
 
 
+    func testOverflowingActiveEnergyDoesNotCrashOrProduceScore() {
+        let result = BodyBatteryEngine.calculate(BodyBatteryInputs(
+            wakeTime: wake, asOf: wake.addingTimeInterval(3600),
+            overnightRecoveryScore: 80, restingHeartRateBaselineBPM: 60,
+            heartRateSamples: samples([70, 70, 70, 70, 70], spacing: 900),
+            activeEnergySamples: [
+                TimedHealthValue(timestamp: wake.addingTimeInterval(1800), value: Double.greatestFiniteMagnitude),
+                TimedHealthValue(timestamp: wake.addingTimeInterval(3600), value: Double.greatestFiniteMagnitude)
+            ]
+        ))
+        XCTAssertNil(result.score)
+        XCTAssertEqual(result.activeEnergyKcal, 0)
+    }
+
     func testSustainedRestNearPersonalRestingRateAddsRecovery() {
         let result = BodyBatteryEngine.calculate(BodyBatteryInputs(
             wakeTime: wake, asOf: wake.addingTimeInterval(3600),

@@ -86,10 +86,21 @@ enum BodyBatteryEngine {
                     intervalStart >= input.wakeTime && $0.timestamp <= input.asOf
             }
             .reduce(0) { $0 + $1.value }
+        guard energy.isFinite, cardiovascularLoad.isFinite else {
+            return BodyBatteryResult(score: nil, heartRateSampleCount: heartRates.count,
+                activeEnergyKcal: 0, cardiovascularLoad: 0, activityLoad: 0, recoveryGain: 0,
+                explanation: "Hälsodata innehåller orimliga värden för att beräkna kroppsbatteriet.")
+        }
         let activityLoad = energy * 0.025
         let recoveryGain = min(recoveryHours * recoveryPointsPerHour, maximumDailyRecoveryGain)
         let totalLoad = cardiovascularLoad + activityLoad
-        let score = max(0, min(100, Int((Double(start) - totalLoad + recoveryGain).rounded())))
+        let rawScore = Double(start) - totalLoad + recoveryGain
+        guard rawScore.isFinite else {
+            return BodyBatteryResult(score: nil, heartRateSampleCount: heartRates.count,
+                activeEnergyKcal: 0, cardiovascularLoad: 0, activityLoad: 0, recoveryGain: 0,
+                explanation: "Hälsodata innehåller orimliga värden för att beräkna kroppsbatteriet.")
+        }
+        let score = max(0, min(100, Int(rawScore.rounded())))
 
         return BodyBatteryResult(score: score, heartRateSampleCount: heartRates.count,
             activeEnergyKcal: energy, cardiovascularLoad: cardiovascularLoad,
