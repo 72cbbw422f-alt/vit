@@ -47,21 +47,21 @@ struct HealthSnapshot {
     }
 
     var sleepText: String {
-        guard let sleepDuration else { return "—" }
+        guard let sleepDuration, sleepDuration.isFinite, sleepDuration > 0, sleepDuration < Double(Int.max) else { return "—" }
         let hours = Int(sleepDuration) / 3600
         let minutes = (Int(sleepDuration) % 3600) / 60
         return "\(hours) h \(String(format: "%02d", minutes)) min"
     }
     var stepsText: String {
-        guard let steps else { return "—" }
+        guard let steps, steps.isFinite, steps >= 0, steps < Double(Int.max) else { return "—" }
         return Int(steps).formatted()
     }
     var restingHeartRateText: String {
-        guard let restingHeartRate else { return "—" }
+        guard let restingHeartRate, restingHeartRate.isFinite, restingHeartRate > 0, restingHeartRate < Double(Int.max) else { return "—" }
         return "\(Int(restingHeartRate.rounded())) bpm"
     }
     var hrvText: String {
-        guard let hrv else { return "—" }
+        guard let hrv, hrv.isFinite, hrv > 0, hrv < Double(Int.max) else { return "—" }
         return "\(Int(hrv.rounded())) ms"
     }
     var bloodPressureText: String {

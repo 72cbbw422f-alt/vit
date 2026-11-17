@@ -42,4 +42,26 @@ final class HealthSnapshotMetricFormattingTests: XCTestCase {
         XCTAssertEqual(snapshot.respiratoryRateText, "—")
         XCTAssertEqual(snapshot.oxygenSaturationText, "—")
     }
+
+    
+    func testCoreMetricsRejectNonFiniteAndOutOfRangeValues() {
+        var snapshot = HealthSnapshot.empty
+        snapshot.sleepDuration = .infinity
+        snapshot.steps = .nan
+        snapshot.restingHeartRate = .infinity
+        snapshot.hrv = .nan
+        XCTAssertEqual(snapshot.sleepText, "—")
+        XCTAssertEqual(snapshot.stepsText, "—")
+        XCTAssertEqual(snapshot.restingHeartRateText, "—")
+        XCTAssertEqual(snapshot.hrvText, "—")
+
+        snapshot.sleepDuration = -1
+        snapshot.steps = -1
+        snapshot.restingHeartRate = 0
+        snapshot.hrv = 0
+        XCTAssertEqual(snapshot.sleepText, "—")
+        XCTAssertEqual(snapshot.stepsText, "—")
+        XCTAssertEqual(snapshot.restingHeartRateText, "—")
+        XCTAssertEqual(snapshot.hrvText, "—")
+    }
 }
