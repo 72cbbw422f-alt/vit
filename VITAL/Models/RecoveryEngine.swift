@@ -34,12 +34,12 @@ enum RecoveryEngine {
                 isBaselineReady: false)
         }
 
-        guard let sleep = positive(input.sleepDurationHours),
-              let sleepBaseline = positive(input.baselineSleepHours),
-              let hrv = positive(input.hrvMilliseconds),
-              let hrvBaseline = positive(input.baselineHRVMilliseconds),
-              let pulse = positive(input.restingHeartRateBPM),
-              let pulseBaseline = positive(input.baselineRestingHeartRateBPM) else {
+        guard let sleep = bounded(input.sleepDurationHours, range: 0.5...24),
+              let sleepBaseline = bounded(input.baselineSleepHours, range: 0.5...24),
+              let hrv = bounded(input.hrvMilliseconds, range: 1...300),
+              let hrvBaseline = bounded(input.baselineHRVMilliseconds, range: 1...300),
+              let pulse = bounded(input.restingHeartRateBPM, range: 25...220),
+              let pulseBaseline = bounded(input.baselineRestingHeartRateBPM, range: 25...220) else {
             return RecoveryResult(score: nil, sleepComponent: nil, hrvComponent: nil,
                 restingPulseComponent: nil,
                 explanation: "Återhämtning kan inte beräknas: ett eller flera mätvärden saknas.",
@@ -60,8 +60,9 @@ enum RecoveryEngine {
             isBaselineReady: true)
     }
 
-    private static func positive(_ value: Double?) -> Double? {
-        guard let value, value.isFinite, value > 0 else { return nil }
+    /// Broad defensive bounds for corrupted/imported samples, not clinical reference ranges.
+    private static func bounded(_ value: Double?, range: ClosedRange<Double>) -> Double? {
+        guard let value, value.isFinite, range.contains(value) else { return nil }
         return value
     }
 
