@@ -228,11 +228,17 @@ struct DashboardView: View {
                 Text(battery?.score == nil ? "Inväntar tillräckligt underlag" : "Dagens beräknade energinivå")
                     .font(.caption).foregroundStyle(VITALPalette.muted)
                 if let battery, battery.score != nil {
-                    HStack {
+                    HStack(spacing: 8) {
                         Label("\(battery.heartRateSampleCount) pulsmätningar", systemImage: "heart")
-                        Spacer()
-                        Text("\(Int(battery.activeEnergyKcal.rounded())) kcal aktiv energi")
+                        Spacer(minLength: 4)
+                        Text("\(Int(battery.activeEnergyKcal.rounded())) kcal aktivitet")
                     }.font(.caption2).foregroundStyle(VITALPalette.teal)
+                    HStack {
+                        Label("Återhämtning i vila", systemImage: "leaf")
+                        Spacer()
+                        Text("+\(Int(battery.recoveryGain.rounded()))")
+                            .monospacedDigit()
+                    }.font(.caption2.weight(.medium)).foregroundStyle(VITALPalette.teal)
                 }
                 Text("Preliminär uppskattning")
                     .font(.caption2).foregroundStyle(VITALPalette.amber)

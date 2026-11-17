@@ -1,8 +1,8 @@
 import Foundation
 
-/// First conservative daytime energy estimate, kept separate from overnight recovery.
-/// The model only decreases from the morning recovery score; daytime recharge is
-/// intentionally deferred until it can be validated against real-world data.
+/// Conservative daytime energy estimate, kept separate from overnight recovery.
+/// Sustained low heart rate can add a small recovery gain; activity and elevated
+/// heart rate add load. This is a heuristic wellness estimate, not a clinical metric.
 struct BodyBatteryInputs {
     let wakeTime: Date
     let asOf: Date
@@ -30,9 +30,10 @@ enum BodyBatteryEngine {
     static let recoveryPointsPerHour = 1.5
     static let maximumDailyRecoveryGain = 12.0
 
-    /// Estimates remaining daytime capacity from the morning recovery score.
-    /// HR load integrates elevation above personal resting HR over sample intervals;
-    /// active energy contributes a separate, deliberately modest load term.
+    /// Estimates daytime capacity from overnight recovery.
+    /// Gaps longer than 15 minutes are ignored. Rest gain is awarded only when
+    /// both bounding HR samples are near the personal resting baseline and no
+    /// active-energy sample overlaps the interval.
     static func calculate(_ input: BodyBatteryInputs) -> BodyBatteryResult {
         guard input.asOf >= input.wakeTime,
               let start = input.overnightRecoveryScore,
