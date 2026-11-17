@@ -73,7 +73,8 @@ struct HealthSnapshot {
         return "\(Int(systolicBloodPressure.rounded()))/\(Int(diastolicBloodPressure.rounded()))"
     }
     var respiratoryRateText: String {
-        guard let respiratoryRate, respiratoryRate.isFinite, respiratoryRate > 0 else { return "—" }
+        guard let respiratoryRate, respiratoryRate.isFinite, respiratoryRate > 0,
+              respiratoryRate < Double(Int.max) else { return "—" }
         return "\(Int(respiratoryRate.rounded())) andetag/min"
     }
     var oxygenSaturationText: String {

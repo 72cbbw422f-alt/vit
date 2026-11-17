@@ -44,6 +44,12 @@ final class HealthSnapshotMetricFormattingTests: XCTestCase {
     }
 
     
+    func testRespiratoryRateRejectsValuesOutsideIntegerDisplayRange() {
+        var snapshot = HealthSnapshot.empty
+        snapshot.respiratoryRate = Double.greatestFiniteMagnitude
+        XCTAssertEqual(snapshot.respiratoryRateText, "—")
+    }
+
     func testCoreMetricsRejectNonFiniteAndOutOfRangeValues() {
         var snapshot = HealthSnapshot.empty
         snapshot.sleepDuration = .infinity
