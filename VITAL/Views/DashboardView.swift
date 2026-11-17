@@ -293,9 +293,9 @@ private struct MetricCard: View {
     private var symbol: String {
         switch title {
         case "SÖMN": "moon.stars.fill"
-        case "HRV": "waveform.path.ecg"
-        case "VILOPULS": "heart.fill"
-        default: "bolt.heart.fill"
+        case "NATT-HRV", "SENASTE HRV": "waveform.path.ecg"
+        case "NATTPULS": "heart.fill"
+        default: "heart.text.square"
         }
     }
     var body: some View {
