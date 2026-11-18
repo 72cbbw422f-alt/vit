@@ -337,8 +337,8 @@ struct VITALDashboardView: View {
             Image(systemName: symbol).font(.vital(size: 17.4, weight: .semibold)).foregroundStyle(tint)
                 .frame(width: 30, height: 30).background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
             Text(title.uppercased()).font(.vital(size: 12, weight: .heavy)).tracking(1).foregroundStyle(VITALPalette.steel)
-            Text(value).font(.vital(size: 19.9, weight: .bold, design: .rounded)).minimumScaleFactor(0.65).lineLimit(1).foregroundStyle(VITALPalette.paper)
-            Text(detail).font(.vital(size: 12, weight: .medium)).foregroundStyle(VITALPalette.steel).lineLimit(1)
+            Text(value).font(.vital(size: 19.9, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.paper).fixedSize(horizontal: false, vertical: true)
+            Text(detail).font(.vital(size: 12, weight: .medium)).foregroundStyle(VITALPalette.steel).fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, minHeight: 112, alignment: .leading).padding(11)
         .background(LinearGradient(colors: [Color(hex: 0x192B3C), VITALPalette.panel], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
@@ -390,7 +390,7 @@ struct VITALDashboardView: View {
                         .rotationEffect(.degrees(-90))
                     VStack(spacing: 1) {
                         Text(steps.map { "\(Int(min($0, 999999).rounded()))" } ?? "—")
-                            .font(.vital(size: 24.8, weight: .bold, design: .rounded)).minimumScaleFactor(0.6).lineLimit(1).foregroundStyle(VITALPalette.paper)
+                            .font(.vital(size: 24.8, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.paper).fixedSize(horizontal: false, vertical: true)
                         Text("STEG").font(.vital(size: 12, weight: .heavy)).tracking(1).foregroundStyle(VITALPalette.steel)
                     }
                 }.frame(width: 88, height: 88)
@@ -461,7 +461,7 @@ struct VITALDashboardView: View {
     private func miniStat(_ title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title).font(.vital(size: 12, weight: .heavy)).tracking(0.5).foregroundStyle(VITALPalette.steel)
-            Text(value).font(.vital(size: 13.6, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.paper).lineLimit(1).minimumScaleFactor(0.7)
+            Text(value).font(.vital(size: 13.6, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.paper).fixedSize(horizontal: false, vertical: true)
         }
     }
 }
