@@ -306,7 +306,7 @@ struct VITALDashboardView: View {
                         .overlay(RoundedRectangle(cornerRadius: 15).stroke(isSelected ? VITALPalette.lime.opacity(0.55) : Color.white.opacity(0.055), lineWidth: 1))
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Humör: \\(choice.2)")
+                    .accessibilityLabel("Humör: \(choice.2)")
                     .accessibilityAddTraits(isSelected ? .isSelected : [])
                 }
             }
