@@ -40,7 +40,7 @@ struct DashboardView: View {
         HStack {
             VStack(alignment: .leading, spacing: 5) {
                 Text(dateTitle).font(.subheadline.weight(.semibold)).tracking(0.7).foregroundStyle(VITALPalette.muted)
-                Text("Din hälsa").font(.system(size: 34, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
+                Text("Din hälsa").font(.vital(size: 34, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
             }
             Spacer()
         }
@@ -63,7 +63,7 @@ struct DashboardView: View {
                 HStack(spacing: 18) {
                     ScoreRing(score: recovery.score, tint: statusTint, size: 112)
                     VStack(alignment: .leading, spacing: 6) {
-                        Text(recovery.score.map(String.init) ?? "—").font(.system(size: 42, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud).monospacedDigit()
+                        Text(recovery.score.map(String.init) ?? "—").font(.vital(size: 42, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud).monospacedDigit()
                         Text("AV 100").font(.caption.weight(.bold)).tracking(0.8).foregroundStyle(statusTint)
                         Text(guidance.title).font(.headline.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
                     }
@@ -120,7 +120,7 @@ struct DashboardView: View {
                 if let latest {
                     HStack(spacing: 12) {
                         Image(systemName: latest.mood.symbol)
-                            .font(.system(size: 25, weight: .semibold))
+                            .font(.vital(size: 25, weight: .semibold))
                             .foregroundStyle(latest.mood.color)
                             .frame(width: 54, height: 54)
                             .background(latest.mood.color.opacity(0.14), in: Circle())
@@ -163,7 +163,7 @@ struct DashboardView: View {
                 } else {
                     HStack(spacing: 12) {
                         Image(systemName: "face.smiling")
-                            .font(.system(size: 28)).foregroundStyle(VITALPalette.teal)
+                            .font(.vital(size: 28)).foregroundStyle(VITALPalette.teal)
                             .frame(width: 54, height: 54)
                             .background(VITALPalette.teal.opacity(0.12), in: Circle())
                         VStack(alignment: .leading, spacing: 4) {
@@ -216,7 +216,7 @@ struct DashboardView: View {
                         Text("Kroppsbatteri").font(.headline.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
                         HStack(alignment: .firstTextBaseline, spacing: 5) {
                             Text(battery?.score.map { String($0) } ?? "—")
-                                .font(.system(size: 34, weight: .bold, design: .rounded))
+                                .font(.vital(size: 34, weight: .bold, design: .rounded))
                                 .foregroundStyle(VITALPalette.violet).monospacedDigit()
                             Text("/ 100").font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.muted)
                         }
@@ -258,7 +258,7 @@ struct DashboardView: View {
                         .frame(width: 112, height: 112)
                     VStack(alignment: .leading, spacing: 5) {
                         Text(health.snapshot.stepsText)
-                            .font(.system(size: 34, weight: .bold, design: .rounded))
+                            .font(.vital(size: 34, weight: .bold, design: .rounded))
                             .foregroundStyle(VITALPalette.cloud).monospacedDigit()
                             .minimumScaleFactor(0.75).lineLimit(1)
                         Text("steg idag").font(.subheadline).foregroundStyle(VITALPalette.muted)
@@ -312,7 +312,7 @@ private struct MetricCard: View {
         VStack(alignment: .leading, spacing: 11) {
             HStack {
                 Image(systemName: symbol)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.vital(size: 14, weight: .semibold))
                     .foregroundStyle(accent)
                     .frame(width: 30, height: 30)
                     .background(accent.opacity(0.13), in: RoundedRectangle(cornerRadius: 10))
@@ -320,7 +320,7 @@ private struct MetricCard: View {
                 Circle().fill(accent.opacity(0.85)).frame(width: 6, height: 6)
             }
             Text(title).font(.caption.weight(.semibold)).tracking(0.5).foregroundStyle(VITALPalette.muted)
-            Text(value).font(.system(size: 25, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud).lineLimit(1).minimumScaleFactor(0.75)
+            Text(value).font(.vital(size: 25, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud).lineLimit(1).minimumScaleFactor(0.75)
             Text(detail).font(.caption2).foregroundStyle(accent).lineLimit(1)
         }.frame(maxWidth: .infinity, minHeight: 132, alignment: .leading).padding(15)
             .background(
@@ -500,9 +500,9 @@ private struct ActivityRing: View {
                 )
                 .rotationEffect(.degrees(-90))
             VStack(spacing: 2) {
-                Image(systemName: "figure.walk").font(.system(size: 20, weight: .semibold)).foregroundStyle(VITALPalette.teal)
+                Image(systemName: "figure.walk").font(.vital(size: 20, weight: .semibold)).foregroundStyle(VITALPalette.teal)
                 Text(hasData ? "\(Int(progress * 100))%" : "—")
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(.vital(size: 18, weight: .bold, design: .rounded))
                     .foregroundStyle(VITALPalette.cloud).monospacedDigit()
             }
         }
@@ -526,7 +526,7 @@ private struct ScoreRing: View {
             if score == nil {
                 Image(systemName: "minus").font(.title2.bold()).foregroundStyle(VITALPalette.muted)
             } else {
-                Image(systemName: "sparkles").font(.system(size: 17, weight: .semibold)).foregroundStyle(tint)
+                Image(systemName: "sparkles").font(.vital(size: 17, weight: .semibold)).foregroundStyle(tint)
             }
         }
         .frame(width: size, height: size)
