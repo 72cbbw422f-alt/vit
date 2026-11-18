@@ -65,6 +65,13 @@ struct VITALDashboardView: View {
             RoundedRectangle(cornerRadius: 32, style: .continuous)
                 .fill(LinearGradient(colors: [Color(hex: 0x172B3C), Color(hex: 0x0D1928), Color(hex: 0x101D2D)], startPoint: .topLeading, endPoint: .bottomTrailing))
             Circle().fill(VITALPalette.lime.opacity(0.08)).frame(width: 210, height: 210).blur(radius: 55).offset(y: -18)
+            VStack(spacing: 0) {
+                Spacer()
+                VITALWaveShape(phase: 0.0).fill(VITALPalette.lime.opacity(0.075)).frame(height: 92)
+                VITALWaveShape(phase: 0.42).fill(Color(hex: 0x567C9A).opacity(0.12)).frame(height: 72).offset(y: -26)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+            .allowsHitTesting(false)
             VStack(spacing: 15) {
                 HStack {
                     Label("KROPPSBATTERI", systemImage: "battery.100percent")
@@ -170,8 +177,8 @@ struct VITALDashboardView: View {
             Text(detail).font(.system(size: 8, weight: .medium)).foregroundStyle(VITALPalette.steel).lineLimit(1)
         }
         .frame(maxWidth: .infinity, minHeight: 112, alignment: .leading).padding(11)
-        .background(VITALPalette.panel, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.white.opacity(0.055), lineWidth: 1))
+        .background(LinearGradient(colors: [Color(hex: 0x192B3C), VITALPalette.panel], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.white.opacity(0.075), lineWidth: 1))
     }
 
     private var bodyBatteryPanel: some View {
@@ -303,4 +310,24 @@ private extension VITALPalette {
     static let lime = Color(hex: 0xC4F36B)
     static let lavender = Color(hex: 0x9A91F5)
     static let coral = Color(hex: 0xF18A7C)
+}
+
+
+/// Subtle layered wave motif shared by the approved VITAL Midnight visual language.
+private struct VITALWaveShape: Shape {
+    var phase: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: 0, y: rect.height * 0.48))
+        path.addCurve(
+            to: CGPoint(x: rect.width, y: rect.height * 0.34),
+            control1: CGPoint(x: rect.width * 0.28, y: rect.height * (0.04 + phase * 0.2)),
+            control2: CGPoint(x: rect.width * 0.64, y: rect.height * (0.94 - phase * 0.18))
+        )
+        path.addLine(to: CGPoint(x: rect.width, y: rect.height))
+        path.addLine(to: CGPoint(x: 0, y: rect.height))
+        path.closeSubpath()
+        return path
+    }
 }
