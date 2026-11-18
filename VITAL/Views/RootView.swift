@@ -136,6 +136,8 @@ private struct InsightsView: View {
                                         }
                                     }
                                     .chartYScale(domain: 0...100)
+                                    .accessibilityLabel("Historisk återhämtning")
+                                    .accessibilityValue("\(recoveryReports.count) sparade morgonvärden, skala noll till hundra")
                                     .chartXAxis(.hidden)
                                     .chartYAxis {
                                         AxisMarks(position: .leading, values: [0, 50, 100]) { value in
@@ -837,6 +839,8 @@ private struct HealthOverviewView: View {
                                 .foregroundStyle(VITALPalette.teal)
                         }
                         .chartYAxisLabel("kg")
+                        .accessibilityLabel("Viktutveckling från Apple Hälsa")
+                        .accessibilityValue("\(health.weightHistory.count) mätningar under de senaste 90 dagarna, kilogram")
                         .frame(height: 170)
                     }
                 } else if !health.weightHistory.isEmpty {
@@ -853,6 +857,8 @@ private struct HealthOverviewView: View {
                             .foregroundStyle(VITALPalette.teal)
                     }
                     .chartYAxisLabel("kg")
+                    .accessibilityLabel("Äldre lokalt sparad vikthistorik")
+                    .accessibilityValue("\(weightJournal.chartEntries.count) viktregistreringar, kilogram")
                     .frame(height: 140)
                 }
                 if !weightJournal.entries.isEmpty {
@@ -1065,6 +1071,8 @@ private struct HealthOverviewView: View {
                             }
                         }
                         .chartYAxisLabel("mmHg")
+                        .accessibilityLabel("Blodtrycksutveckling från Apple Hälsa")
+                        .accessibilityValue("\(health.bloodPressureHistory.count) mätningar under de senaste 90 dagarna. Visar övertryck och undertryck i millimeter kvicksilver.")
                         .chartLegend(position: .bottom, alignment: .leading)
                         .frame(height: 180)
                         HStack(spacing: 14) {
