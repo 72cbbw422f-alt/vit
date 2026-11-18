@@ -44,22 +44,44 @@ struct VITALDashboardView: View {
     }
 
     private var header: some View {
-        HStack(alignment: .center) {
-            VStack(alignment: .leading, spacing: 5) {
-                Text(Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide)).uppercased())
-                    .font(.system(size: 10, weight: .bold, design: .rounded)).tracking(1.8)
-                    .foregroundStyle(VITALPalette.steel)
-                Text("Överblick")
-                    .font(.system(size: 32, weight: .bold, design: .rounded))
-                    .foregroundStyle(VITALPalette.paper)
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 12) {
+                Image("AppIcon")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 48, height: 48)
+                    .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 13).stroke(Color.white.opacity(0.12), lineWidth: 1))
+                    .shadow(color: VITALPalette.lime.opacity(0.12), radius: 10, y: 4)
+                Rectangle().fill(Color.white.opacity(0.22)).frame(width: 1, height: 39)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("V I T A L")
+                        .font(.system(size: 21, weight: .medium, design: .rounded))
+                        .foregroundStyle(VITALPalette.paper)
+                    Text("HÄLSA  •  ÅTERHÄMTNING  •  BALANS")
+                        .font(.system(size: 7, weight: .bold, design: .rounded))
+                        .tracking(1.15)
+                        .foregroundStyle(VITALPalette.steel)
+                }
+                Spacer()
+                Image(systemName: "bell")
+                    .font(.system(size: 17, weight: .medium))
+                    .foregroundStyle(VITALPalette.paper.opacity(0.9))
+                    .frame(width: 42, height: 42)
+                    .background(Color.white.opacity(0.045), in: Circle())
+                    .overlay(Circle().stroke(Color.white.opacity(0.08), lineWidth: 1))
+                    .accessibilityLabel("Notiser")
             }
-            Spacer()
-            ZStack {
-                Circle().fill(VITALPalette.lime.opacity(0.10)).frame(width: 44, height: 44)
-                Image(systemName: "waveform.path.ecg").font(.system(size: 19, weight: .semibold))
+            HStack(alignment: .lastTextBaseline) {
+                Text(Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide)).capitalized)
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .foregroundStyle(VITALPalette.steel)
+                Spacer()
+                Text("ÖVERSIKT")
+                    .font(.system(size: 9, weight: .heavy, design: .rounded))
+                    .tracking(1.4)
                     .foregroundStyle(VITALPalette.lime)
             }
-            .overlay(Circle().stroke(VITALPalette.lime.opacity(0.24), lineWidth: 1))
         }
     }
 
