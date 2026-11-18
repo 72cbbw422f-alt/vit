@@ -404,3 +404,14 @@ Status betyder:
 - [x] Behålla äldre rapportarkiv enbart för bakåtkompatibilitet
 - [x] Låta startsidans återhämtningskort visa aktuell HealthKit-snapshot
 - [ ] Rensa oanvänd rapportstate och rapportpolicy efter kontroll av alla referenser och migreringsbehov
+
+## Uppdatering 2026-11-18 – Tillgänglighet och läsbarhet
+- [x] Gemensam Dynamic Type-fontfunktion i appens huvudvyer
+- [x] Höja minsta textnivå i centrala hälsovyer och ta bort `caption2`-texter där de förekom
+- [x] Ta bort automatisk nedskalning av centrala mätvärden vid större textstorlekar
+- [x] Låta mätvärdeskort och förklaringar radbrytas i stället för att klippas eller krympas
+- [x] Göra nattens signaler till tvåkolumnslayout för bättre läsbarhet
+- [x] Lägga baslinjens värde och antal giltiga dagar på separata, radbrytbara rader
+- [ ] Kontrollera samtliga fyra flikar med iOS största tillgänglighetstext på fysisk iPhone
+- [ ] Verifiera VoiceOver-ordning, etiketter och fokus
+- [ ] Kontrollera grafernas axlar, legender och touchmål vid större textstorlekar
