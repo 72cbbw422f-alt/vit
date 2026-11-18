@@ -429,6 +429,7 @@ Status betyder:
 - [x] Sömnvärdet i Hälsa får full bredd i rutnätet så tidsvärdet inte bryts mitt i enheten.
 - [x] Modellberäknad-etiketten i läkemedelskortet flyttas till egen rad och får en tydlig etikettbakgrund.
 - [x] Kroppsbatteriets sista faktarad får full bredd och den dekorativa bakgrunden tas bort från mätvärdesområdet så den inte konkurrerar med texten.
+- [x] Hälsa-fliken får en manuell uppdateringsknapp för att hämta senaste tillgängliga värden från Apple Hälsa.
 - [ ] Verifiera VoiceOver-ordning och etiketter på interaktiva kontroller.
 
 Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa godkännande kräver nytt fysiskt enhetstest; simulatorbygget verifierar kompilering och start, inte faktisk läsbarhet på användarens enhet.
