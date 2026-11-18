@@ -22,6 +22,7 @@ struct VITALDashboardView: View {
                     header
                     bodyBatteryHero
                     recoverySummary
+                    coachCard
                     moodCheckIn
                     quickMetrics
                     movementPanel
@@ -177,6 +178,90 @@ struct VITALDashboardView: View {
         .padding(15)
         .background(VITALPalette.panel, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.white.opacity(0.06), lineWidth: 1))
+    }
+
+    /// Daily coach copy is derived only from available overnight recovery signals and the user's own mood check-in.
+    private var coachCard: some View {
+        let insight = coachInsight
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label("VITAL COACH", systemImage: "sparkles")
+                    .font(.system(size: 9, weight: .heavy)).tracking(1.2)
+                    .foregroundStyle(VITALPalette.lime)
+                Spacer()
+                Text("DAGENS REFLEKTION")
+                    .font(.system(size: 8, weight: .heavy)).tracking(0.8)
+                    .foregroundStyle(VITALPalette.steel)
+            }
+            HStack(alignment: .top, spacing: 11) {
+                Image(systemName: insight.symbol)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(insight.tint)
+                    .frame(width: 40, height: 40)
+                    .background(insight.tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 13))
+                VStack(alignment: .leading, spacing: 7) {
+                    Text(insight.headline)
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .foregroundStyle(VITALPalette.paper)
+                    Text(insight.detail)
+                        .font(.system(size: 11, weight: .medium))
+                        .lineSpacing(3)
+                        .foregroundStyle(Color(hex: 0xB9C6D2))
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text(insight.recommendation)
+                        .font(.system(size: 11, weight: .semibold))
+                        .lineSpacing(2)
+                        .foregroundStyle(insight.tint)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            Divider().overlay(Color.white.opacity(0.08))
+            Text("Bygger på tillgängliga nattvärden och din egen måenderegistrering. Väg alltid in hur kroppen känns.")
+                .font(.system(size: 9, weight: .medium))
+                .foregroundStyle(VITALPalette.steel)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(16)
+        .background(
+            LinearGradient(colors: [Color(hex: 0x192B3A), VITALPalette.panel], startPoint: .topLeading, endPoint: .bottomTrailing),
+            in: RoundedRectangle(cornerRadius: 22, style: .continuous)
+        )
+        .overlay(RoundedRectangle(cornerRadius: 22).stroke(VITALPalette.lime.opacity(0.16), lineWidth: 1))
+    }
+
+    private var coachInsight: (headline: String, detail: String, recommendation: String, symbol: String, tint: Color) {
+        let score = recovery.score
+        let variation = Calendar.current.ordinality(of: .day, in: .year, for: Date()) ?? 1
+        let goodOpeners = [
+            "Dina nattliga signaler ser lovande ut.",
+            "Det finns flera positiva tecken i nattens återhämtning.",
+            "Dagens utgångsläge ser starkt ut."
+        ]
+        let carefulOpeners = [
+            "Kroppen kan behöva lite extra utrymme idag.",
+            "Nattens signaler talar för en mjukare start.",
+            "Det kan vara klokt att sänka tempot något."
+        ]
+        if selectedMood == "low" || selectedMood == "okay" {
+            let headline = selectedMood == "low" ? "Ge dagsformen första ordet." : "Lyssna in kroppen idag."
+            let detail = score.map { $0 >= 75
+                ? "Mätvärdena visar tecken på återhämtning, men din egen notering säger att du inte känner dig helt på topp."
+                : "Både din egen notering och nattens signaler talar för att vara varsam med belastningen."
+            } ?? "Du har berättat hur du känner dig. VITAL saknar samtidigt tillräckliga nattvärden för en fullständig återhämtningsbedömning."
+            return (headline, detail, "Välj aktivitet efter dagsformen – en lugn promenad kan räcka gott.", "heart.text.square.fill", VITALPalette.amber)
+        }
+        guard let score else {
+            return ("Vi samlar fortfarande in underlag.", "VITAL kan ännu inte väga samman sömn, HRV och vilopuls mot din personliga baslinje. Saknade värden ska inte tolkas som vare sig bra eller dåliga.", "Följ hur du känner dig och invänta fler mätningar innan du drar slutsatser om träningsformen.", "waveform.path.ecg", VITALPalette.steel)
+        }
+        if score >= 80 {
+            let opener = goodOpeners[variation % goodOpeners.count]
+            return ("Bra förutsättningar för dagen.", "\(opener) Nattens återhämtningsestimat är \(score) av 100.", "Ett träningspass kan vara ett alternativ om även din egen energi och dagsform känns bra.", "sun.max.fill", VITALPalette.lime)
+        }
+        if score >= 55 {
+            return ("En balanserad dag passar bra.", "Återhämtningsestimatet är \(score) av 100. Signalerna ger en blandad bild – varken ett tydligt grönt ljus eller skäl att dra stora slutsatser.", "Håll dig till en lagom belastning och justera efter hur kroppen svarar.", "scale.3d", VITALPalette.lavender)
+        }
+        let opener = carefulOpeners[variation % carefulOpeners.count]
+        return ("Prioritera återhämtning.", "\(opener) Nattens återhämtningsestimat är \(score) av 100.", "Överväg lättare rörelse idag och prioritera sömn och återhämtning.", "leaf.fill", VITALPalette.amber)
     }
 
     private func heroFact(_ title: String, value: String, icon: String) -> some View {
