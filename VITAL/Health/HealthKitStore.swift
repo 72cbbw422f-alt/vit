@@ -188,8 +188,8 @@ final class HealthKitStore: ObservableObject {
         snapshot = updatedSnapshot
         weightHistory = await historicalWeight
         bloodPressureHistory = await historicalBloodPressure
-        createMorningReportIfEligible(from: updatedSnapshot, sleepSession: sleepSession, capturedAt: now)
-        createEveningReportIfEligible(from: updatedSnapshot, capturedAt: now)
+        // New scheduled morning/evening reports are intentionally disabled.
+        // Previously saved report history remains available and is loaded unchanged.
         isRefreshing = false
         if refreshRequestedAgain {
             refreshRequestedAgain = false
