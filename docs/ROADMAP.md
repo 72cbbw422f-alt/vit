@@ -24,7 +24,8 @@ Status betyder:
 - [x] Ersätta illustrativa grafer med riktiga datakällor eller tydliga tomlägen
 - [~] Huvudkort för nattlig återhämtning med poängring, signaler och dagsråd implementerat; visuell finjustering och datavalidering återstår
 - [~] Tom- och saknat-underlagstillstånd finns på flera vyer; full genomgång av laddnings- och felstater återstår
-- [ ] Säkerställ tillgänglighet och dynamisk textstorlek
+- [x] Införa gemensam Dynamic Type-fontfunktion i huvudvyer och äldre dashboardvy, med stöd upp till största tillgänglighetsstorlek
+- [~] Säkerställ att alla kort, grafer, knappar och mätvärden radbryts och växer korrekt vid största textstorlekar
 - [x] Lägg till uppdatering och senaste uppdateringstid där relevant
 
 ## Fas 3 – Hälsodata
