@@ -481,8 +481,18 @@ private struct HealthOverviewView: View {
                                         .font(.vital(size: 14, weight: .heavy)).tracking(1.1)
                                         .foregroundStyle(VITALPalette.teal)
                                     Spacer()
-                                    Image(systemName: "waveform.path.ecg")
-                                        .font(.title3).foregroundStyle(VITALPalette.teal.opacity(0.8))
+                                    Button {
+                                        Task { await health.refresh() }
+                                    } label: {
+                                        Image(systemName: "arrow.clockwise")
+                                            .font(.title3.weight(.semibold))
+                                            .foregroundStyle(VITALPalette.teal)
+                                            .frame(width: 40, height: 40)
+                                            .background(VITALPalette.teal.opacity(0.12), in: Circle())
+                                    }
+                                    .buttonStyle(.plain)
+                                    .accessibilityLabel("Uppdatera hälsodata")
+                                    .accessibilityHint("Hämtar de senaste tillgängliga värdena från Apple Hälsa")
                                 }
                                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], alignment: .leading, spacing: 12) {
                                     healthOverviewMetric("Vilopuls", value: health.snapshot.restingHeartRateText, tint: VITALPalette.cloud)
