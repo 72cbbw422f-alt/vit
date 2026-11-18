@@ -614,6 +614,49 @@ private struct HealthOverviewView: View {
                     .accessibilityLabel("Hantera läkemedelspåminnelse")
                 }
 
+                let semaglutideEstimate = SemaglutideLevelModel.estimate(
+                    doses: medicationJournal.doses.map { SemaglutideDoseInput(date: $0.date, milligrams: $0.milligrams) },
+                    asOf: .now
+                )
+                VStack(alignment: .leading, spacing: 9) {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text("UPPSKATTAD KVARVARANDE MÄNGD")
+                            .font(.system(size: 9, weight: .heavy)).tracking(0.8)
+                            .foregroundStyle(VITALPalette.muted)
+                        Spacer()
+                        Text("MODELLBERÄKNAD")
+                            .font(.system(size: 8, weight: .heavy)).tracking(0.6)
+                            .foregroundStyle(VITALPalette.violet)
+                    }
+                    if let estimate = semaglutideEstimate {
+                        HStack(alignment: .firstTextBaseline, spacing: 5) {
+                            Text(estimate.remainingMilligrams, format: .number.precision(.fractionLength(2)))
+                                .font(.system(size: 29, weight: .bold, design: .rounded)).monospacedDigit()
+                                .foregroundStyle(VITALPalette.cloud)
+                            Text("mg").font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.teal)
+                            Spacer()
+                            Text("från \(estimate.includedDoseCount) doser")
+                                .font(.caption2).foregroundStyle(VITALPalette.muted)
+                        }
+                        GeometryReader { proxy in
+                            let fraction = min(max(estimate.remainingMilligrams / max(estimate.totalAdministeredMilligrams, 0.01), 0), 1)
+                            ZStack(alignment: .leading) {
+                                Capsule().fill(VITALPalette.track)
+                                Capsule().fill(VITALPalette.violet.gradient).frame(width: proxy.size.width * fraction)
+                            }
+                        }.frame(height: 6)
+                        Text("Förenklad eliminationsmodell med cirka 7 dagars halveringstid. Visar inte uppmätt blodkoncentration eller exakt mängd i kroppen.")
+                            .font(.system(size: 9, weight: .medium)).foregroundStyle(VITALPalette.muted)
+                            .fixedSize(horizontal: false, vertical: true)
+                    } else {
+                        Text("Registrera en dos för att se en teoretisk uppskattning.")
+                            .font(.caption).foregroundStyle(VITALPalette.muted)
+                    }
+                }
+                .padding(13)
+                .background(VITALPalette.surfaceRaised.opacity(0.7), in: RoundedRectangle(cornerRadius: 15))
+                .overlay(RoundedRectangle(cornerRadius: 15).stroke(VITALPalette.violet.opacity(0.16), lineWidth: 1))
+
                 HStack(spacing: 10) {
                     Button {
                         editingDose = nil
