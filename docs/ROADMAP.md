@@ -463,3 +463,11 @@ Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa 
 - [x] Beskriva blodtrycksgrafens två serier, mätantal och enhet för VoiceOver.
 - [ ] Verifiera uppläsningsordning och interaktion med VoiceOver på fysisk iPhone.
 - [ ] Kontrollera grafernas läsbarhet och axeltexter vid största Dynamic Type.
+
+
+## Uppdatering 2026-11-19 – VoiceOver för journalåtgärder
+
+- [x] Ge ändra- och ta bort-knappar i doshistoriken beskrivande VoiceOver-etiketter med datum.
+- [x] Ge ändra- och ta bort-knappar i besvärsloggen etiketter med besvärsnamnet.
+- [x] Märka ångra-knappen för vattenregistrering med en tydlig tillgänglighetsetikett.
+- [ ] Verifiera fokusordning, knappnamn och destruktiva åtgärder med VoiceOver på fysisk iPhone.
