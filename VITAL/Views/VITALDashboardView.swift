@@ -324,7 +324,7 @@ struct VITALDashboardView: View {
     private var quickMetrics: some View {
         VStack(alignment: .leading, spacing: 12) {
             sectionHeading("NATTENS SIGNALER", subtitle: "Mätvärden från Apple Hälsa")
-            HStack(spacing: 10) {
+            LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], alignment: .leading, spacing: 10) {
                 signalTile("Sömn", value: health.snapshot.sleepText, detail: "Senaste huvudsömn", symbol: "bed.double.fill", tint: VITALPalette.lavender)
                 signalTile("HRV", value: health.snapshot.overnightHRV.map { "\(Int($0.rounded())) ms" } ?? "—", detail: "Under sömn", symbol: "waveform.path.ecg", tint: VITALPalette.lime)
                 signalTile("Puls", value: health.snapshot.overnightRestingHeartRate.map { "\(Int($0.rounded()))" } ?? "—", detail: "Vilopuls", symbol: "heart.fill", tint: VITALPalette.coral)
@@ -422,13 +422,16 @@ struct VITALDashboardView: View {
     }
 
     private func baselineRow(_ title: String, value: Double?, suffix: String, days: Int) -> some View {
-        VStack(spacing: 7) {
-            HStack {
-                Text(title).font(.vital(size: 14.9, weight: .semibold)).foregroundStyle(VITALPalette.paper)
-                Spacer()
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title).font(.vital(size: 14.9, weight: .semibold)).foregroundStyle(VITALPalette.paper)
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text(value.map { "\(String(format: "%.1f", $0)) \(suffix)" } ?? "Samlar data")
-                    .font(.vital(size: 13.6, weight: .bold, design: .rounded)).foregroundStyle(value == nil ? VITALPalette.amber : VITALPalette.lime)
-                Text("\(days)/14").font(.vital(size: 12, weight: .medium, design: .rounded)).foregroundStyle(VITALPalette.steel)
+                    .font(.vital(size: 13.6, weight: .bold, design: .rounded))
+                    .foregroundStyle(value == nil ? VITALPalette.amber : VITALPalette.lime)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 4)
+                Text("\(days)/14 dagar").font(.vital(size: 12, weight: .medium, design: .rounded)).foregroundStyle(VITALPalette.steel)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             GeometryReader { proxy in
                 ZStack(alignment: .leading) {
