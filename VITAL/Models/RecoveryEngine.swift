@@ -132,3 +132,45 @@ enum RecoveryGuidancePolicy {
         )
     }
 }
+
+
+/// Simplified terminal-elimination estimate for semaglutide dose history.
+/// This is an educational model of remaining dose-equivalent, not plasma concentration.
+struct SemaglutideDoseInput {
+    let date: Date
+    let milligrams: Double
+}
+
+struct SemaglutideLevelEstimate {
+    let remainingMilligrams: Double
+    let totalAdministeredMilligrams: Double
+    let includedDoseCount: Int
+}
+
+enum SemaglutideLevelModel {
+    static let halfLifeDays = 7.0
+
+    /// Adds the remaining contribution of each recorded dose using first-order
+    /// elimination. Future, non-finite and out-of-range entries are ignored.
+    static func estimate(doses: [SemaglutideDoseInput], asOf date: Date) -> SemaglutideLevelEstimate? {
+        guard date.timeIntervalSince1970.isFinite else { return nil }
+        let valid = doses.filter {
+            $0.date <= date && $0.date.timeIntervalSince1970.isFinite &&
+            $0.milligrams.isFinite && (0.01...10).contains($0.milligrams)
+        }
+        guard !valid.isEmpty else { return nil }
+
+        let remaining = valid.reduce(0.0) { total, dose in
+            let elapsedDays = max(0, date.timeIntervalSince(dose.date) / 86_400)
+            let fractionRemaining = pow(0.5, elapsedDays / halfLifeDays)
+            return total + dose.milligrams * fractionRemaining
+        }
+        let total = valid.reduce(0.0) { $0 + $1.milligrams }
+        guard remaining.isFinite, total.isFinite else { return nil }
+        return SemaglutideLevelEstimate(
+            remainingMilligrams: remaining,
+            totalAdministeredMilligrams: total,
+            includedDoseCount: valid.count
+        )
+    }
+}
