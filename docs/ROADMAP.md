@@ -415,3 +415,15 @@ Status betyder:
 - [ ] Kontrollera samtliga fyra flikar med iOS största tillgänglighetstext på fysisk iPhone
 - [ ] Verifiera VoiceOver-ordning, etiketter och fokus
 - [ ] Kontrollera grafernas axlar, legender och touchmål vid större textstorlekar
+
+## Uppdatering 2026-11-18 – typografisk korrigering efter iPhone-test
+
+- [x] Bytt standarddesign i den gemensamma VITAL-fonten till rundad sans serif för att undvika blandningen av serif och sans serif.
+- [x] Ökat små etiketter och beskrivningar på översikten.
+- [x] Byggt om kroppsbatteriets tre faktavärden till tvåkolumnslayout med radbrytning så långa etiketter inte kapas.
+- [x] Ökat små etiketter i Hälsa-vyn.
+- [ ] Kontrollera samtliga fyra flikar på fysisk iPhone med normal och större textstorlek.
+- [ ] Kontrollera att kort, grafer och navigering inte klipper text vid större Dynamic Type.
+- [ ] Verifiera VoiceOver-ordning och etiketter på interaktiva kontroller.
+
+Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa godkännande kräver nytt fysiskt enhetstest; simulatorbygget verifierar kompilering och start, inte faktisk läsbarhet på användarens enhet.
