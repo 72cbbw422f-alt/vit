@@ -2,9 +2,24 @@ import Foundation
 import Combine
 import HealthKit
 
+struct HealthTrendPoint: Identifiable {
+    let id = UUID()
+    let date: Date
+    let value: Double
+}
+
+struct BloodPressureTrendPoint: Identifiable {
+    let id = UUID()
+    let date: Date
+    let systolic: Double
+    let diastolic: Double
+}
+
 @MainActor
 final class HealthKitStore: ObservableObject {
     @Published private(set) var snapshot = HealthSnapshot.empty
+    @Published private(set) var weightHistory: [HealthTrendPoint] = []
+    @Published private(set) var bloodPressureHistory: [BloodPressureTrendPoint] = []
     @Published private(set) var isAvailable = HKHealthStore.isHealthDataAvailable()
     @Published private(set) var authorizationRequested = false
     @Published private(set) var backgroundSleepDeliveryEnabled = false
@@ -115,6 +130,8 @@ final class HealthKitStore: ObservableObject {
         async let energyValue = todaySum(.activeEnergyBurned, unit: .kilocalorie())
         async let weightSample = latestQuantitySample(.bodyMass, unit: .gramUnit(with: .kilo))
         async let bloodPressureSample = latestBloodPressureSample()
+        async let historicalWeight = historicalWeightSamples()
+        async let historicalBloodPressure = historicalBloodPressureSamples()
         async let respiratoryRateSample = latestQuantitySample(.respiratoryRate, unit: HKUnit.count().unitDivided(by: .minute()))
         async let oxygenSaturationSample = latestQuantitySample(.oxygenSaturation, unit: .percent())
         async let baselines = loadPersonalBaselines(asOf: now)
@@ -169,6 +186,8 @@ final class HealthKitStore: ObservableObject {
             ))
         }
         snapshot = updatedSnapshot
+        weightHistory = await historicalWeight
+        bloodPressureHistory = await historicalBloodPressure
         createMorningReportIfEligible(from: updatedSnapshot, sleepSession: sleepSession, capturedAt: now)
         createEveningReportIfEligible(from: updatedSnapshot, capturedAt: now)
         isRefreshing = false
@@ -366,6 +385,61 @@ final class HealthKitStore: ObservableObject {
                         DailyBaselineSample(day: Calendar.current.startOfDay(for: $0.end), value: $0.duration / 3600)
                     }
                     continuation.resume(returning: daily)
+                }
+            store.execute(query)
+        }
+    }
+
+    /// Returns the last 90 days of actual Apple Health body-mass samples.
+    private func historicalWeightSamples() async -> [HealthTrendPoint] {
+        guard let type = HKObjectType.quantityType(forIdentifier: .bodyMass) else { return [] }
+        let end = Date()
+        let start = Calendar.current.date(byAdding: .day, value: -90, to: end) ?? end
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end)
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit,
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)]) { [weak self] _, samples, error in
+                    if let error {
+                        Task { @MainActor [weak self] in self?.recordQueryError(error, context: "Vikthistorik") }
+                        continuation.resume(returning: [])
+                        return
+                    }
+                    let values = ((samples as? [HKQuantitySample]) ?? []).map {
+                        HealthTrendPoint(date: $0.endDate, value: $0.quantity.doubleValue(for: .gramUnit(with: .kilo)))
+                    }
+                    continuation.resume(returning: values)
+                }
+            store.execute(query)
+        }
+    }
+
+    /// Blood pressure is read from paired HealthKit correlations, never from unpaired values.
+    private func historicalBloodPressureSamples() async -> [BloodPressureTrendPoint] {
+        guard let correlationType = HKObjectType.correlationType(forIdentifier: .bloodPressure),
+              let systolicType = HKObjectType.quantityType(forIdentifier: .bloodPressureSystolic),
+              let diastolicType = HKObjectType.quantityType(forIdentifier: .bloodPressureDiastolic) else { return [] }
+        let end = Date()
+        let start = Calendar.current.date(byAdding: .day, value: -90, to: end) ?? end
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end)
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(sampleType: correlationType, predicate: predicate, limit: HKObjectQueryNoLimit,
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)]) { [weak self] _, samples, error in
+                    if let error {
+                        Task { @MainActor [weak self] in self?.recordQueryError(error, context: "Blodtryckshistorik") }
+                        continuation.resume(returning: [])
+                        return
+                    }
+                    let unit = HKUnit.millimeterOfMercury()
+                    let values = ((samples as? [HKCorrelation]) ?? []).compactMap { correlation -> BloodPressureTrendPoint? in
+                        guard let systolic = correlation.objects(for: systolicType).first as? HKQuantitySample,
+                              let diastolic = correlation.objects(for: diastolicType).first as? HKQuantitySample else { return nil }
+                        return BloodPressureTrendPoint(
+                            date: correlation.endDate,
+                            systolic: systolic.quantity.doubleValue(for: unit),
+                            diastolic: diastolic.quantity.doubleValue(for: unit)
+                        )
+                    }
+                    continuation.resume(returning: values)
                 }
             store.execute(query)
         }
