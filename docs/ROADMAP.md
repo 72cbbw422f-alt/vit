@@ -453,3 +453,13 @@ Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa 
 - [x] Om poängen inte kan beräknas visas fortfarande faktiskt antal giltiga pulsmätningar, i stället för ett missvisande nollvärde.
 - [x] Lagt till tester för saknad morgonspoäng respektive saknad baslinje med tillgängliga pulsmätningar.
 - [ ] Verifiera på fysisk iPhone hur många pulssamples Apple Hälsa faktiskt lämnar för vakenperioden.
+
+
+## Uppdatering 2026-11-18 – VoiceOver för hälsografer
+
+- [x] Lägga till tillgängliga namn och sammanfattande värden för historisk återhämtning.
+- [x] Beskriva Apple Hälsa-viktgrafens datakälla, mätantal och enhet för VoiceOver.
+- [x] Beskriva äldre lokalt sparad vikthistorik separat.
+- [x] Beskriva blodtrycksgrafens två serier, mätantal och enhet för VoiceOver.
+- [ ] Verifiera uppläsningsordning och interaktion med VoiceOver på fysisk iPhone.
+- [ ] Kontrollera grafernas läsbarhet och axeltexter vid största Dynamic Type.
