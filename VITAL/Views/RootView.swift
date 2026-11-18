@@ -27,6 +27,7 @@ struct RootView: View {
             ActivityView().tabItem { Label("Aktivitet", systemImage: "figure.walk") }
             HealthOverviewView().tabItem { Label("Hälsa", systemImage: "heart.text.square") }
         }
+        .dynamicTypeSize(.large ... .xxxLarge)
         .tint(VITALPalette.teal)
         .toolbarBackground(VITALPalette.midnight, for: .tabBar)
         .toolbarBackground(.visible, for: .tabBar)
