@@ -436,3 +436,12 @@ Status betyder:
 - [ ] Verifiera VoiceOver-ordning och etiketter på interaktiva kontroller.
 
 Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa godkännande kräver nytt fysiskt enhetstest; simulatorbygget verifierar kompilering och start, inte faktisk läsbarhet på användarens enhet.
+
+
+## Uppdatering 2026-11-18 – borttagning av syremättnad
+
+- [x] Tagit bort syremättnad från HealthKit-behörighetsbegäran och hämtning.
+- [x] Tagit bort syremättnad från HealthSnapshot-modellen och presentationen.
+- [x] Andningsfrekvens visas ensam med full kortbredd så värdet inte bryts i onödan.
+- [ ] Verifiera på fysisk iPhone att andningsfrekvens och övriga tillgängliga mätvärden visas korrekt.
+- [ ] Fortsatt felsökning av nattliga mätvärden och kroppsbatteriets pulstäckning.
