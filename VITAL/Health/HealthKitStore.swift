@@ -170,6 +170,7 @@ final class HealthKitStore: ObservableObject {
         }
         snapshot = updatedSnapshot
         createMorningReportIfEligible(from: updatedSnapshot, sleepSession: sleepSession, capturedAt: now)
+        createEveningReportIfEligible(from: updatedSnapshot, capturedAt: now)
         isRefreshing = false
         if refreshRequestedAgain {
             refreshRequestedAgain = false
@@ -226,6 +227,43 @@ final class HealthKitStore: ObservableObject {
         UserDefaults.standard.set(data, forKey: reportArchiveKey)
         reportHistory = Array(reportArchive.snapshots.reversed())
         morningReport = candidate
+    }
+
+    /// Freeze the first evening snapshot after the local 21:00 threshold.
+    /// The current-day activity and body-battery values are captured once and
+    /// later HealthKit refreshes cannot rewrite the archived report.
+    private func createEveningReportIfEligible(
+        from healthSnapshot: HealthSnapshot,
+        capturedAt: Date
+    ) {
+        let calendar = Calendar.current
+        let decision = EveningReportTriggerPolicy.evaluate(
+            eventDate: capturedAt,
+            reportDay: capturedAt,
+            calendar: calendar
+        )
+        guard decision.shouldCreateSnapshot else { return }
+        let day = calendar.startOfDay(for: capturedAt)
+        let recovery = healthSnapshot.recoveryResult
+        let candidate = DailyReportSnapshot(
+            kind: .evening,
+            localDay: day,
+            capturedAt: capturedAt,
+            recoveryScore: recovery.score,
+            sleepComponentScore: recovery.sleepComponent,
+            hrvComponentScore: recovery.hrvComponent,
+            restingPulseComponentScore: recovery.restingPulseComponent,
+            bodyBatteryScore: healthSnapshot.bodyBattery?.score,
+            sleepDurationSeconds: healthSnapshot.sleepDuration,
+            hrvMilliseconds: healthSnapshot.overnightHRV,
+            restingHeartRateBPM: healthSnapshot.overnightRestingHeartRate,
+            steps: healthSnapshot.steps,
+            activeEnergyKcal: healthSnapshot.activeEnergy
+        )
+        guard reportArchive.appendIfAbsent(candidate, calendar: calendar),
+              let data = try? JSONEncoder().encode(reportArchive) else { return }
+        UserDefaults.standard.set(data, forKey: reportArchiveKey)
+        reportHistory = Array(reportArchive.snapshots.reversed())
     }
 
     private func recordQueryError(_ error: Error, context: String) {
