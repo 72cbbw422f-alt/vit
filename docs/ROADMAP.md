@@ -35,7 +35,9 @@ Status betyder:
 - [x] Läsa andningsfrekvens och syremättnad när HealthKit-typer finns
 - [~] Datakälla, tidsstämpel och saknat-underlagstillstånd visas för flera mått; full konsekvent granskning återstår
 - [ ] Verifiera verkliga HealthKit-serier och blodtryckskorrelationer på fysisk iPhone
-- [ ] Lägg till historiska tidsserier för vikt och blodtryck
+- [x] Hämta 90 dagars vikt- och blodtryckshistorik från HealthKit separat från äldre lokala journaler
+- [x] Visa separata historikgrafer med tydliga datakällor och tom-/enstaka-mätningstillstånd
+- [ ] Verifiera verkliga historikserier och grafers läsbarhet på fysisk iPhone
 
 ## Fas 4 – Återhämtning och energi
 - [x] Implementera nattligt återhämtningsvärde med sömn, HRV och vilopuls
