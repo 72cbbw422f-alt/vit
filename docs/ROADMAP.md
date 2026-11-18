@@ -426,6 +426,9 @@ Status betyder:
 - [x] Byggt om hälsöversiktens tre huvudvärden från en trång horisontell rad till en tvåkolumnsgrid som låter tredje värdet flöda till nästa rad.
 - [ ] Kontrollera samtliga fyra flikar på fysisk iPhone med normal och större textstorlek.
 - [ ] Kontrollera att kort, grafer och navigering inte klipper text vid större Dynamic Type.
+- [x] Sömnvärdet i Hälsa får full bredd i rutnätet så tidsvärdet inte bryts mitt i enheten.
+- [x] Modellberäknad-etiketten i läkemedelskortet flyttas till egen rad och får en tydlig etikettbakgrund.
+- [x] Kroppsbatteriets sista faktarad får full bredd och den dekorativa bakgrunden tas bort från mätvärdesområdet så den inte konkurrerar med texten.
 - [ ] Verifiera VoiceOver-ordning och etiketter på interaktiva kontroller.
 
 Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa godkännande kräver nytt fysiskt enhetstest; simulatorbygget verifierar kompilering och start, inte faktisk läsbarhet på användarens enhet.
