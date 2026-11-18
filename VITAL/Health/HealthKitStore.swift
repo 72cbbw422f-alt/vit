@@ -61,9 +61,6 @@ final class HealthKitStore: ObservableObject {
         if let respiratoryRate = HKObjectType.quantityType(forIdentifier: .respiratoryRate) {
             readTypes.insert(respiratoryRate)
         }
-        if let oxygenSaturation = HKObjectType.quantityType(forIdentifier: .oxygenSaturation) {
-            readTypes.insert(oxygenSaturation)
-        }
         loadReportArchive()
         do {
             try await store.requestAuthorization(toShare: [], read: readTypes)
@@ -133,7 +130,6 @@ final class HealthKitStore: ObservableObject {
         async let historicalWeight = historicalWeightSamples()
         async let historicalBloodPressure = historicalBloodPressureSamples()
         async let respiratoryRateSample = latestQuantitySample(.respiratoryRate, unit: HKUnit.count().unitDivided(by: .minute()))
-        async let oxygenSaturationSample = latestQuantitySample(.oxygenSaturation, unit: .percent())
         async let baselines = loadPersonalBaselines(asOf: now)
 
         let baselineValues = await baselines
@@ -168,8 +164,6 @@ final class HealthKitStore: ObservableObject {
             bloodPressureDate: await bloodPressureSample?.date,
             respiratoryRate: await respiratoryRateSample?.value,
             respiratoryRateDate: await respiratoryRateSample?.date,
-            oxygenSaturation: await oxygenSaturationSample?.value,
-            oxygenSaturationDate: await oxygenSaturationSample?.date,
             restingHeartRateBaseline: baselineValues.resting,
             hrvBaseline: baselineValues.hrv,
             sleepBaseline: baselineValues.sleep,
