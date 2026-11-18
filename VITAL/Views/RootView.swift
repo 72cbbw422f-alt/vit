@@ -470,22 +470,68 @@ private struct HealthOverviewView: View {
             ZStack {
                 VITALPalette.surface.ignoresSafeArea()
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        pageHeader("Hälsa", subtitle: "Dina viktigaste hälsomått")
+                    VStack(alignment: .leading, spacing: 18) {
+                        pageHeader("Hälsa", subtitle: "En samlad bild av dina hälsodata")
+
                         VITALCard {
-                            VStack(alignment: .leading, spacing: 14) {
-                                Label("Hjärt & kärl", systemImage: "heart.fill")
-                                    .font(.headline).foregroundStyle(VITALPalette.cloud)
+                            VStack(alignment: .leading, spacing: 15) {
+                                HStack {
+                                    Label("HÄLSOÖVERSIKT", systemImage: "heart.text.square.fill")
+                                        .font(.system(size: 10, weight: .heavy)).tracking(1.1)
+                                        .foregroundStyle(VITALPalette.teal)
+                                    Spacer()
+                                    Image(systemName: "waveform.path.ecg")
+                                        .font(.title3).foregroundStyle(VITALPalette.teal.opacity(0.8))
+                                }
+                                HStack(alignment: .center, spacing: 12) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(health.snapshot.restingHeartRateText)
+                                            .font(.system(size: 31, weight: .bold, design: .rounded))
+                                            .foregroundStyle(VITALPalette.cloud).monospacedDigit()
+                                        Text("VILOPULS").font(.system(size: 9, weight: .heavy))
+                                            .tracking(0.8).foregroundStyle(VITALPalette.muted)
+                                    }
+                                    Spacer(minLength: 4)
+                                    Rectangle().fill(VITALPalette.track).frame(width: 1, height: 38)
+                                    Spacer(minLength: 4)
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(health.snapshot.hrvText)
+                                            .font(.system(size: 31, weight: .bold, design: .rounded))
+                                            .foregroundStyle(VITALPalette.violet).monospacedDigit()
+                                        Text("HRV").font(.system(size: 9, weight: .heavy))
+                                            .tracking(0.8).foregroundStyle(VITALPalette.muted)
+                                    }
+                                    Spacer(minLength: 4)
+                                    Rectangle().fill(VITALPalette.track).frame(width: 1, height: 38)
+                                    Spacer(minLength: 4)
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(health.snapshot.sleepText)
+                                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                                            .foregroundStyle(VITALPalette.cloud).monospacedDigit()
+                                            .lineLimit(1).minimumScaleFactor(0.7)
+                                        Text("SÖMN").font(.system(size: 9, weight: .heavy))
+                                            .tracking(0.8).foregroundStyle(VITALPalette.muted)
+                                    }
+                                }
+                                Text("Senaste tillgängliga värden från Apple Hälsa")
+                                    .font(.caption2).foregroundStyle(VITALPalette.muted)
+                            }
+                        }
+
+                        healthSectionLabel("HJÄRTA & KÄRL", detail: "Puls, variation och blodtryck")
+                        VITALCard {
+                            VStack(alignment: .leading, spacing: 12) {
                                 HStack(spacing: 12) {
                                     HealthValueTile(title: "Vilopuls", value: health.snapshot.restingHeartRateText, tint: VITALPalette.teal)
                                     HealthValueTile(title: "HRV", value: health.snapshot.hrvText, tint: VITALPalette.violet)
                                 }
                             }
                         }
+                        bloodPressureCard
+
+                        healthSectionLabel("ANDNING", detail: "Andningsfrekvens och syresättning")
                         VITALCard {
                             VStack(alignment: .leading, spacing: 14) {
-                                Label("Andning & syresättning", systemImage: "lungs.fill")
-                                    .font(.headline).foregroundStyle(VITALPalette.cloud)
                                 HStack(spacing: 12) {
                                     HealthValueTile(title: "Andningsfrekvens", value: health.snapshot.respiratoryRateText, tint: VITALPalette.violet)
                                     HealthValueTile(title: "Syremättnad", value: health.snapshot.oxygenSaturationText, tint: VITALPalette.teal)
@@ -499,23 +545,34 @@ private struct HealthOverviewView: View {
                                     .font(.caption2).foregroundStyle(VITALPalette.muted)
                             }
                         }
+
+                        healthSectionLabel("KROPP & UTVECKLING", detail: "Vikt och personlig uppföljning")
                         weightCard
-                        waterTrackerCard
-                        bloodPressureCard
                         progressPhotosCard
+
+                        healthSectionLabel("VARDAG", detail: "Vätska och sömn")
+                        waterTrackerCard
                         VITALCard {
                             VStack(alignment: .leading, spacing: 12) {
-                                Label("Sömn", systemImage: "moon.stars.fill").font(.headline).foregroundStyle(VITALPalette.cloud)
-                                HStack(alignment: .firstTextBaseline) {
-                                    Text(health.snapshot.sleepText).font(.system(size: 32, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.violet)
+                                HStack {
+                                    Label("Sömn", systemImage: "moon.stars.fill")
+                                        .font(.headline).foregroundStyle(VITALPalette.cloud)
                                     Spacer()
-                                    Text("senaste huvudsömn").font(.caption).foregroundStyle(VITALPalette.muted)
+                                    Text("SENASTE HUVUDSÖMN").font(.system(size: 9, weight: .heavy))
+                                        .tracking(0.7).foregroundStyle(VITALPalette.muted)
                                 }
+                                Text(health.snapshot.sleepText)
+                                    .font(.system(size: 34, weight: .bold, design: .rounded))
+                                    .foregroundStyle(VITALPalette.violet).monospacedDigit()
                             }
                         }
                         if let updated = health.snapshot.lastUpdated {
-                            Text("Senast uppdaterad \(updated.formatted(date: .omitted, time: .shortened))")
-                                .font(.caption).foregroundStyle(VITALPalette.muted).padding(.horizontal, 4)
+                            HStack(spacing: 6) {
+                                Image(systemName: "arrow.clockwise").font(.caption2)
+                                Text("Hälsodata uppdaterad \(updated.formatted(date: .omitted, time: .shortened))")
+                                    .font(.caption)
+                            }
+                            .foregroundStyle(VITALPalette.muted).padding(.horizontal, 4)
                         }
                     }.padding(.horizontal, VITALSpacing.page).padding(.top, 14).padding(.bottom, 30)
                 }
