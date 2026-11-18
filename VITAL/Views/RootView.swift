@@ -822,6 +822,23 @@ private struct HealthOverviewView: View {
                     Text("Vikt visas automatiskt när Apple Hälsa har en registrerad mätning.")
                         .font(.caption).foregroundStyle(VITALPalette.muted)
                 }
+                if health.weightHistory.count > 1 {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Apple Hälsa · senaste 90 dagarna")
+                            .font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.muted)
+                        Chart(health.weightHistory) { point in
+                            LineMark(x: .value("Datum", point.date), y: .value("Vikt", point.value))
+                                .foregroundStyle(VITALPalette.teal).interpolationMethod(.catmullRom)
+                            PointMark(x: .value("Datum", point.date), y: .value("Vikt", point.value))
+                                .foregroundStyle(VITALPalette.teal)
+                        }
+                        .chartYAxisLabel("kg")
+                        .frame(height: 170)
+                    }
+                } else if !health.weightHistory.isEmpty {
+                    Text("Det finns ännu bara en Apple Hälsa-mätning i 90-dagarsperioden.")
+                        .font(.caption).foregroundStyle(VITALPalette.muted)
+                }
                 if weightJournal.entries.count > 1 {
                     Text("Tidigare lokala registreringar")
                         .font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.muted)
@@ -1011,6 +1028,33 @@ private struct HealthOverviewView: View {
                         title: "Ingen blodtrycksmätning hittades",
                         detail: "Blodtryck visas automatiskt när en mätning finns i Apple Hälsa."
                     )
+                }
+                if health.bloodPressureHistory.count > 1 {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Apple Hälsa · senaste 90 dagarna")
+                            .font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.muted)
+                        Chart {
+                            ForEach(health.bloodPressureHistory) { point in
+                                LineMark(x: .value("Datum", point.date), y: .value("Systoliskt", point.systolic))
+                                    .foregroundStyle(VITALPalette.teal)
+                                    .interpolationMethod(.catmullRom)
+                                LineMark(x: .value("Datum", point.date), y: .value("Diastoliskt", point.diastolic))
+                                    .foregroundStyle(VITALPalette.violet)
+                                    .interpolationMethod(.catmullRom)
+                            }
+                        }
+                        .chartYAxisLabel("mmHg")
+                        .chartLegend(position: .bottom, alignment: .leading)
+                        .frame(height: 180)
+                        HStack(spacing: 14) {
+                            Label("Övertryck", systemImage: "circle.fill").foregroundStyle(VITALPalette.teal)
+                            Label("Undertryck", systemImage: "circle.fill").foregroundStyle(VITALPalette.violet)
+                        }
+                        .font(.caption).labelStyle(.titleAndIcon)
+                    }
+                } else if !health.bloodPressureHistory.isEmpty {
+                    Text("Det finns ännu bara en Apple Hälsa-mätning i 90-dagarsperioden.")
+                        .font(.caption).foregroundStyle(VITALPalette.muted)
                 }
                 if !bloodPressure.entries.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
