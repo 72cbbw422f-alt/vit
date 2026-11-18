@@ -74,11 +74,6 @@ struct HealthSnapshot {
               (1...100).contains(respiratoryRate) else { return "—" }
         return "\(Int(respiratoryRate.rounded())) andetag/min"
     }
-    var oxygenSaturationText: String {
-        guard let oxygenSaturation, oxygenSaturation.isFinite,
-              (0.5...1).contains(oxygenSaturation) else { return "—" }
-        return "\(Int((oxygenSaturation * 100).rounded())) %"
-    }
 }
 
 
