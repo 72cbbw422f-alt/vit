@@ -364,7 +364,7 @@ private struct ActivityView: View {
                                             .font(.vital(size: 45.4, weight: .bold, design: .rounded))
                                             .monospacedDigit()
                                             .foregroundStyle(VITALPalette.cloud)
-                                            .minimumScaleFactor(0.65).lineLimit(1)
+                                            .fixedSize(horizontal: false, vertical: true)
                                         Text("steg idag")
                                             .font(.subheadline).foregroundStyle(VITALPalette.muted)
                                         if steps != nil {
@@ -509,7 +509,7 @@ private struct HealthOverviewView: View {
                                         Text(health.snapshot.sleepText)
                                             .font(.vital(size: 23.8, weight: .bold, design: .rounded))
                                             .foregroundStyle(VITALPalette.cloud).monospacedDigit()
-                                            .lineLimit(1).minimumScaleFactor(0.7)
+                                            .fixedSize(horizontal: false, vertical: true)
                                         Text("SÖMN").font(.vital(size: 12, weight: .heavy))
                                             .tracking(0.8).foregroundStyle(VITALPalette.muted)
                                     }
@@ -1691,7 +1691,7 @@ private struct InsightMetric: View {
             VStack(alignment: .leading, spacing: 10) {
                 Image(systemName: symbol).font(.title3).foregroundStyle(tint)
                 Text(title).font(.caption.weight(.medium)).foregroundStyle(VITALPalette.muted)
-                Text(value).font(.system(.title2, design: .rounded).bold()).foregroundStyle(VITALPalette.cloud).minimumScaleFactor(0.7).lineLimit(1)
+                Text(value).font(.system(.title2, design: .rounded).bold()).foregroundStyle(VITALPalette.cloud).fixedSize(horizontal: false, vertical: true)
             }
         }
     }
@@ -1703,7 +1703,7 @@ private struct HealthValueTile: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title).font(.caption).foregroundStyle(VITALPalette.muted)
-            Text(value).font(.system(.title2, design: .rounded).bold()).foregroundStyle(tint).minimumScaleFactor(0.7).lineLimit(1)
+            Text(value).font(.system(.title2, design: .rounded).bold()).foregroundStyle(tint).fixedSize(horizontal: false, vertical: true)
         }.frame(maxWidth: .infinity, alignment: .leading).padding(14)
             .background(VITALPalette.surfaceRaised, in: RoundedRectangle(cornerRadius: 16))
     }
