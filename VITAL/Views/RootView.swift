@@ -367,7 +367,7 @@ private struct ActivityView: View {
                                         Text("steg idag")
                                             .font(.subheadline).foregroundStyle(VITALPalette.muted)
                                         if steps != nil {
-                                            Text(stepPercent >= 100 ? "Dagsmålet uppnått" : "\\(stepPercent) % av dagsmålet")
+                                            Text(stepPercent >= 100 ? "Dagsmålet uppnått" : "\(stepPercent) % av dagsmålet")
                                                 .font(.caption.weight(.semibold))
                                                 .foregroundStyle(VITALPalette.teal)
                                                 .padding(.top, 3)
@@ -404,8 +404,8 @@ private struct ActivityView: View {
                         }
 
                         HStack(spacing: 12) {
-                            InsightMetric(title: "Aktiv energi", value: health.snapshot.activeEnergy.map { "\\(Int($0.rounded())) kcal" } ?? "—", symbol: "flame.fill", tint: VITALPalette.amber)
-                            InsightMetric(title: "Kroppsbatteri", value: health.snapshot.bodyBattery?.score.map { "\\($0)/100" } ?? "—", symbol: "battery.100percent", tint: VITALPalette.violet)
+                            InsightMetric(title: "Aktiv energi", value: health.snapshot.activeEnergy.map { "\(Int($0.rounded())) kcal" } ?? "—", symbol: "flame.fill", tint: VITALPalette.amber)
+                            InsightMetric(title: "Kroppsbatteri", value: health.snapshot.bodyBattery?.score.map { "\($0)/100" } ?? "—", symbol: "battery.100percent", tint: VITALPalette.violet)
                         }
 
                         VITALCard {
@@ -420,7 +420,7 @@ private struct ActivityView: View {
                                 Divider().overlay(VITALPalette.track)
                                 activityStatusRow("Aktiv energi", health.snapshot.activeEnergy == nil ? "Saknas" : "Registrerat")
                                 Divider().overlay(VITALPalette.track)
-                                activityStatusRow("Pulsmätningar", health.snapshot.bodyBattery.map { "\\($0.heartRateSampleCount) st" } ?? "Saknas")
+                                activityStatusRow("Pulsmätningar", health.snapshot.bodyBattery.map { "\($0.heartRateSampleCount) st" } ?? "Saknas")
                             }
                         }
                         Text("Aktivitetsdata hämtas från Apple Hälsa. Kroppsbatteriet är en preliminär uppskattning, inte ett medicinskt mått.")
