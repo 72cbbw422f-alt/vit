@@ -31,7 +31,7 @@ final class HealthKitStore: ObservableObject {
     private var sleepObserverQuery: HKObserverQuery?
     private let reportArchiveKey = "vital.dailyReportArchive.v1"
     private var reportArchive = ReportSnapshotArchive()
-    private var isRefreshing = false
+    @Published private(set) var isRefreshing = false
     private var refreshRequestedAgain = false
 
     func requestAccessAndRefresh() async {
