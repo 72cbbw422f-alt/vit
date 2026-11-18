@@ -550,6 +550,9 @@ private struct HealthOverviewView: View {
                         weightCard
                         progressPhotosCard
 
+                        healthSectionLabel("LÄKEMEDEL & UPPFÖLJNING", detail: "Doshistorik, upplevda besvär och påminnelser")
+                        medicationCard
+
                         healthSectionLabel("VARDAG", detail: "Vätska och sömn")
                         waterTrackerCard
                         VITALCard {
@@ -579,6 +582,162 @@ private struct HealthOverviewView: View {
             }
             .toolbar(.hidden, for: .navigationBar)
             .task { waterTracker.refreshDay() }
+            .sheet(isPresented: $showingDoseEntry, onDismiss: { editingDose = nil }) {
+                DoseEntrySheet(journal: medicationJournal, entry: editingDose)
+            }
+            .sheet(isPresented: $showingSideEffectEntry, onDismiss: { editingEffect = nil }) {
+                SideEffectEntrySheet(journal: medicationJournal, entry: editingEffect)
+            }
+            .sheet(isPresented: $showingDoseReminder) {
+                DoseReminderSheet(journal: medicationJournal)
+            }
+        }
+    }
+
+    private var medicationCard: some View {
+        VITALCard {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack {
+                    Label("Läkemedelsjournal", systemImage: "pills.fill")
+                        .font(.headline).foregroundStyle(VITALPalette.cloud)
+                    Spacer()
+                    Button {
+                        showingDoseReminder = true
+                    } label: {
+                        Image(systemName: "bell.badge")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(VITALPalette.teal)
+                            .frame(width: 36, height: 36)
+                            .background(VITALPalette.teal.opacity(0.12), in: RoundedRectangle(cornerRadius: 11))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Hantera läkemedelspåminnelse")
+                }
+
+                HStack(spacing: 10) {
+                    Button {
+                        editingDose = nil
+                        showingDoseEntry = true
+                    } label: {
+                        Label("Registrera dos", systemImage: "plus")
+                            .font(.caption.weight(.semibold))
+                            .frame(maxWidth: .infinity).padding(.vertical, 11)
+                            .background(VITALPalette.teal.opacity(0.14), in: RoundedRectangle(cornerRadius: 12))
+                    }
+                    .buttonStyle(.plain).foregroundStyle(VITALPalette.teal)
+
+                    Button {
+                        editingEffect = nil
+                        showingSideEffectEntry = true
+                    } label: {
+                        Label("Logga besvär", systemImage: "plus")
+                            .font(.caption.weight(.semibold))
+                            .frame(maxWidth: .infinity).padding(.vertical, 11)
+                            .background(VITALPalette.violet.opacity(0.14), in: RoundedRectangle(cornerRadius: 12))
+                    }
+                    .buttonStyle(.plain).foregroundStyle(VITALPalette.violet)
+                }
+
+                if let reminder = medicationJournal.reminderDate {
+                    HStack(spacing: 7) {
+                        Image(systemName: "bell.fill").foregroundStyle(VITALPalette.teal)
+                        Text("Nästa påminnelse · \(reminder.formatted(date: .abbreviated, time: .shortened))")
+                            .font(.caption).foregroundStyle(VITALPalette.muted)
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("DOSER").font(.system(size: 9, weight: .heavy)).tracking(0.9)
+                            .foregroundStyle(VITALPalette.muted)
+                        Spacer()
+                        if medicationJournal.doses.count > 3 {
+                            Button(showAllMedicationDoses ? "Visa färre" : "Visa alla") {
+                                showAllMedicationDoses.toggle()
+                            }.font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.teal)
+                        }
+                    }
+                    if medicationJournal.doses.isEmpty {
+                        Text("Ingen doshistorik registrerad ännu.")
+                            .font(.caption).foregroundStyle(VITALPalette.muted)
+                    } else {
+                        ForEach(Array(medicationJournal.doses.prefix(showAllMedicationDoses ? medicationJournal.doses.count : 3))) { dose in
+                            HStack(spacing: 8) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(dose.date.formatted(date: .abbreviated, time: .shortened))
+                                        .font(.caption.weight(.medium)).foregroundStyle(VITALPalette.cloud)
+                                    Text("Registrerad dos").font(.caption2).foregroundStyle(VITALPalette.muted)
+                                }
+                                Spacer()
+                                Text("\(dose.milligrams, specifier: "%.2g") mg")
+                                    .font(.subheadline.weight(.semibold).monospacedDigit())
+                                    .foregroundStyle(VITALPalette.teal)
+                                Button {
+                                    editingDose = dose
+                                    showingDoseEntry = true
+                                } label: {
+                                    Image(systemName: "pencil").font(.caption).foregroundStyle(VITALPalette.muted)
+                                }.buttonStyle(.plain)
+                                Button(role: .destructive) {
+                                    medicationJournal.deleteDose(dose)
+                                } label: {
+                                    Image(systemName: "trash").font(.caption).foregroundStyle(VITALPalette.amber)
+                                }.buttonStyle(.plain)
+                            }
+                            .padding(.vertical, 3)
+                        }
+                    }
+                }
+
+                Divider().overlay(VITALPalette.track)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("UPPLEVDA BESVÄ").font(.system(size: 9, weight: .heavy)).tracking(0.9)
+                            .foregroundStyle(VITALPalette.muted)
+                        Spacer()
+                        if medicationJournal.effects.count > 3 {
+                            Button(showAllMedicationEffects ? "Visa färre" : "Visa alla") {
+                                showAllMedicationEffects.toggle()
+                            }.font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.teal)
+                        }
+                    }
+                    if medicationJournal.effects.isEmpty {
+                        Text("Inga besvär registrerade.")
+                            .font(.caption).foregroundStyle(VITALPalette.muted)
+                    } else {
+                        ForEach(Array(medicationJournal.effects.prefix(showAllMedicationEffects ? medicationJournal.effects.count : 3))) { effect in
+                            HStack(alignment: .top, spacing: 8) {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(effect.title).font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
+                                    Text("\(effect.date.formatted(date: .abbreviated, time: .shortened)) · Intensitet \(effect.severity)/5")
+                                        .font(.caption2).foregroundStyle(VITALPalette.muted)
+                                    if !effect.note.isEmpty {
+                                        Text(effect.note).font(.caption2).foregroundStyle(VITALPalette.muted)
+                                            .lineLimit(2)
+                                    }
+                                }
+                                Spacer()
+                                Button {
+                                    editingEffect = effect
+                                    showingSideEffectEntry = true
+                                } label: {
+                                    Image(systemName: "pencil").font(.caption).foregroundStyle(VITALPalette.muted)
+                                }.buttonStyle(.plain)
+                                Button(role: .destructive) {
+                                    medicationJournal.deleteEffect(effect)
+                                } label: {
+                                    Image(systemName: "trash").font(.caption).foregroundStyle(VITALPalette.amber)
+                                }.buttonStyle(.plain)
+                            }
+                            .padding(.vertical, 3)
+                        }
+                    }
+                }
+
+                Text("Registrera enligt din ordination. VITAL ger inga doseringsråd.")
+                    .font(.caption2).foregroundStyle(VITALPalette.muted)
+            }
         }
     }
 
