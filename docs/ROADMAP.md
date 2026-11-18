@@ -423,6 +423,7 @@ Status betyder:
 - [x] Byggt om kroppsbatteriets tre faktavärden till tvåkolumnslayout med radbrytning så långa etiketter inte kapas.
 - [x] Ökat små etiketter i Hälsa-vyn.
 - [x] Höjt kompletterande SwiftUI-caption-texter till footnote-nivå i Hälsa och äldre dashboard-vyer.
+- [x] Byggt om hälsöversiktens tre huvudvärden från en trång horisontell rad till en tvåkolumnsgrid som låter tredje värdet flöda till nästa rad.
 - [ ] Kontrollera samtliga fyra flikar på fysisk iPhone med normal och större textstorlek.
 - [ ] Kontrollera att kort, grafer och navigering inte klipper text vid större Dynamic Type.
 - [ ] Verifiera VoiceOver-ordning och etiketter på interaktiva kontroller.
