@@ -160,3 +160,9 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - Existing HealthKit data flow, recovery calculations, body-battery model, frozen morning/evening report snapshots, and report history must be preserved while the interface is progressively restyled.
 - The first implementation step aligns the shared design-system surfaces and primary accent with the approved Midnight/lime palette. The existing dashboard structure is not yet a pixel-level match to the reference; further visual work is planned incrementally.
 - Navigation changes must preserve existing destinations. The first tab is named “Översikt”; activity and health destinations remain until their functionality is deliberately consolidated or replaced.
+
+
+## 2026-11-18 — Shared Midnight surfaces
+- Shared `VITALCard` surfaces use a restrained navy gradient, fine light edge and soft shadow to carry the approved glass-like visual language across Insights, Activity and Health.
+- The tab bar uses the same Midnight background and lime selection tint.
+- Existing destinations and their data/entry workflows remain in place; the visual redesign must not hide or remove them.
