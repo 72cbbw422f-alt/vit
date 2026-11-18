@@ -62,8 +62,13 @@ private struct InsightsView: View {
                                 Spacer()
                                 Image(systemName: "chevron.right").font(.caption.weight(.bold)).foregroundStyle(VITALPalette.muted)
                             }
-                            .padding(14)
-                            .background(VITALPalette.surfaceRaised, in: RoundedRectangle(cornerRadius: 18))
+                            .padding(15)
+                            .background(
+                                LinearGradient(colors: [VITALPalette.surfaceRaised, VITALPalette.surface], startPoint: .topLeading, endPoint: .bottomTrailing),
+                                in: RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            )
+                            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(Color.white.opacity(0.08), lineWidth: 1))
+                            .shadow(color: .black.opacity(0.15), radius: 12, y: 6)
                         }
                         .buttonStyle(.plain)
                         VITALCard {
@@ -71,15 +76,39 @@ private struct InsightsView: View {
                             VStack(alignment: .leading, spacing: 12) {
                                 Label("Aktuell återhämtning", systemImage: "waveform.path.ecg")
                                     .font(.headline).foregroundStyle(VITALPalette.cloud)
-                                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                                    Text(recovery.score.map(String.init) ?? "—")
-                                        .font(.system(size: 38, weight: .bold, design: .rounded))
-                                        .foregroundStyle(VITALPalette.teal).monospacedDigit()
-                                    Text("av 100 · senaste sömn")
-                                        .font(.caption).foregroundStyle(VITALPalette.muted)
+                                HStack(spacing: 18) {
+                                    ZStack {
+                                        Circle().stroke(VITALPalette.track.opacity(0.75), lineWidth: 9)
+                                        Circle()
+                                            .trim(from: 0, to: CGFloat(max(0, min(recovery.score ?? 0, 100))) / 100)
+                                            .stroke(
+                                                AngularGradient(colors: [VITALPalette.teal.opacity(0.65), VITALPalette.teal, Color(hex: 0xE5FF9A)], center: .center),
+                                                style: StrokeStyle(lineWidth: 9, lineCap: .round)
+                                            )
+                                            .rotationEffect(.degrees(-90))
+                                            .shadow(color: VITALPalette.teal.opacity(0.35), radius: 8)
+                                        VStack(spacing: 0) {
+                                            Text(recovery.score.map(String.init) ?? "—")
+                                                .font(.system(size: 29, weight: .bold, design: .rounded))
+                                                .foregroundStyle(VITALPalette.cloud).monospacedDigit()
+                                            Text("AV 100")
+                                                .font(.system(size: 7, weight: .heavy)).tracking(1)
+                                                .foregroundStyle(VITALPalette.muted)
+                                        }
+                                    }
+                                    .frame(width: 94, height: 94)
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        Text(recovery.score == nil ? "Inväntar data" : (recovery.score ?? 0) >= 80 ? "God återhämtning" : (recovery.score ?? 0) >= 55 ? "Måttlig återhämtning" : "Behöver återhämtning")
+                                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                                            .foregroundStyle(VITALPalette.teal)
+                                        Text("Senaste nattens sömn")
+                                            .font(.system(size: 10, weight: .semibold)).foregroundStyle(VITALPalette.muted)
+                                        Text(recovery.explanation)
+                                            .font(.system(size: 11)).lineSpacing(2)
+                                            .foregroundStyle(VITALPalette.muted)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                    }
                                 }
-                                Text(recovery.explanation)
-                                    .font(.caption).foregroundStyle(VITALPalette.muted)
                                 Divider().overlay(VITALPalette.track)
                                 baselineRow("Sömn", days: health.snapshot.sleepBaseline?.validDays ?? 0)
                                 baselineRow("HRV", days: health.snapshot.hrvBaseline?.validDays ?? 0)
