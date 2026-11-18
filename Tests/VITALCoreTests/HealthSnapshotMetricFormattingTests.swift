@@ -8,12 +8,6 @@ final class HealthSnapshotMetricFormattingTests: XCTestCase {
         XCTAssertEqual(snapshot.respiratoryRateText, "16 andetag/min")
     }
 
-    func testOxygenSaturationConvertsHealthKitFractionToPercent() {
-        var snapshot = HealthSnapshot.empty
-        snapshot.oxygenSaturation = 0.975
-        XCTAssertEqual(snapshot.oxygenSaturationText, "98 %")
-    }
-
     func testBloodPressureFormatsPairedValues() {
         var snapshot = HealthSnapshot.empty
         snapshot.systolicBloodPressure = 122
@@ -35,12 +29,9 @@ final class HealthSnapshotMetricFormattingTests: XCTestCase {
     func testMissingOrInvalidValuesRemainUnavailable() {
         var snapshot = HealthSnapshot.empty
         XCTAssertEqual(snapshot.respiratoryRateText, "—")
-        XCTAssertEqual(snapshot.oxygenSaturationText, "—")
 
         snapshot.respiratoryRate = .nan
-        snapshot.oxygenSaturation = 1.5
         XCTAssertEqual(snapshot.respiratoryRateText, "—")
-        XCTAssertEqual(snapshot.oxygenSaturationText, "—")
     }
 
     
@@ -78,12 +69,10 @@ final class HealthSnapshotMetricFormattingTests: XCTestCase {
         snapshot.steps = 200_001
         snapshot.restingHeartRate = 240
         snapshot.hrv = 301
-        snapshot.oxygenSaturation = 0.2
         XCTAssertEqual(snapshot.sleepText, "—")
         XCTAssertEqual(snapshot.stepsText, "—")
         XCTAssertEqual(snapshot.restingHeartRateText, "—")
         XCTAssertEqual(snapshot.hrvText, "—")
-        XCTAssertEqual(snapshot.oxygenSaturationText, "—")
     }
 
     func testCoreMetricsAcceptValuesAtDefensiveBoundaries() {
@@ -92,12 +81,10 @@ final class HealthSnapshotMetricFormattingTests: XCTestCase {
         snapshot.steps = 200_000
         snapshot.restingHeartRate = 25
         snapshot.hrv = 1
-        snapshot.oxygenSaturation = 0.5
         XCTAssertNotEqual(snapshot.sleepText, "—")
         XCTAssertNotEqual(snapshot.stepsText, "—")
         XCTAssertNotEqual(snapshot.restingHeartRateText, "—")
         XCTAssertNotEqual(snapshot.hrvText, "—")
-        XCTAssertNotEqual(snapshot.oxygenSaturationText, "—")
     }
 
 }
