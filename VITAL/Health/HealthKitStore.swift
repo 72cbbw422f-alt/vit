@@ -244,15 +244,16 @@ final class HealthKitStore: ObservableObject {
         )
         guard decision.shouldCreateSnapshot else { return }
         let day = calendar.startOfDay(for: capturedAt)
-        let recovery = healthSnapshot.recoveryResult
         let candidate = DailyReportSnapshot(
             kind: .evening,
             localDay: day,
             capturedAt: capturedAt,
-            recoveryScore: recovery.score,
-            sleepComponentScore: recovery.sleepComponent,
-            hrvComponentScore: recovery.hrvComponent,
-            restingPulseComponentScore: recovery.restingPulseComponent,
+            // Evening reporting is based on daytime load/body battery, not
+            // the overnight recovery score already used by the morning report.
+            recoveryScore: nil,
+            sleepComponentScore: nil,
+            hrvComponentScore: nil,
+            restingPulseComponentScore: nil,
             bodyBatteryScore: healthSnapshot.bodyBattery?.score,
             sleepDurationSeconds: healthSnapshot.sleepDuration,
             hrvMilliseconds: healthSnapshot.overnightHRV,
