@@ -484,35 +484,10 @@ private struct HealthOverviewView: View {
                                     Image(systemName: "waveform.path.ecg")
                                         .font(.title3).foregroundStyle(VITALPalette.teal.opacity(0.8))
                                 }
-                                HStack(alignment: .center, spacing: 12) {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text(health.snapshot.restingHeartRateText)
-                                            .font(.vital(size: 33.5, weight: .bold, design: .rounded))
-                                            .foregroundStyle(VITALPalette.cloud).monospacedDigit()
-                                        Text("VILOPULS").font(.vital(size: 14, weight: .heavy))
-                                            .tracking(0.8).foregroundStyle(VITALPalette.muted)
-                                    }
-                                    Spacer(minLength: 4)
-                                    Rectangle().fill(VITALPalette.track).frame(width: 1, height: 38)
-                                    Spacer(minLength: 4)
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text(health.snapshot.hrvText)
-                                            .font(.vital(size: 33.5, weight: .bold, design: .rounded))
-                                            .foregroundStyle(VITALPalette.violet).monospacedDigit()
-                                        Text("HRV").font(.vital(size: 14, weight: .heavy))
-                                            .tracking(0.8).foregroundStyle(VITALPalette.muted)
-                                    }
-                                    Spacer(minLength: 4)
-                                    Rectangle().fill(VITALPalette.track).frame(width: 1, height: 38)
-                                    Spacer(minLength: 4)
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text(health.snapshot.sleepText)
-                                            .font(.vital(size: 23.8, weight: .bold, design: .rounded))
-                                            .foregroundStyle(VITALPalette.cloud).monospacedDigit()
-                                            .fixedSize(horizontal: false, vertical: true)
-                                        Text("SÖMN").font(.vital(size: 14, weight: .heavy))
-                                            .tracking(0.8).foregroundStyle(VITALPalette.muted)
-                                    }
+                                LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], alignment: .leading, spacing: 12) {
+                                    healthOverviewMetric("Vilopuls", value: health.snapshot.restingHeartRateText, tint: VITALPalette.cloud)
+                                    healthOverviewMetric("HRV", value: health.snapshot.hrvText, tint: VITALPalette.violet)
+                                    healthOverviewMetric("Sömn", value: health.snapshot.sleepText, tint: VITALPalette.cloud)
                                 }
                                 Text("Senaste tillgängliga värden från Apple Hälsa")
                                     .font(.footnote).foregroundStyle(VITALPalette.muted)
@@ -1006,6 +981,23 @@ private struct HealthOverviewView: View {
         .sheet(isPresented: $showingProgressPhotos) {
             ProgressPhotosView(journal: progressPhotos, weightJournal: weightJournal)
         }
+    }
+
+    private func healthOverviewMetric(_ title: String, value: String, tint: Color) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(value)
+                .font(.vital(size: 29, weight: .bold, design: .rounded))
+                .foregroundStyle(tint)
+                .monospacedDigit()
+                .fixedSize(horizontal: false, vertical: true)
+            Text(title.uppercased())
+                .font(.vital(size: 14, weight: .heavy))
+                .tracking(0.7)
+                .foregroundStyle(VITALPalette.muted)
+        }
+        .frame(maxWidth: .infinity, minHeight: 76, alignment: .leading)
+        .padding(12)
+        .background(VITALPalette.surfaceRaised.opacity(0.72), in: RoundedRectangle(cornerRadius: 15, style: .continuous))
     }
 
     private var bloodPressureCard: some View {
