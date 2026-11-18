@@ -6,7 +6,7 @@ extension Font {
     static func vital(
         size: CGFloat,
         weight: UIFont.Weight = .regular,
-        design: UIFontDescriptor.SystemDesign = .default
+        design: UIFontDescriptor.SystemDesign = .rounded
     ) -> Font {
         let baseFont = UIFont.systemFont(ofSize: size, weight: weight)
         let descriptor = baseFont.fontDescriptor.withDesign(design) ?? baseFont.fontDescriptor
