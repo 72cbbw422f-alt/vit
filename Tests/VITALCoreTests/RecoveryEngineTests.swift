@@ -130,3 +130,38 @@ final class RecoveryEngineTests: XCTestCase {
     }
 
 }
+
+
+final class SemaglutideLevelModelTests: XCTestCase {
+    func testOneDoseHalvesAfterOneHalfLife() {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let dose = SemaglutideDoseInput(date: now.addingTimeInterval(-7 * 86_400), milligrams: 1)
+        let estimate = SemaglutideLevelModel.estimate(doses: [dose], asOf: now)
+        XCTAssertEqual(estimate?.remainingMilligrams ?? -1, 0.5, accuracy: 0.0001)
+    }
+
+    func testMultipleDosesAreAddedIndependently() {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let doses = [
+            SemaglutideDoseInput(date: now, milligrams: 1),
+            SemaglutideDoseInput(date: now.addingTimeInterval(-7 * 86_400), milligrams: 0.5)
+        ]
+        let estimate = SemaglutideLevelModel.estimate(doses: doses, asOf: now)
+        XCTAssertEqual(estimate?.remainingMilligrams ?? -1, 1.25, accuracy: 0.0001)
+        XCTAssertEqual(estimate?.includedDoseCount, 2)
+    }
+
+    func testFutureAndInvalidDosesAreIgnored() {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let doses = [
+            SemaglutideDoseInput(date: now.addingTimeInterval(86_400), milligrams: 1),
+            SemaglutideDoseInput(date: now, milligrams: .nan),
+            SemaglutideDoseInput(date: now, milligrams: 0)
+        ]
+        XCTAssertNil(SemaglutideLevelModel.estimate(doses: doses, asOf: now))
+    }
+
+    func testNoDoseHistoryReturnsNil() {
+        XCTAssertNil(SemaglutideLevelModel.estimate(doses: [], asOf: .now))
+    }
+}
