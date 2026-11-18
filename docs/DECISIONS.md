@@ -191,3 +191,10 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - Appens textstorlek får en större grundnivå och stöd för större dynamiska textstorlekar (Large till xxxLarge) utan att låsa användaren till en enda storlek.
 - Dashboardens fasta typografiska storlekar höjs med cirka 15 procent för bättre läsbarhet.
 - Kontrollera radbrytningar, kort och diagram i samtliga flikar vid simulatorgranskning; undvik att text kapas vid större systemstorlek.
+
+
+## 2026-11-18 — Andra läsbarhetsrundan
+- Höj även små etiketter och detaljtexter i Hälsa-vyerna; undvik fasta textstorlekar under 12 pt i dessa vyer.
+- Låt systemfontens storlekar följa Dynamic Type via relativa SwiftUI-fontstorlekar, med stöd för större textinställningar.
+- Granska omflöde och kortens höjd när texten förstoras; innehåll ska kunna växa vertikalt och får inte kapas.
+- Behåll färger, kortstil, informationshierarki och etablerad Midnight-design.
