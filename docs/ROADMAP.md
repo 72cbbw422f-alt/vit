@@ -445,3 +445,11 @@ Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa 
 - [x] Andningsfrekvens visas ensam med full kortbredd så värdet inte bryts i onödan.
 - [ ] Verifiera på fysisk iPhone att andningsfrekvens och övriga tillgängliga mätvärden visas korrekt.
 - [ ] Fortsatt felsökning av nattliga mätvärden och kroppsbatteriets pulstäckning.
+
+
+## Uppdatering 2026-11-18 – korrekt pulsräkning i kroppsbatteriet
+
+- [x] Pulsmätningar filtreras och räknas innan krav på morgonspoäng och vilopulsbaslinje kontrolleras.
+- [x] Om poängen inte kan beräknas visas fortfarande faktiskt antal giltiga pulsmätningar, i stället för ett missvisande nollvärde.
+- [x] Lagt till tester för saknad morgonspoäng respektive saknad baslinje med tillgängliga pulsmätningar.
+- [ ] Verifiera på fysisk iPhone hur många pulssamples Apple Hälsa faktiskt lämnar för vakenperioden.
