@@ -484,14 +484,21 @@ private struct HealthOverviewView: View {
                                     Button {
                                         Task { await health.refresh() }
                                     } label: {
-                                        Image(systemName: "arrow.clockwise")
-                                            .font(.title3.weight(.semibold))
-                                            .foregroundStyle(VITALPalette.teal)
-                                            .frame(width: 40, height: 40)
-                                            .background(VITALPalette.teal.opacity(0.12), in: Circle())
+                                        Group {
+                                            if health.isRefreshing {
+                                                ProgressView().tint(VITALPalette.teal)
+                                            } else {
+                                                Image(systemName: "arrow.clockwise")
+                                                    .font(.title3.weight(.semibold))
+                                                    .foregroundStyle(VITALPalette.teal)
+                                            }
+                                        }
+                                        .frame(width: 40, height: 40)
+                                        .background(VITALPalette.teal.opacity(0.12), in: Circle())
                                     }
                                     .buttonStyle(.plain)
-                                    .accessibilityLabel("Uppdatera hälsodata")
+                                    .disabled(health.isRefreshing)
+                                    .accessibilityLabel(health.isRefreshing ? "Uppdaterar hälsodata" : "Uppdatera hälsodata")
                                     .accessibilityHint("Hämtar de senaste tillgängliga värdena från Apple Hälsa")
                                 }
                                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], alignment: .leading, spacing: 12) {
