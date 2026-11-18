@@ -185,3 +185,9 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - När återhämtningsvärden saknas ska coachen uttryckligen säga att underlaget är otillräckligt; saknade värden får aldrig beskrivas som positiva eller negativa.
 - Användarens upplevda mående ska väga tyngre än en positiv mätpoäng när de två signalerna skiljer sig åt.
 - Wegovy/semaglutids uppskattade läkemedelsnivå planeras som en separat funktion under Hälsa → Läkemedel. Beräkningen ska summera kvarvarande bidrag från registrerade doser med en dokumenterad farmakokinetisk modell och får inte ge dosråd.
+
+
+## 2026-11-18 — Förbättrad läsbarhet
+- Appens textstorlek får en större grundnivå och stöd för större dynamiska textstorlekar (Large till xxxLarge) utan att låsa användaren till en enda storlek.
+- Dashboardens fasta typografiska storlekar höjs med cirka 15 procent för bättre läsbarhet.
+- Kontrollera radbrytningar, kort och diagram i samtliga flikar vid simulatorgranskning; undvik att text kapas vid större systemstorlek.
