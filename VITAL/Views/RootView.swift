@@ -727,12 +727,16 @@ private struct HealthOverviewView: View {
                                     showingDoseEntry = true
                                 } label: {
                                     Image(systemName: "pencil").font(.footnote).foregroundStyle(VITALPalette.muted)
-                                }.buttonStyle(.plain)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel("Ändra dosregistrering \(dose.date.formatted(date: .abbreviated, time: .omitted))")
                                 Button(role: .destructive) {
                                     medicationJournal.deleteDose(dose)
                                 } label: {
                                     Image(systemName: "trash").font(.footnote).foregroundStyle(VITALPalette.amber)
-                                }.buttonStyle(.plain)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel("Ta bort dosregistrering \(dose.date.formatted(date: .abbreviated, time: .omitted))")
                             }
                             .padding(.vertical, 3)
                         }
@@ -773,12 +777,16 @@ private struct HealthOverviewView: View {
                                     showingSideEffectEntry = true
                                 } label: {
                                     Image(systemName: "pencil").font(.footnote).foregroundStyle(VITALPalette.muted)
-                                }.buttonStyle(.plain)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel("Ändra registrerat besvär: \(effect.title)")
                                 Button(role: .destructive) {
                                     medicationJournal.deleteEffect(effect)
                                 } label: {
                                     Image(systemName: "trash").font(.footnote).foregroundStyle(VITALPalette.amber)
-                                }.buttonStyle(.plain)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel("Ta bort registrerat besvär: \(effect.title)")
                             }
                             .padding(.vertical, 3)
                         }
@@ -945,8 +953,11 @@ private struct HealthOverviewView: View {
                     waterAddButton(500, label: "500 ml")
                     Button { waterTracker.undo() } label: {
                         Image(systemName: "arrow.uturn.backward").frame(width: 40, height: 42)
-                    }.buttonStyle(.plain).foregroundStyle(VITALPalette.muted)
-                        .background(VITALPalette.surfaceRaised, in: RoundedRectangle(cornerRadius: 12))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Ångra senaste vattenregistreringen")
+                    .foregroundStyle(VITALPalette.muted)
+                    .background(VITALPalette.surfaceRaised, in: RoundedRectangle(cornerRadius: 12))
                         .disabled(waterTracker.total == 0)
                 }
                 HStack {
