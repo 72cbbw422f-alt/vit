@@ -176,3 +176,12 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - Sektionerna använder små typografiska rubriker i lime i stället för att ge varje del ett lika tungt stort kort. Det ger tydligare skanning och en lugnare visuell rytm.
 - Omstruktureringen är en presentationsändring. HealthKit-källor, lokala journaler, redigering, påminnelser och historik ska bevaras.
 - Saknade värden ska fortsatt visas som saknade. Senaste mätningens tidsstämpel och upplysningen om att HealthKit-värden inte nödvändigtvis är realtid ska finnas kvar.
+
+
+## 2026-11-18 — Personlig coach på Översikt
+- Ett coachkort placeras direkt efter nattens återhämtningssammanfattning på Översikt.
+- Texten varierar deterministiskt mellan flera formuleringar och baseras på aktuellt återhämtningsestimat samt användarens dagliga måendenotering.
+- Coachens rekommendationer är försiktiga wellness-reflektioner, inte medicinska råd eller träningsordinationer.
+- När återhämtningsvärden saknas ska coachen uttryckligen säga att underlaget är otillräckligt; saknade värden får aldrig beskrivas som positiva eller negativa.
+- Användarens upplevda mående ska väga tyngre än en positiv mätpoäng när de två signalerna skiljer sig åt.
+- Wegovy/semaglutids uppskattade läkemedelsnivå planeras som en separat funktion under Hälsa → Läkemedel. Beräkningen ska summera kvarvarande bidrag från registrerade doser med en dokumenterad farmakokinetisk modell och får inte ge dosråd.
