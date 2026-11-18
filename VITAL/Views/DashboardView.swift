@@ -260,7 +260,7 @@ struct DashboardView: View {
                         Text(health.snapshot.stepsText)
                             .font(.vital(size: 34, weight: .bold, design: .rounded))
                             .foregroundStyle(VITALPalette.cloud).monospacedDigit()
-                            .minimumScaleFactor(0.75).lineLimit(1)
+                            .fixedSize(horizontal: false, vertical: true)
                         Text("steg idag").font(.subheadline).foregroundStyle(VITALPalette.muted)
                         Text("Mål 8 000").font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.teal)
                     }
@@ -320,8 +320,8 @@ private struct MetricCard: View {
                 Circle().fill(accent.opacity(0.85)).frame(width: 6, height: 6)
             }
             Text(title).font(.caption.weight(.semibold)).tracking(0.5).foregroundStyle(VITALPalette.muted)
-            Text(value).font(.vital(size: 25, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud).lineLimit(1).minimumScaleFactor(0.75)
-            Text(detail).font(.caption).foregroundStyle(accent).lineLimit(1)
+            Text(value).font(.vital(size: 25, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud).fixedSize(horizontal: false, vertical: true)
+            Text(detail).font(.caption).foregroundStyle(accent).fixedSize(horizontal: false, vertical: true)
         }.frame(maxWidth: .infinity, minHeight: 132, alignment: .leading).padding(15)
             .background(
                 LinearGradient(colors: [VITALPalette.midnight, VITALPalette.midnight.opacity(0.82)], startPoint: .topLeading, endPoint: .bottomTrailing),
