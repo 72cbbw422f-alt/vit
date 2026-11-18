@@ -571,6 +571,20 @@ private struct HealthOverviewView: View {
                             }
                             .foregroundStyle(VITALPalette.muted).padding(.horizontal, 4)
                         }
+                        if let error = health.lastError, !error.isEmpty {
+                            VITALCard {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Label("Problem vid hämtning av hälsodata", systemImage: "exclamationmark.triangle.fill")
+                                        .font(.subheadline.weight(.semibold))
+                                        .foregroundStyle(VITALPalette.amber)
+                                    Text(error)
+                                        .font(.footnote)
+                                        .foregroundStyle(VITALPalette.muted)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                        }
                     }.padding(.horizontal, VITALSpacing.page).padding(.top, 14).padding(.bottom, 30)
                 }
             }
