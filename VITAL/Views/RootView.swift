@@ -334,50 +334,113 @@ private struct ActivityView: View {
     @EnvironmentObject private var health: HealthKitStore
     private var steps: Double? { health.snapshot.steps }
     private var progress: Double { min(max((steps ?? 0) / 8000, 0), 1) }
+    private var stepPercent: Int { Int(progress * 100) }
+
     var body: some View {
         NavigationStack {
             ZStack {
-                VITALPalette.surface.ignoresSafeArea()
+                VITALPalette.midnight.ignoresSafeArea()
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
                         pageHeader("Aktivitet", subtitle: "Rörelse och belastning idag")
+
                         VITALCard {
-                            HStack(spacing: 22) {
-                                ActivityProgressRing(progress: progress, hasData: steps != nil)
-                                    .frame(width: 142, height: 142)
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Text(health.snapshot.stepsText).font(.system(size: 36, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud).minimumScaleFactor(0.7).lineLimit(1)
-                                    Text("steg idag").font(.subheadline).foregroundStyle(VITALPalette.muted)
-                                    Text("Mål 8 000").font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.teal)
+                            VStack(alignment: .leading, spacing: 17) {
+                                HStack {
+                                    Label("DAGENS RÖRELSE", systemImage: "figure.walk")
+                                        .font(.system(size: 10, weight: .heavy)).tracking(1.1)
+                                        .foregroundStyle(VITALPalette.teal)
+                                    Spacer()
+                                    Text("MÅL 8 000")
+                                        .font(.system(size: 9, weight: .bold)).tracking(0.7)
+                                        .foregroundStyle(VITALPalette.muted)
+                                        .padding(.horizontal, 9).padding(.vertical, 6)
+                                        .background(VITALPalette.track.opacity(0.55), in: Capsule())
                                 }
-                                Spacer(minLength: 0)
+                                HStack(alignment: .center, spacing: 14) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(health.snapshot.stepsText)
+                                            .font(.system(size: 42, weight: .bold, design: .rounded))
+                                            .monospacedDigit()
+                                            .foregroundStyle(VITALPalette.cloud)
+                                            .minimumScaleFactor(0.65).lineLimit(1)
+                                        Text("steg idag")
+                                            .font(.subheadline).foregroundStyle(VITALPalette.muted)
+                                        if steps != nil {
+                                            Text(stepPercent >= 100 ? "Dagsmålet uppnått" : "\\(stepPercent) % av dagsmålet")
+                                                .font(.caption.weight(.semibold))
+                                                .foregroundStyle(VITALPalette.teal)
+                                                .padding(.top, 3)
+                                        } else {
+                                            Text("Väntar på stegdata")
+                                                .font(.caption.weight(.medium)).foregroundStyle(VITALPalette.amber)
+                                                .padding(.top, 3)
+                                        }
+                                    }
+                                    Spacer(minLength: 0)
+                                    ActivityProgressRing(progress: progress, hasData: steps != nil)
+                                        .frame(width: 104, height: 104)
+                                }
+                                VStack(spacing: 7) {
+                                    GeometryReader { geometry in
+                                        ZStack(alignment: .leading) {
+                                            Capsule().fill(VITALPalette.track)
+                                            Capsule()
+                                                .fill(LinearGradient(colors: [VITALPalette.teal.opacity(0.7), Color(hex: 0xE5FF9A)], startPoint: .leading, endPoint: .trailing))
+                                                .frame(width: steps == nil ? 0 : geometry.size.width * progress)
+                                                .shadow(color: VITALPalette.teal.opacity(0.28), radius: 7)
+                                        }
+                                    }
+                                    .frame(height: 8)
+                                    HStack {
+                                        Text("0")
+                                        Spacer()
+                                        Text("8 000 steg")
+                                    }
+                                    .font(.system(size: 9, weight: .medium, design: .rounded))
+                                    .foregroundStyle(VITALPalette.muted)
+                                }
                             }
                         }
+
                         HStack(spacing: 12) {
-                            InsightMetric(title: "Aktiv energi", value: health.snapshot.activeEnergy.map { "\(Int($0.rounded())) kcal" } ?? "—", symbol: "flame.fill", tint: VITALPalette.amber)
-                            InsightMetric(title: "Kroppsbatteri", value: health.snapshot.bodyBattery?.score.map { "\($0)/100" } ?? "—", symbol: "battery.100percent", tint: VITALPalette.violet)
+                            InsightMetric(title: "Aktiv energi", value: health.snapshot.activeEnergy.map { "\\(Int($0.rounded())) kcal" } ?? "—", symbol: "flame.fill", tint: VITALPalette.amber)
+                            InsightMetric(title: "Kroppsbatteri", value: health.snapshot.bodyBattery?.score.map { "\\($0)/100" } ?? "—", symbol: "battery.100percent", tint: VITALPalette.violet)
                         }
+
                         VITALCard {
-                            VStack(alignment: .leading, spacing: 12) {
-                                Label("Dagens aktivitet", systemImage: "figure.run").font(.headline).foregroundStyle(VITALPalette.cloud)
+                            VStack(alignment: .leading, spacing: 13) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "waveform.path.ecg")
+                                        .foregroundStyle(VITALPalette.teal)
+                                    Text("Datakvalitet idag")
+                                        .font(.headline).foregroundStyle(VITALPalette.cloud)
+                                }
                                 activityStatusRow("Steg", steps == nil ? "Saknas" : "Registrerat")
+                                Divider().overlay(VITALPalette.track)
                                 activityStatusRow("Aktiv energi", health.snapshot.activeEnergy == nil ? "Saknas" : "Registrerat")
-                                activityStatusRow("Pulsmätningar", health.snapshot.bodyBattery.map { "\($0.heartRateSampleCount) st" } ?? "Saknas")
+                                Divider().overlay(VITALPalette.track)
+                                activityStatusRow("Pulsmätningar", health.snapshot.bodyBattery.map { "\\($0.heartRateSampleCount) st" } ?? "Saknas")
                             }
                         }
                         Text("Aktivitetsdata hämtas från Apple Hälsa. Kroppsbatteriet är en preliminär uppskattning, inte ett medicinskt mått.")
                             .font(.caption).foregroundStyle(VITALPalette.muted).padding(.horizontal, 4)
-                    }.padding(.horizontal, VITALSpacing.page).padding(.top, 14).padding(.bottom, 30)
+                    }
+                    .padding(.horizontal, VITALSpacing.page)
+                    .padding(.top, 14)
+                    .padding(.bottom, 30)
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
         }
     }
+
     private func activityStatusRow(_ title: String, _ value: String) -> some View {
         HStack {
             Text(title).foregroundStyle(VITALPalette.muted)
             Spacer()
-            Text(value).font(.subheadline).foregroundStyle(value == "Saknas" ? VITALPalette.amber : VITALPalette.teal)
+            Text(value).font(.subheadline.weight(.medium))
+                .foregroundStyle(value == "Saknas" ? VITALPalette.amber : VITALPalette.teal)
         }
     }
 }
