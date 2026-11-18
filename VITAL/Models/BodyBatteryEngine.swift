@@ -35,18 +35,21 @@ enum BodyBatteryEngine {
     /// both bounding HR samples are near the personal resting baseline and no
     /// active-energy sample overlaps the interval.
     static func calculate(_ input: BodyBatteryInputs) -> BodyBatteryResult {
+        // Count valid daytime pulse samples independently of whether the score
+        // can be calculated. Missing recovery/baseline must not be displayed as 0 samples.
+        let heartRates = input.heartRateSamples
+            .filter { $0.timestamp >= input.wakeTime && $0.timestamp <= input.asOf &&
+                $0.value.isFinite && $0.value > 0 && $0.value < 250 }
+            .sorted { $0.timestamp < $1.timestamp }
+
         guard input.asOf >= input.wakeTime,
               let start = input.overnightRecoveryScore,
               (0...100).contains(start),
               let resting = input.restingHeartRateBaselineBPM,
               resting.isFinite, resting > 0 else {
-            return unavailable("Saknar giltig morgonspoäng eller personlig vilopulsbaslinje.")
+            return unavailable("Saknar giltig morgonspoäng eller personlig vilopulsbaslinje.",
+                                heartRateSampleCount: heartRates.count)
         }
-
-        let heartRates = input.heartRateSamples
-            .filter { $0.timestamp >= input.wakeTime && $0.timestamp <= input.asOf &&
-                $0.value.isFinite && $0.value > 0 && $0.value < 250 }
-            .sorted { $0.timestamp < $1.timestamp }
 
         guard heartRates.count >= minimumHeartRateSamples,
               let first = heartRates.first, let last = heartRates.last,
@@ -144,8 +147,8 @@ enum BodyBatteryEngine {
         return true
     }
 
-    private static func unavailable(_ explanation: String) -> BodyBatteryResult {
-        BodyBatteryResult(score: nil, heartRateSampleCount: 0, activeEnergyKcal: 0,
+    private static func unavailable(_ explanation: String, heartRateSampleCount: Int = 0) -> BodyBatteryResult {
+        BodyBatteryResult(score: nil, heartRateSampleCount: heartRateSampleCount, activeEnergyKcal: 0,
             cardiovascularLoad: 0, activityLoad: 0, recoveryGain: 0, explanation: explanation)
     }
 }
