@@ -95,13 +95,7 @@ struct VITALDashboardView: View {
             RoundedRectangle(cornerRadius: 32, style: .continuous)
                 .fill(LinearGradient(colors: [Color(hex: 0x172B3C), Color(hex: 0x0D1928), Color(hex: 0x101D2D)], startPoint: .topLeading, endPoint: .bottomTrailing))
             Circle().fill(VITALPalette.lime.opacity(0.08)).frame(width: 210, height: 210).blur(radius: 55).offset(y: -18)
-            VStack(spacing: 0) {
-                Spacer()
-                VITALWaveShape(phase: 0.0).fill(VITALPalette.lime.opacity(0.075)).frame(height: 92)
-                VITALWaveShape(phase: 0.42).fill(Color(hex: 0x567C9A).opacity(0.12)).frame(height: 72).offset(y: -26)
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
-            .allowsHitTesting(false)
+            Circle().fill(VITALPalette.lime.opacity(0.035)).frame(width: 250, height: 250).blur(radius: 65).offset(y: 150)
             VStack(spacing: 15) {
                 HStack {
                     Label("KROPPSBATTERI", systemImage: "battery.100percent")
@@ -141,7 +135,7 @@ struct VITALDashboardView: View {
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)], alignment: .leading, spacing: 14) {
                     heroFact("Pulsmätningar", value: battery.map { "\($0.heartRateSampleCount)" } ?? "—", icon: "heart.fill")
                     heroFact("Aktiv energi", value: health.snapshot.activeEnergy.map { "\(Int($0.rounded())) kcal" } ?? "—", icon: "flame.fill")
-                    heroFact("Återhämtning i vila", value: battery.map { "+\(Int($0.recoveryGain.rounded()))" } ?? "—", icon: "leaf.fill")
+                    heroFact("Återhämtning i vila", value: battery.map { "+\(Int($0.recoveryGain.rounded()))" } ?? "—", icon: "leaf.fill", spansColumns: true)
                 }
                 Text("Preliminär modell – inte ett medicinskt mått.")
                     .font(.vital(size: 14, weight: .medium)).foregroundStyle(VITALPalette.steel)
@@ -262,13 +256,14 @@ struct VITALDashboardView: View {
         return ("Prioritera återhämtning.", "\(opener) Nattens återhämtningsestimat är \(score) av 100.", "Överväg lättare rörelse idag och prioritera sömn och återhämtning.", "leaf.fill", VITALPalette.amber)
     }
 
-    private func heroFact(_ title: String, value: String, icon: String) -> some View {
+    private func heroFact(_ title: String, value: String, icon: String, spansColumns: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Label(title, systemImage: icon).font(.vital(size: 14, weight: .semibold)).tracking(0.25).foregroundStyle(VITALPalette.steel)
                 .fixedSize(horizontal: false, vertical: true)
             Text(value).font(.vital(size: 18, weight: .bold, design: .rounded)).monospacedDigit().foregroundStyle(VITALPalette.paper)
                 .fixedSize(horizontal: false, vertical: true)
         }
+        .gridCellColumns(spansColumns ? 2 : 1)
     }
 
     private var moodCheckIn: some View {
