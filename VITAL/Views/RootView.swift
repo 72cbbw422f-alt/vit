@@ -28,6 +28,8 @@ struct RootView: View {
             HealthOverviewView().tabItem { Label("Hälsa", systemImage: "heart.text.square") }
         }
         .tint(VITALPalette.teal)
+        .toolbarBackground(VITALPalette.midnight, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
     }
 }
 
