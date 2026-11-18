@@ -1,16 +1,16 @@
 import SwiftUI
 
 enum VITALPalette {
-    static let midnight = Color(hex: 0x111C2D)
-    static let surface = Color(hex: 0x1D2A3D)
-    static let surfaceRaised = Color(hex: 0x243248)
-    static let teal = Color(hex: 0x70D9D1)
+    static let midnight = Color(hex: 0x080F1C)
+    static let surface = Color(hex: 0x0B1422)
+    static let surfaceRaised = Color(hex: 0x142235)
+    static let teal = Color(hex: 0xC8F36A)
     static let violet = Color(hex: 0xA9A0F5)
     static let amber = Color(hex: 0xE9BD70)
     static let cloud = Color(hex: 0xF1F4F8)
     static let muted = Color(hex: 0xAAB6C8)
     static let track = Color(hex: 0x35445A)
-    static let green = Color(hex: 0x55C878)
+    static let green = Color(hex: 0xA8E85C)
 }
 enum VITALSpacing {
     static let page: CGFloat = 18
