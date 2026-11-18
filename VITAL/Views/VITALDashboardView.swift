@@ -102,11 +102,11 @@ struct VITALDashboardView: View {
                     .frame(maxWidth: 270)
                 Rectangle().fill(Color.white.opacity(0.09)).frame(height: 1)
                 HStack {
-                    heroFact("PULSMÄTNINGAR", value: battery.map { "\\($0.heartRateSampleCount)" } ?? "—", icon: "heart.fill")
+                    heroFact("PULSMÄTNINGAR", value: battery.map { "\($0.heartRateSampleCount)" } ?? "—", icon: "heart.fill")
                     Spacer()
-                    heroFact("AKTIV ENERGI", value: health.snapshot.activeEnergy.map { "\\(Int($0.rounded())) kcal" } ?? "—", icon: "flame.fill")
+                    heroFact("AKTIV ENERGI", value: health.snapshot.activeEnergy.map { "\(Int($0.rounded())) kcal" } ?? "—", icon: "flame.fill")
                     Spacer()
-                    heroFact("ÅTERHÄMTNING I VILA", value: battery.map { "+\\(Int($0.recoveryGain.rounded()))" } ?? "—", icon: "leaf.fill")
+                    heroFact("ÅTERHÄMTNING I VILA", value: battery.map { "+\(Int($0.recoveryGain.rounded()))" } ?? "—", icon: "leaf.fill")
                 }
                 Text("Preliminär modell – inte ett medicinskt mått.")
                     .font(.system(size: 9, weight: .medium)).foregroundStyle(VITALPalette.steel)
