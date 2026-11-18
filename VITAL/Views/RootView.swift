@@ -27,7 +27,7 @@ struct RootView: View {
             ActivityView().tabItem { Label("Aktivitet", systemImage: "figure.walk") }
             HealthOverviewView().tabItem { Label("Hälsa", systemImage: "heart.text.square") }
         }
-        .dynamicTypeSize(.large ... .xxxLarge)
+        .dynamicTypeSize(.large ... .accessibility5)
         .tint(VITALPalette.teal)
         .toolbarBackground(VITALPalette.midnight, for: .tabBar)
         .toolbarBackground(.visible, for: .tabBar)
@@ -51,7 +51,7 @@ private struct InsightsView: View {
                         } label: {
                             HStack(spacing: 13) {
                                 Image(systemName: "doc.text.magnifyingglass")
-                                    .font(.system(size: 20.5, weight: .semibold))
+                                    .font(.vital(size: 20.5, weight: .semibold))
                                     .foregroundStyle(VITALPalette.teal)
                                     .frame(width: 44, height: 44)
                                     .background(VITALPalette.teal.opacity(0.12), in: RoundedRectangle(cornerRadius: 13))
@@ -90,22 +90,22 @@ private struct InsightsView: View {
                                             .shadow(color: VITALPalette.teal.opacity(0.35), radius: 8)
                                         VStack(spacing: 0) {
                                             Text(recovery.score.map(String.init) ?? "—")
-                                                .font(.system(size: 31.3, weight: .bold, design: .rounded))
+                                                .font(.vital(size: 31.3, weight: .bold, design: .rounded))
                                                 .foregroundStyle(VITALPalette.cloud).monospacedDigit()
                                             Text("AV 100")
-                                                .font(.system(size: 12, weight: .heavy)).tracking(1)
+                                                .font(.vital(size: 12, weight: .heavy)).tracking(1)
                                                 .foregroundStyle(VITALPalette.muted)
                                         }
                                     }
                                     .frame(width: 94, height: 94)
                                     VStack(alignment: .leading, spacing: 6) {
                                         Text(recovery.score == nil ? "Inväntar data" : (recovery.score ?? 0) >= 80 ? "God återhämtning" : (recovery.score ?? 0) >= 55 ? "Måttlig återhämtning" : "Behöver återhämtning")
-                                            .font(.system(size: 16.2, weight: .bold, design: .rounded))
+                                            .font(.vital(size: 16.2, weight: .bold, design: .rounded))
                                             .foregroundStyle(VITALPalette.teal)
                                         Text("Senaste nattens sömn")
-                                            .font(.system(size: 12, weight: .semibold)).foregroundStyle(VITALPalette.muted)
+                                            .font(.vital(size: 12, weight: .semibold)).foregroundStyle(VITALPalette.muted)
                                         Text(recovery.explanation)
-                                            .font(.system(size: 12)).lineSpacing(2)
+                                            .font(.vital(size: 12)).lineSpacing(2)
                                             .foregroundStyle(VITALPalette.muted)
                                             .fixedSize(horizontal: false, vertical: true)
                                     }
@@ -217,9 +217,9 @@ private struct ReportHistoryView: View {
                                 HStack(spacing: 13) {
                                     VStack(spacing: 4) {
                                         Image(systemName: report.kind == .morning ? "sunrise.fill" : "moon.stars.fill")
-                                            .font(.system(size: 18.4, weight: .semibold))
+                                            .font(.vital(size: 18.4, weight: .semibold))
                                         Text(report.capturedAt.formatted(.dateTime.hour().minute()))
-                                            .font(.system(size: 12, weight: .bold, design: .rounded).monospacedDigit())
+                                            .font(.vital(size: 12, weight: .bold, design: .rounded).monospacedDigit())
                                     }
                                     .foregroundStyle(report.kind == .morning ? VITALPalette.teal : VITALPalette.violet)
                                     .frame(width: 54, height: 58)
@@ -228,14 +228,14 @@ private struct ReportHistoryView: View {
                                         Text(report.localDayDisplayText).font(.headline).foregroundStyle(VITALPalette.cloud)
                                         Text(report.kind == .morning ? "Morgonrapport" : "Kvällsrapport")
                                             .font(.caption).foregroundStyle(VITALPalette.muted)
-                                        Text("Sparad ögonblicksbild").font(.system(size: 12, weight: .medium)).foregroundStyle(VITALPalette.muted)
+                                        Text("Sparad ögonblicksbild").font(.vital(size: 12, weight: .medium)).foregroundStyle(VITALPalette.muted)
                                     }
                                     Spacer()
                                     VStack(alignment: .trailing, spacing: 2) {
                                         Text(report.recoveryScore.map(String.init) ?? "—")
-                                            .font(.system(size: 28.1, weight: .bold, design: .rounded).monospacedDigit())
+                                            .font(.vital(size: 28.1, weight: .bold, design: .rounded).monospacedDigit())
                                             .foregroundStyle(VITALPalette.teal)
-                                        Text("ÅTERHÄMTNING").font(.system(size: 12, weight: .heavy)).tracking(0.5).foregroundStyle(VITALPalette.muted)
+                                        Text("ÅTERHÄMTNING").font(.vital(size: 12, weight: .heavy)).tracking(0.5).foregroundStyle(VITALPalette.muted)
                                     }
                                     Image(systemName: "chevron.right").font(.caption2.weight(.bold)).foregroundStyle(VITALPalette.muted)
                                 }
@@ -266,7 +266,7 @@ private struct ReportSnapshotDetailView: View {
                         Text(report.kind == .morning ? "MORGONRAPPORT" : "KVÄLLSRAPPORT")
                             .font(.caption.weight(.heavy)).tracking(1.3).foregroundStyle(VITALPalette.teal)
                         Text(report.localDayDisplayText)
-                            .font(.system(size: 32.4, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
+                            .font(.vital(size: 32.4, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
                         Text("Fångad \(report.capturedAt.formatted(date: .omitted, time: .shortened))")
                             .font(.caption).foregroundStyle(VITALPalette.muted)
                     }
@@ -275,10 +275,10 @@ private struct ReportSnapshotDetailView: View {
                             VStack(alignment: .leading, spacing: 5) {
                                 Text(report.kind == .morning ? "NATTENS ÅTERHÄMTNING" : "DAGENS KROPPSBATTERI").font(.caption.weight(.bold)).tracking(0.7).foregroundStyle(VITALPalette.muted)
                                 Text((report.kind == .morning ? report.recoveryScore : report.bodyBatteryScore).map { "\($0) / 100" } ?? "Saknar underlag")
-                                    .font(.system(size: 34.6, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.teal)
+                                    .font(.vital(size: 34.6, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.teal)
                             }
                             Spacer()
-                            Image(systemName: "moon.stars.fill").font(.system(size: 34.6)).foregroundStyle(VITALPalette.teal)
+                            Image(systemName: "moon.stars.fill").font(.vital(size: 34.6)).foregroundStyle(VITALPalette.teal)
                         }
                         if report.kind == .morning {
                             Divider().overlay(VITALPalette.track)
@@ -349,11 +349,11 @@ private struct ActivityView: View {
                             VStack(alignment: .leading, spacing: 17) {
                                 HStack {
                                     Label("DAGENS RÖRELSE", systemImage: "figure.walk")
-                                        .font(.system(size: 12, weight: .heavy)).tracking(1.1)
+                                        .font(.vital(size: 12, weight: .heavy)).tracking(1.1)
                                         .foregroundStyle(VITALPalette.teal)
                                     Spacer()
                                     Text("MÅL 8 000")
-                                        .font(.system(size: 12, weight: .bold)).tracking(0.7)
+                                        .font(.vital(size: 12, weight: .bold)).tracking(0.7)
                                         .foregroundStyle(VITALPalette.muted)
                                         .padding(.horizontal, 9).padding(.vertical, 6)
                                         .background(VITALPalette.track.opacity(0.55), in: Capsule())
@@ -361,7 +361,7 @@ private struct ActivityView: View {
                                 HStack(alignment: .center, spacing: 14) {
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text(health.snapshot.stepsText)
-                                            .font(.system(size: 45.4, weight: .bold, design: .rounded))
+                                            .font(.vital(size: 45.4, weight: .bold, design: .rounded))
                                             .monospacedDigit()
                                             .foregroundStyle(VITALPalette.cloud)
                                             .minimumScaleFactor(0.65).lineLimit(1)
@@ -398,7 +398,7 @@ private struct ActivityView: View {
                                         Spacer()
                                         Text("8 000 steg")
                                     }
-                                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                                    .font(.vital(size: 12, weight: .medium, design: .rounded))
                                     .foregroundStyle(VITALPalette.muted)
                                 }
                             }
@@ -478,7 +478,7 @@ private struct HealthOverviewView: View {
                             VStack(alignment: .leading, spacing: 15) {
                                 HStack {
                                     Label("HÄLSOÖVERSIKT", systemImage: "heart.text.square.fill")
-                                        .font(.system(size: 12, weight: .heavy)).tracking(1.1)
+                                        .font(.vital(size: 12, weight: .heavy)).tracking(1.1)
                                         .foregroundStyle(VITALPalette.teal)
                                     Spacer()
                                     Image(systemName: "waveform.path.ecg")
@@ -487,9 +487,9 @@ private struct HealthOverviewView: View {
                                 HStack(alignment: .center, spacing: 12) {
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text(health.snapshot.restingHeartRateText)
-                                            .font(.system(size: 33.5, weight: .bold, design: .rounded))
+                                            .font(.vital(size: 33.5, weight: .bold, design: .rounded))
                                             .foregroundStyle(VITALPalette.cloud).monospacedDigit()
-                                        Text("VILOPULS").font(.system(size: 12, weight: .heavy))
+                                        Text("VILOPULS").font(.vital(size: 12, weight: .heavy))
                                             .tracking(0.8).foregroundStyle(VITALPalette.muted)
                                     }
                                     Spacer(minLength: 4)
@@ -497,9 +497,9 @@ private struct HealthOverviewView: View {
                                     Spacer(minLength: 4)
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text(health.snapshot.hrvText)
-                                            .font(.system(size: 33.5, weight: .bold, design: .rounded))
+                                            .font(.vital(size: 33.5, weight: .bold, design: .rounded))
                                             .foregroundStyle(VITALPalette.violet).monospacedDigit()
-                                        Text("HRV").font(.system(size: 12, weight: .heavy))
+                                        Text("HRV").font(.vital(size: 12, weight: .heavy))
                                             .tracking(0.8).foregroundStyle(VITALPalette.muted)
                                     }
                                     Spacer(minLength: 4)
@@ -507,10 +507,10 @@ private struct HealthOverviewView: View {
                                     Spacer(minLength: 4)
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text(health.snapshot.sleepText)
-                                            .font(.system(size: 23.8, weight: .bold, design: .rounded))
+                                            .font(.vital(size: 23.8, weight: .bold, design: .rounded))
                                             .foregroundStyle(VITALPalette.cloud).monospacedDigit()
                                             .lineLimit(1).minimumScaleFactor(0.7)
-                                        Text("SÖMN").font(.system(size: 12, weight: .heavy))
+                                        Text("SÖMN").font(.vital(size: 12, weight: .heavy))
                                             .tracking(0.8).foregroundStyle(VITALPalette.muted)
                                     }
                                 }
@@ -562,11 +562,11 @@ private struct HealthOverviewView: View {
                                     Label("Sömn", systemImage: "moon.stars.fill")
                                         .font(.headline).foregroundStyle(VITALPalette.cloud)
                                     Spacer()
-                                    Text("SENASTE HUVUDSÖMN").font(.system(size: 12, weight: .heavy))
+                                    Text("SENASTE HUVUDSÖMN").font(.vital(size: 12, weight: .heavy))
                                         .tracking(0.7).foregroundStyle(VITALPalette.muted)
                                 }
                                 Text(health.snapshot.sleepText)
-                                    .font(.system(size: 36.7, weight: .bold, design: .rounded))
+                                    .font(.vital(size: 36.7, weight: .bold, design: .rounded))
                                     .foregroundStyle(VITALPalette.violet).monospacedDigit()
                             }
                         }
@@ -622,17 +622,17 @@ private struct HealthOverviewView: View {
                 VStack(alignment: .leading, spacing: 9) {
                     HStack(alignment: .firstTextBaseline) {
                         Text("UPPSKATTAD KVARVARANDE MÄNGD")
-                            .font(.system(size: 12, weight: .heavy)).tracking(0.8)
+                            .font(.vital(size: 12, weight: .heavy)).tracking(0.8)
                             .foregroundStyle(VITALPalette.muted)
                         Spacer()
                         Text("MODELLBERÄKNAD")
-                            .font(.system(size: 12, weight: .heavy)).tracking(0.6)
+                            .font(.vital(size: 12, weight: .heavy)).tracking(0.6)
                             .foregroundStyle(VITALPalette.violet)
                     }
                     if let estimate = semaglutideEstimate {
                         HStack(alignment: .firstTextBaseline, spacing: 5) {
                             Text(estimate.remainingMilligrams, format: .number.precision(.fractionLength(2)))
-                                .font(.system(size: 31.3, weight: .bold, design: .rounded)).monospacedDigit()
+                                .font(.vital(size: 31.3, weight: .bold, design: .rounded)).monospacedDigit()
                                 .foregroundStyle(VITALPalette.cloud)
                             Text("mg").font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.teal)
                             Spacer()
@@ -647,7 +647,7 @@ private struct HealthOverviewView: View {
                             }
                         }.frame(height: 6)
                         Text("Förenklad eliminationsmodell med cirka 7 dagars halveringstid. Visar inte uppmätt blodkoncentration eller exakt mängd i kroppen.")
-                            .font(.system(size: 12, weight: .medium)).foregroundStyle(VITALPalette.muted)
+                            .font(.vital(size: 12, weight: .medium)).foregroundStyle(VITALPalette.muted)
                             .fixedSize(horizontal: false, vertical: true)
                     } else {
                         Text("Registrera en dos för att se en teoretisk uppskattning.")
@@ -692,7 +692,7 @@ private struct HealthOverviewView: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text("DOSER").font(.system(size: 12, weight: .heavy)).tracking(0.9)
+                        Text("DOSER").font(.vital(size: 12, weight: .heavy)).tracking(0.9)
                             .foregroundStyle(VITALPalette.muted)
                         Spacer()
                         if medicationJournal.doses.count > 3 {
@@ -737,7 +737,7 @@ private struct HealthOverviewView: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text("UPPLEVDA BESVÄ").font(.system(size: 12, weight: .heavy)).tracking(0.9)
+                        Text("UPPLEVDA BESVÄ").font(.vital(size: 12, weight: .heavy)).tracking(0.9)
                             .foregroundStyle(VITALPalette.muted)
                         Spacer()
                         if medicationJournal.effects.count > 3 {
@@ -788,7 +788,7 @@ private struct HealthOverviewView: View {
     private func healthSectionLabel(_ title: String, detail: String) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(title)
-                .font(.system(size: 12, weight: .heavy))
+                .font(.vital(size: 12, weight: .heavy))
                 .tracking(1.1)
                 .foregroundStyle(VITALPalette.teal)
             Text(detail)
@@ -808,7 +808,7 @@ private struct HealthOverviewView: View {
                 let current = healthWeight ?? weightJournal.latest?.kilograms
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Text(current.map { String(format: "%.1f", $0) } ?? "—")
-                        .font(.system(size: 41, weight: .bold, design: .rounded))
+                        .font(.vital(size: 41, weight: .bold, design: .rounded))
                         .foregroundStyle(VITALPalette.cloud).monospacedDigit()
                     Text("kg").font(.subheadline).foregroundStyle(VITALPalette.muted)
                     Spacer()
@@ -906,7 +906,7 @@ private struct HealthOverviewView: View {
                     }.frame(width: 104, height: 104)
                     VStack(alignment: .leading, spacing: 5) {
                         Text("\(max(0, waterTracker.goal - waterTracker.total)) ml")
-                            .font(.system(size: 27, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
+                            .font(.vital(size: 27, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
                         Text("kvar till dagsmålet").font(.caption).foregroundStyle(VITALPalette.muted)
                         Text("Dagsmål \(waterTracker.goal) ml").font(.caption.weight(.semibold)).foregroundStyle(VITALPalette.teal)
                     }
@@ -999,7 +999,7 @@ private struct HealthOverviewView: View {
                 if let date = health.snapshot.bloodPressureDate {
                     HStack(alignment: .firstTextBaseline, spacing: 5) {
                         Text(health.snapshot.bloodPressureText)
-                            .font(.system(size: 36.7, weight: .bold, design: .rounded))
+                            .font(.vital(size: 36.7, weight: .bold, design: .rounded))
                             .foregroundStyle(VITALPalette.cloud).monospacedDigit()
                         Text("mmHg").font(.caption).foregroundStyle(VITALPalette.muted)
                     }
@@ -1670,7 +1670,7 @@ private struct EmptyChartState: View {
     let detail: String
     var body: some View {
         VStack(spacing: 9) {
-            Image(systemName: symbol).font(.system(size: 30.2)).foregroundStyle(VITALPalette.teal)
+            Image(systemName: symbol).font(.vital(size: 30.2)).foregroundStyle(VITALPalette.teal)
             Text(title).font(.headline).foregroundStyle(VITALPalette.cloud)
             Text(detail).font(.caption).foregroundStyle(VITALPalette.muted).multilineTextAlignment(.center)
         }.frame(maxWidth: .infinity).padding(.vertical, 22)
@@ -1696,7 +1696,7 @@ private func pageHeader(_ title: String, subtitle: String) -> some View {
     VStack(alignment: .leading, spacing: 4) {
         Text(Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide)).uppercased())
             .font(.caption.weight(.semibold)).tracking(0.7).foregroundStyle(VITALPalette.muted)
-        Text(title).font(.system(size: 36.7, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
+        Text(title).font(.vital(size: 36.7, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
         Text(subtitle).font(.subheadline).foregroundStyle(VITALPalette.muted)
     }.frame(maxWidth: .infinity, alignment: .leading).padding(.bottom, 4)
 }
