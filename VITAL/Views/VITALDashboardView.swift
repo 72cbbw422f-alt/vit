@@ -57,16 +57,16 @@ struct VITALDashboardView: View {
                 Rectangle().fill(Color.white.opacity(0.22)).frame(width: 1, height: 39)
                 VStack(alignment: .leading, spacing: 3) {
                     Text("V I T A L")
-                        .font(.system(size: 26, weight: .medium, design: .rounded, relativeTo: .body))
+                        .font(.system(size: 26, weight: .medium, design: .rounded))
                         .foregroundStyle(VITALPalette.paper)
                     Text("HÄLSA  •  ÅTERHÄMTNING  •  BALANS")
-                        .font(.system(size: 12, weight: .bold, design: .rounded, relativeTo: .body))
+                        .font(.system(size: 12, weight: .bold, design: .rounded))
                         .tracking(1.15)
                         .foregroundStyle(VITALPalette.steel)
                 }
                 Spacer()
                 Image(systemName: "bell")
-                    .font(.system(size: 21.1, weight: .medium, relativeTo: .body))
+                    .font(.system(size: 21.1, weight: .medium))
                     .foregroundStyle(VITALPalette.paper.opacity(0.9))
                     .frame(width: 42, height: 42)
                     .background(Color.white.opacity(0.045), in: Circle())
@@ -75,11 +75,11 @@ struct VITALDashboardView: View {
             }
             HStack(alignment: .lastTextBaseline) {
                 Text(Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide)).capitalized)
-                    .font(.system(size: 14.9, weight: .semibold, design: .rounded, relativeTo: .body))
+                    .font(.system(size: 14.9, weight: .semibold, design: .rounded))
                     .foregroundStyle(VITALPalette.steel)
                 Spacer()
                 Text("ÖVERSIKT")
-                    .font(.system(size: 12, weight: .heavy, design: .rounded, relativeTo: .body))
+                    .font(.system(size: 12, weight: .heavy, design: .rounded))
                     .tracking(1.4)
                     .foregroundStyle(VITALPalette.lime)
             }
@@ -105,11 +105,11 @@ struct VITALDashboardView: View {
             VStack(spacing: 15) {
                 HStack {
                     Label("KROPPSBATTERI", systemImage: "battery.100percent")
-                        .font(.system(size: 12, weight: .heavy, design: .rounded, relativeTo: .body)).tracking(1.5)
+                        .font(.system(size: 12, weight: .heavy, design: .rounded)).tracking(1.5)
                         .foregroundStyle(VITALPalette.steel)
                     Spacer()
                     Text("IDAG")
-                        .font(.system(size: 12, weight: .heavy, relativeTo: .body)).tracking(1.1)
+                        .font(.system(size: 12, weight: .heavy)).tracking(1.1)
                         .foregroundStyle(VITALPalette.lime)
                         .padding(.horizontal, 10).padding(.vertical, 6)
                         .background(VITALPalette.lime.opacity(0.10), in: Capsule())
@@ -122,19 +122,19 @@ struct VITALDashboardView: View {
                         .shadow(color: VITALPalette.lime.opacity(0.45), radius: 12)
                     Circle().stroke(VITALPalette.lime.opacity(0.12), lineWidth: 1).padding(23)
                     VStack(spacing: 1) {
-                        Image(systemName: "battery.100percent").font(.system(size: 23.5, weight: .medium, relativeTo: .body)).foregroundStyle(VITALPalette.lime)
+                        Image(systemName: "battery.100percent").font(.system(size: 23.5, weight: .medium)).foregroundStyle(VITALPalette.lime)
                         Text(score.map(String.init) ?? "—")
-                            .font(.system(size: 67.1, weight: .bold, design: .rounded, relativeTo: .body)).monospacedDigit()
+                            .font(.system(size: 67.1, weight: .bold, design: .rounded)).monospacedDigit()
                             .foregroundStyle(VITALPalette.paper)
-                        Text("AV 100").font(.system(size: 12, weight: .heavy, relativeTo: .body)).tracking(1.5).foregroundStyle(VITALPalette.steel)
+                        Text("AV 100").font(.system(size: 12, weight: .heavy)).tracking(1.5).foregroundStyle(VITALPalette.steel)
                     }
                 }
                 .frame(width: 190, height: 190)
                 Text(score == nil ? "Samlar in data" : (score ?? 0) >= 75 ? "Bra energinivå" : (score ?? 0) >= 45 ? "Måttlig energinivå" : "Låg energinivå")
-                    .font(.system(size: 21.1, weight: .bold, design: .rounded, relativeTo: .body))
+                    .font(.system(size: 21.1, weight: .bold, design: .rounded))
                     .foregroundStyle(score == nil ? VITALPalette.steel : VITALPalette.lime)
                 Text(battery?.explanation ?? "VITAL behöver fler pulsmätningar för att beräkna kroppsbatteriet.")
-                    .font(.system(size: 13.6, weight: .medium, relativeTo: .body)).lineSpacing(3)
+                    .font(.system(size: 13.6, weight: .medium)).lineSpacing(3)
                     .multilineTextAlignment(.center).foregroundStyle(Color(hex: 0xB9C6D2))
                     .frame(maxWidth: 270)
                 Rectangle().fill(Color.white.opacity(0.09)).frame(height: 1)
@@ -146,7 +146,7 @@ struct VITALDashboardView: View {
                     heroFact("ÅTERHÄMTNING I VILA", value: battery.map { "+\(Int($0.recoveryGain.rounded()))" } ?? "—", icon: "leaf.fill")
                 }
                 Text("Preliminär modell – inte ett medicinskt mått.")
-                    .font(.system(size: 12, weight: .medium, relativeTo: .body)).foregroundStyle(VITALPalette.steel)
+                    .font(.system(size: 12, weight: .medium)).foregroundStyle(VITALPalette.steel)
             }
             .padding(20)
         }
@@ -159,21 +159,21 @@ struct VITALDashboardView: View {
         HStack(spacing: 14) {
             ZStack {
                 Circle().fill(recoveryTint.opacity(0.12)).frame(width: 48, height: 48)
-                Image(systemName: "moon.stars.fill").font(.system(size: 23.5, weight: .semibold, relativeTo: .body)).foregroundStyle(recoveryTint)
+                Image(systemName: "moon.stars.fill").font(.system(size: 23.5, weight: .semibold)).foregroundStyle(recoveryTint)
             }
             VStack(alignment: .leading, spacing: 4) {
                 Text("NATTENS ÅTERHÄMTNING")
-                    .font(.system(size: 12, weight: .heavy, relativeTo: .body)).tracking(1.1).foregroundStyle(VITALPalette.steel)
+                    .font(.system(size: 12, weight: .heavy)).tracking(1.1).foregroundStyle(VITALPalette.steel)
                 HStack(alignment: .firstTextBaseline, spacing: 7) {
                     Text(recovery.score.map(String.init) ?? "—")
-                        .font(.system(size: 31, weight: .bold, design: .rounded, relativeTo: .body)).monospacedDigit().foregroundStyle(VITALPalette.paper)
-                    Text(guidance.title).font(.system(size: 13.6, weight: .semibold, relativeTo: .body)).foregroundStyle(recoveryTint)
+                        .font(.system(size: 31, weight: .bold, design: .rounded)).monospacedDigit().foregroundStyle(VITALPalette.paper)
+                    Text(guidance.title).font(.system(size: 13.6, weight: .semibold)).foregroundStyle(recoveryTint)
                 }
                 Text("Baserad på sömn, HRV och vilopuls")
-                    .font(.system(size: 12, weight: .medium, relativeTo: .body)).foregroundStyle(VITALPalette.steel)
+                    .font(.system(size: 12, weight: .medium)).foregroundStyle(VITALPalette.steel)
             }
             Spacer(minLength: 0)
-            Image(systemName: "chevron.right").font(.system(size: 13.6, weight: .bold, relativeTo: .body)).foregroundStyle(VITALPalette.steel)
+            Image(systemName: "chevron.right").font(.system(size: 13.6, weight: .bold)).foregroundStyle(VITALPalette.steel)
         }
         .padding(15)
         .background(VITALPalette.panel, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
@@ -186,30 +186,30 @@ struct VITALDashboardView: View {
         return VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Label("VITAL COACH", systemImage: "sparkles")
-                    .font(.system(size: 12, weight: .heavy, relativeTo: .body)).tracking(1.2)
+                    .font(.system(size: 12, weight: .heavy)).tracking(1.2)
                     .foregroundStyle(VITALPalette.lime)
                 Spacer()
                 Text("DAGENS REFLEKTION")
-                    .font(.system(size: 12, weight: .heavy, relativeTo: .body)).tracking(0.8)
+                    .font(.system(size: 12, weight: .heavy)).tracking(0.8)
                     .foregroundStyle(VITALPalette.steel)
             }
             HStack(alignment: .top, spacing: 11) {
                 Image(systemName: insight.symbol)
-                    .font(.system(size: 21.1, weight: .semibold, relativeTo: .body))
+                    .font(.system(size: 21.1, weight: .semibold))
                     .foregroundStyle(insight.tint)
                     .frame(width: 40, height: 40)
                     .background(insight.tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 13))
                 VStack(alignment: .leading, spacing: 7) {
                     Text(insight.headline)
-                        .font(.system(size: 21.1, weight: .bold, design: .rounded, relativeTo: .body))
+                        .font(.system(size: 21.1, weight: .bold, design: .rounded))
                         .foregroundStyle(VITALPalette.paper)
                     Text(insight.detail)
-                        .font(.system(size: 13.6, weight: .medium, relativeTo: .body))
+                        .font(.system(size: 13.6, weight: .medium))
                         .lineSpacing(3)
                         .foregroundStyle(Color(hex: 0xB9C6D2))
                         .fixedSize(horizontal: false, vertical: true)
                     Text(insight.recommendation)
-                        .font(.system(size: 13.6, weight: .semibold, relativeTo: .body))
+                        .font(.system(size: 13.6, weight: .semibold))
                         .lineSpacing(2)
                         .foregroundStyle(insight.tint)
                         .fixedSize(horizontal: false, vertical: true)
@@ -217,7 +217,7 @@ struct VITALDashboardView: View {
             }
             Divider().overlay(Color.white.opacity(0.08))
             Text("Bygger på tillgängliga nattvärden och din egen måenderegistrering. Väg alltid in hur kroppen känns.")
-                .font(.system(size: 12, weight: .medium, relativeTo: .body))
+                .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(VITALPalette.steel)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -266,8 +266,8 @@ struct VITALDashboardView: View {
 
     private func heroFact(_ title: String, value: String, icon: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Label(title, systemImage: icon).font(.system(size: 12, weight: .bold, relativeTo: .body)).tracking(0.8).foregroundStyle(VITALPalette.steel)
-            Text(value).font(.system(size: 17.4, weight: .bold, design: .rounded, relativeTo: .body)).monospacedDigit().foregroundStyle(VITALPalette.paper)
+            Label(title, systemImage: icon).font(.system(size: 12, weight: .bold)).tracking(0.8).foregroundStyle(VITALPalette.steel)
+            Text(value).font(.system(size: 17.4, weight: .bold, design: .rounded)).monospacedDigit().foregroundStyle(VITALPalette.paper)
         }
     }
 
@@ -283,7 +283,7 @@ struct VITALDashboardView: View {
                 sectionHeading("HUR KÄNNS DAGEN?", subtitle: "En snabb daglig notering")
                 Spacer()
                 if !selectedMood.isEmpty {
-                    Text("SPARAT").font(.system(size: 12, weight: .heavy, relativeTo: .body)).tracking(1)
+                    Text("SPARAT").font(.system(size: 12, weight: .heavy)).tracking(1)
                         .foregroundStyle(VITALPalette.lime)
                 }
             }
@@ -296,8 +296,8 @@ struct VITALDashboardView: View {
                         savedMoodDate = Calendar.current.startOfDay(for: Date()).formatted(.iso8601.year().month().day().dateSeparator(.dash))
                     } label: {
                         VStack(spacing: 6) {
-                            Text(choice.1).font(.system(size: 31, relativeTo: .body))
-                            Text(choice.2).font(.system(size: 12, weight: .semibold, relativeTo: .body))
+                            Text(choice.1).font(.system(size: 31))
+                            Text(choice.2).font(.system(size: 12, weight: .semibold))
                                 .foregroundStyle(isSelected ? VITALPalette.lime : VITALPalette.steel)
                         }
                         .frame(maxWidth: .infinity).padding(.vertical, 11)
@@ -334,11 +334,11 @@ struct VITALDashboardView: View {
 
     private func signalTile(_ title: String, value: String, detail: String, symbol: String, tint: Color) -> some View {
         VStack(alignment: .leading, spacing: 9) {
-            Image(systemName: symbol).font(.system(size: 17.4, weight: .semibold, relativeTo: .body)).foregroundStyle(tint)
+            Image(systemName: symbol).font(.system(size: 17.4, weight: .semibold)).foregroundStyle(tint)
                 .frame(width: 30, height: 30).background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
-            Text(title.uppercased()).font(.system(size: 12, weight: .heavy, relativeTo: .body)).tracking(1).foregroundStyle(VITALPalette.steel)
-            Text(value).font(.system(size: 19.9, weight: .bold, design: .rounded, relativeTo: .body)).minimumScaleFactor(0.65).lineLimit(1).foregroundStyle(VITALPalette.paper)
-            Text(detail).font(.system(size: 12, weight: .medium, relativeTo: .body)).foregroundStyle(VITALPalette.steel).lineLimit(1)
+            Text(title.uppercased()).font(.system(size: 12, weight: .heavy)).tracking(1).foregroundStyle(VITALPalette.steel)
+            Text(value).font(.system(size: 19.9, weight: .bold, design: .rounded)).minimumScaleFactor(0.65).lineLimit(1).foregroundStyle(VITALPalette.paper)
+            Text(detail).font(.system(size: 12, weight: .medium)).foregroundStyle(VITALPalette.steel).lineLimit(1)
         }
         .frame(maxWidth: .infinity, minHeight: 112, alignment: .leading).padding(11)
         .background(LinearGradient(colors: [Color(hex: 0x192B3C), VITALPalette.panel], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
@@ -355,11 +355,11 @@ struct VITALDashboardView: View {
                     Circle().trim(from: 0, to: CGFloat(max(0, min(battery?.score ?? 0, 100))) / 100)
                         .stroke(AngularGradient(colors: [VITALPalette.lavender, Color(hex: 0x5D72C8), VITALPalette.lavender], center: .center), style: StrokeStyle(lineWidth: 10, lineCap: .round))
                         .rotationEffect(.degrees(-90))
-                    Image(systemName: "battery.100percent").font(.system(size: 27.3, weight: .medium, relativeTo: .body)).foregroundStyle(VITALPalette.lavender)
+                    Image(systemName: "battery.100percent").font(.system(size: 27.3, weight: .medium)).foregroundStyle(VITALPalette.lavender)
                 }.frame(width: 78, height: 78)
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(battery?.score.map(String.init) ?? "—").font(.system(size: 39.7, weight: .bold, design: .rounded, relativeTo: .body)).monospacedDigit().foregroundStyle(VITALPalette.paper)
-                    Text(battery?.explanation ?? "Inväntar tillräckliga mätningar").font(.system(size: 13.6, relativeTo: .body)).foregroundStyle(VITALPalette.steel).fixedSize(horizontal: false, vertical: true)
+                    Text(battery?.score.map(String.init) ?? "—").font(.system(size: 39.7, weight: .bold, design: .rounded)).monospacedDigit().foregroundStyle(VITALPalette.paper)
+                    Text(battery?.explanation ?? "Inväntar tillräckliga mätningar").font(.system(size: 13.6)).foregroundStyle(VITALPalette.steel).fixedSize(horizontal: false, vertical: true)
                 }
                 Spacer()
             }
@@ -371,7 +371,7 @@ struct VITALDashboardView: View {
                 miniStat("ÅTERHÄMTNING I VILA", value: battery.map { "+\(Int($0.recoveryGain.rounded()))" } ?? "—")
             }
             Text("Preliminär modell – inte ett medicinskt mått.")
-                .font(.system(size: 12, weight: .medium, relativeTo: .body)).foregroundStyle(VITALPalette.steel)
+                .font(.system(size: 12, weight: .medium)).foregroundStyle(VITALPalette.steel)
         }
         .padding(17).background(VITALPalette.panel, in: RoundedRectangle(cornerRadius: 23, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 23).stroke(Color.white.opacity(0.055), lineWidth: 1))
@@ -390,14 +390,14 @@ struct VITALDashboardView: View {
                         .rotationEffect(.degrees(-90))
                     VStack(spacing: 1) {
                         Text(steps.map { "\(Int(min($0, 999999).rounded()))" } ?? "—")
-                            .font(.system(size: 24.8, weight: .bold, design: .rounded, relativeTo: .body)).minimumScaleFactor(0.6).lineLimit(1).foregroundStyle(VITALPalette.paper)
-                        Text("STEG").font(.system(size: 12, weight: .heavy, relativeTo: .body)).tracking(1).foregroundStyle(VITALPalette.steel)
+                            .font(.system(size: 24.8, weight: .bold, design: .rounded)).minimumScaleFactor(0.6).lineLimit(1).foregroundStyle(VITALPalette.paper)
+                        Text("STEG").font(.system(size: 12, weight: .heavy)).tracking(1).foregroundStyle(VITALPalette.steel)
                     }
                 }.frame(width: 88, height: 88)
                 VStack(alignment: .leading, spacing: 5) {
                     Text(steps == nil ? "Inväntar data" : "\(Int(progress * 100)) % av målet")
-                        .font(.system(size: 22.4, weight: .bold, design: .rounded, relativeTo: .body)).foregroundStyle(VITALPalette.paper)
-                    Text("8 000 steg per dag").font(.system(size: 13.6, relativeTo: .body)).foregroundStyle(VITALPalette.steel)
+                        .font(.system(size: 22.4, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.paper)
+                    Text("8 000 steg per dag").font(.system(size: 13.6)).foregroundStyle(VITALPalette.steel)
                     GeometryReader { proxy in
                         ZStack(alignment: .leading) {
                             Capsule().fill(VITALPalette.track)
@@ -424,11 +424,11 @@ struct VITALDashboardView: View {
     private func baselineRow(_ title: String, value: Double?, suffix: String, days: Int) -> some View {
         VStack(spacing: 7) {
             HStack {
-                Text(title).font(.system(size: 14.9, weight: .semibold, relativeTo: .body)).foregroundStyle(VITALPalette.paper)
+                Text(title).font(.system(size: 14.9, weight: .semibold)).foregroundStyle(VITALPalette.paper)
                 Spacer()
                 Text(value.map { "\(String(format: "%.1f", $0)) \(suffix)" } ?? "Samlar data")
-                    .font(.system(size: 13.6, weight: .bold, design: .rounded, relativeTo: .body)).foregroundStyle(value == nil ? VITALPalette.amber : VITALPalette.lime)
-                Text("\(days)/14").font(.system(size: 12, weight: .medium, design: .rounded, relativeTo: .body)).foregroundStyle(VITALPalette.steel)
+                    .font(.system(size: 13.6, weight: .bold, design: .rounded)).foregroundStyle(value == nil ? VITALPalette.amber : VITALPalette.lime)
+                Text("\(days)/14").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(VITALPalette.steel)
             }
             GeometryReader { proxy in
                 ZStack(alignment: .leading) {
@@ -448,20 +448,20 @@ struct VITALDashboardView: View {
                 Text(updated.formatted(date: .omitted, time: .shortened))
             }
         }
-        .font(.system(size: 12, weight: .bold, design: .rounded, relativeTo: .body)).tracking(0.6).foregroundStyle(VITALPalette.steel)
+        .font(.system(size: 12, weight: .bold, design: .rounded)).tracking(0.6).foregroundStyle(VITALPalette.steel)
     }
 
     private func sectionHeading(_ title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(title).font(.system(size: 12, weight: .heavy, design: .rounded, relativeTo: .body)).tracking(1.4).foregroundStyle(VITALPalette.lime)
-            Text(subtitle).font(.system(size: 13.6, weight: .medium, relativeTo: .body)).foregroundStyle(VITALPalette.steel)
+            Text(title).font(.system(size: 12, weight: .heavy, design: .rounded)).tracking(1.4).foregroundStyle(VITALPalette.lime)
+            Text(subtitle).font(.system(size: 13.6, weight: .medium)).foregroundStyle(VITALPalette.steel)
         }
     }
 
     private func miniStat(_ title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(title).font(.system(size: 12, weight: .heavy, relativeTo: .body)).tracking(0.5).foregroundStyle(VITALPalette.steel)
-            Text(value).font(.system(size: 13.6, weight: .bold, design: .rounded, relativeTo: .body)).foregroundStyle(VITALPalette.paper).lineLimit(1).minimumScaleFactor(0.7)
+            Text(title).font(.system(size: 12, weight: .heavy)).tracking(0.5).foregroundStyle(VITALPalette.steel)
+            Text(value).font(.system(size: 13.6, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.paper).lineLimit(1).minimumScaleFactor(0.7)
         }
     }
 }
