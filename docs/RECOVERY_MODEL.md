@@ -64,4 +64,6 @@ Slutpoängen avrundas till heltal.
 - Startsidan läser poäng, nattvärden och vägledning från den frysta morgonsammanfattningen. Senare HealthKit-uppdateringar under dagen får inte skriva om sammanfattningen.
 - Vägledningen pekar ut vilka komponenter som avviker från den personliga referensen. En komponentpoäng under 85 markeras som en uppmärksamhetssignal. Detta är en preliminär produktheuristik, inte en medicinsk gräns eller validerad träningsregel.
 - Om data saknas visas ett neutralt vänteläge; inga avvikelsesignaler eller rekommendationer konstrueras från saknade värden.
-- Kvällsrapportens schemaläggning och skapande av nya kvällssnapshots tas bort. Äldre sparade snapshots bevaras i arkivet för bakåtkompatibilitet, men visas inte i det nya gränssnittet.
+- Kvällsrapporten fångas vid första lyckade HealthKit-uppdateringen från lokal tid 21.00. Den sparar dagens steg, aktiva kalorier och kroppsbatteri som en oföränderlig ögonblicksbild.
+- Kvällsrapporten återanvänder inte nattens återhämtningspoäng eller dess sömn-/HRV-/vilopulskomponenter. Dessa hör till morgonrapporten. Kvällsrapportens fokus är dagens belastning och kroppsbatteri.
+- iOS garanterar inte körning exakt 21.00. Rapporten skapas därför vid första uppdateringen efter tidsgränsen; om appen inte får en uppdatering den kvällen kan rapporten utebli eller fångas senare.
