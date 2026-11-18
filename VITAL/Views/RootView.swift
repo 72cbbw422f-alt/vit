@@ -523,18 +523,13 @@ private struct HealthOverviewView: View {
                         }
                         bloodPressureCard
 
-                        healthSectionLabel("ANDNING", detail: "Andningsfrekvens och syresättning")
+                        healthSectionLabel("ANDNING", detail: "Andningsfrekvens")
                         VITALCard {
                             VStack(alignment: .leading, spacing: 14) {
-                                HStack(spacing: 12) {
-                                    HealthValueTile(title: "Andningsfrekvens", value: health.snapshot.respiratoryRateText, tint: VITALPalette.violet)
-                                    HealthValueTile(title: "Syremättnad", value: health.snapshot.oxygenSaturationText, tint: VITALPalette.teal)
-                                }
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(health.snapshot.respiratoryRateDate.map { "Andning: \($0.formatted(date: .abbreviated, time: .shortened))" } ?? "Andning: ingen registrerad mätning")
-                                    Text(health.snapshot.oxygenSaturationDate.map { "Syremättnad: \($0.formatted(date: .abbreviated, time: .shortened))" } ?? "Syremättnad: ingen registrerad mätning")
-                                }
-                                .font(.footnote).foregroundStyle(VITALPalette.muted)
+                                HealthValueTile(title: "Andningsfrekvens", value: health.snapshot.respiratoryRateText, tint: VITALPalette.violet)
+                                    .gridCellColumns(2)
+                                Text(health.snapshot.respiratoryRateDate.map { "Senaste mätning: \($0.formatted(date: .abbreviated, time: .shortened))" } ?? "Ingen registrerad mätning från Apple Hälsa")
+                                    .font(.footnote).foregroundStyle(VITALPalette.muted)
                                 Text("Senaste registrerade mätning från Apple Hälsa – inte nödvändigtvis ett realtidsvärde.")
                                     .font(.footnote).foregroundStyle(VITALPalette.muted)
                             }
