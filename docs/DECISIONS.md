@@ -198,3 +198,11 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - Låt systemfontens storlekar följa Dynamic Type via relativa SwiftUI-fontstorlekar, med stöd för större textinställningar.
 - Granska omflöde och kortens höjd när texten förstoras; innehåll ska kunna växa vertikalt och får inte kapas.
 - Behåll färger, kortstil, informationshierarki och etablerad Midnight-design.
+
+
+## Tillgänglighet och Dynamic Type (2026-11-18)
+- Alla VITAL-vyer ska använda en gemensam fontfunktion som behåller appens valda grundstorlek och vikt men skalar med iOS Dynamic Type.
+- Textstorleksintervallet i appen ska omfatta stora tillgänglighetsstorlekar.
+- Text ska tillåtas radbrytas och kort ska växa vertikalt; innehåll får inte krympas eller klippas för att passa en fast höjd.
+- Små etiketter och metadata får inte bli oläsliga. Behåll tydlig hierarki, men prioritera läsbarhet framför att pressa in allt på en rad.
+- Behåll Midnight-paletten och den befintliga visuella riktningen vid tillgänglighetsanpassning.
