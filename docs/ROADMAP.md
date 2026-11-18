@@ -432,6 +432,7 @@ Status betyder:
 - [x] Hälsa-fliken får en manuell uppdateringsknapp för att hämta senaste tillgängliga värden från Apple Hälsa.
 - [x] Uppdateringsknappen visar en pågående laddningsindikator och kan inte startas flera gånger samtidigt.
 - [x] Stoppat skapandet av nya schemalagda morgon- och kvällsrapporter i HealthKit-uppdateringen; befintligt rapportarkiv bevaras och läses fortsatt.
+- [x] Visar konkreta HealthKit-frågefel i Hälsa-fliken i stället för att lämna användaren med enbart tomma mätvärden.
 - [ ] Verifiera VoiceOver-ordning och etiketter på interaktiva kontroller.
 
 Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa godkännande kräver nytt fysiskt enhetstest; simulatorbygget verifierar kompilering och start, inte faktisk läsbarhet på användarens enhet.
