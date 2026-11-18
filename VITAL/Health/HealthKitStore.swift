@@ -169,6 +169,7 @@ final class HealthKitStore: ObservableObject {
             ))
         }
         snapshot = updatedSnapshot
+        createMorningReportIfEligible(from: updatedSnapshot, sleepSession: sleepSession, capturedAt: now)
         isRefreshing = false
         if refreshRequestedAgain {
             refreshRequestedAgain = false
