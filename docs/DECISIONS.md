@@ -151,3 +151,12 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - Startsidan använder aktuell nattlig återhämtning från HealthKit-snapshoten och uppdateras när ny data hämtas.
 - Äldre rapportarkiv och Codable-modeller bevaras för bakåtkompatibilitet, men ska inte längre få nya poster eller styra startsidans innehåll.
 - Kvällsrapportflödet är fortsatt avvecklat.
+
+
+## 2026-11-18 — VITAL 3.0 visual direction
+
+- The approved app icon is the dark glass tile with lime circular ring and heart/ECG mark supplied by the user.
+- The approved dashboard reference is the premium Midnight interface: near-black/navy foundation, luminous lime as the primary accent, restrained violet for sleep-related visualization, layered wave forms, rounded glass-like panels, and a prominent body-battery visualization.
+- Existing HealthKit data flow, recovery calculations, body-battery model, frozen morning/evening report snapshots, and report history must be preserved while the interface is progressively restyled.
+- The first implementation step aligns the shared design-system surfaces and primary accent with the approved Midnight/lime palette. The existing dashboard structure is not yet a pixel-level match to the reference; further visual work is planned incrementally.
+- Navigation changes must preserve existing destinations. The first tab is named “Översikt”; activity and health destinations remain until their functionality is deliberately consolidated or replaced.
