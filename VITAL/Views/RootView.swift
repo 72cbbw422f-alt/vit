@@ -488,6 +488,7 @@ private struct HealthOverviewView: View {
                                     healthOverviewMetric("Vilopuls", value: health.snapshot.restingHeartRateText, tint: VITALPalette.cloud)
                                     healthOverviewMetric("HRV", value: health.snapshot.hrvText, tint: VITALPalette.violet)
                                     healthOverviewMetric("Sömn", value: health.snapshot.sleepText, tint: VITALPalette.cloud)
+                                        .gridCellColumns(2)
                                 }
                                 Text("Senaste tillgängliga värden från Apple Hälsa")
                                     .font(.footnote).foregroundStyle(VITALPalette.muted)
@@ -595,14 +596,16 @@ private struct HealthOverviewView: View {
                     asOf: .now
                 )
                 VStack(alignment: .leading, spacing: 9) {
-                    HStack(alignment: .firstTextBaseline) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text("UPPSKATTAD KVARVARANDE MÄNGD")
                             .font(.vital(size: 14, weight: .heavy)).tracking(0.8)
                             .foregroundStyle(VITALPalette.muted)
-                        Spacer()
+                            .fixedSize(horizontal: false, vertical: true)
                         Text("MODELLBERÄKNAD")
-                            .font(.vital(size: 14, weight: .heavy)).tracking(0.6)
+                            .font(.vital(size: 13, weight: .heavy)).tracking(0.5)
                             .foregroundStyle(VITALPalette.violet)
+                            .padding(.horizontal, 9).padding(.vertical, 5)
+                            .background(VITALPalette.violet.opacity(0.10), in: Capsule())
                     }
                     if let estimate = semaglutideEstimate {
                         HStack(alignment: .firstTextBaseline, spacing: 5) {
