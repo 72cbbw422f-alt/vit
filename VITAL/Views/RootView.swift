@@ -582,6 +582,20 @@ private struct HealthOverviewView: View {
         }
     }
 
+    private func healthSectionLabel(_ title: String, detail: String) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(title)
+                .font(.system(size: 10, weight: .heavy))
+                .tracking(1.1)
+                .foregroundStyle(VITALPalette.teal)
+            Text(detail)
+                .font(.caption)
+                .foregroundStyle(VITALPalette.muted)
+        }
+        .padding(.horizontal, 3)
+        .padding(.top, 3)
+    }
+
     private var weightCard: some View {
         VITALCard {
             VStack(alignment: .leading, spacing: 13) {
