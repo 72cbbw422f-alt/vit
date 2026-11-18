@@ -16,9 +16,6 @@ struct HealthSnapshot {
     /// Latest HealthKit respiratory rate in breaths per minute.
     var respiratoryRate: Double?
     var respiratoryRateDate: Date?
-    /// Latest HealthKit oxygen saturation as a fraction (0.0–1.0).
-    var oxygenSaturation: Double?
-    var oxygenSaturationDate: Date?
     var restingHeartRateBaseline: PersonalBaseline?
     var hrvBaseline: PersonalBaseline?
     var sleepBaseline: PersonalBaseline?
