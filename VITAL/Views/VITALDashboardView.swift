@@ -4,6 +4,9 @@ import SwiftUI
 struct VITALDashboardView: View {
     @EnvironmentObject private var health: HealthKitStore
     @Environment(\.scenePhase) private var scenePhase
+    @AppStorage("vital.mood.value") private var savedMood = ""
+    @AppStorage("vital.mood.date") private var savedMoodDate = ""
+    @State private var selectedMood = ""
 
     private var recovery: RecoveryResult { health.snapshot.recoveryResult }
     private var guidance: RecoveryGuidance {
@@ -19,6 +22,7 @@ struct VITALDashboardView: View {
                     header
                     bodyBatteryHero
                     recoverySummary
+                    moodCheckIn
                     quickMetrics
                     movementPanel
                     baselinePanel
@@ -29,7 +33,10 @@ struct VITALDashboardView: View {
                 .padding(.bottom, 34)
             }
         }
-        .task { if !health.authorizationRequested { await health.requestAccessAndRefresh() } }
+        .task {
+            restoreTodayMood()
+            if !health.authorizationRequested { await health.requestAccessAndRefresh() }
+        }
         .refreshable { await health.refresh() }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { Task { await health.refresh() } }
@@ -155,6 +162,56 @@ struct VITALDashboardView: View {
             Label(title, systemImage: icon).font(.system(size: 8, weight: .bold)).tracking(0.8).foregroundStyle(VITALPalette.steel)
             Text(value).font(.system(size: 14, weight: .bold, design: .rounded)).monospacedDigit().foregroundStyle(VITALPalette.paper)
         }
+    }
+
+    private var moodCheckIn: some View {
+        let choices: [(String, String, String)] = [
+            ("low", "😔", "Tungt"),
+            ("okay", "😐", "Okej"),
+            ("good", "🙂", "Bra"),
+            ("great", "😁", "Toppen")
+        ]
+        return VStack(alignment: .leading, spacing: 11) {
+            HStack {
+                sectionHeading("HUR KÄNNS DAGEN?", subtitle: "En snabb daglig notering")
+                Spacer()
+                if !selectedMood.isEmpty {
+                    Text("SPARAT").font(.system(size: 8, weight: .heavy)).tracking(1)
+                        .foregroundStyle(VITALPalette.lime)
+                }
+            }
+            HStack(spacing: 8) {
+                ForEach(choices, id: \.0) { choice in
+                    let isSelected = selectedMood == choice.0
+                    Button {
+                        selectedMood = choice.0
+                        savedMood = choice.0
+                        savedMoodDate = Calendar.current.startOfDay(for: Date()).formatted(.iso8601.year().month().day().dateSeparator(.dash))
+                    } label: {
+                        VStack(spacing: 6) {
+                            Text(choice.1).font(.system(size: 25))
+                            Text(choice.2).font(.system(size: 9, weight: .semibold))
+                                .foregroundStyle(isSelected ? VITALPalette.lime : VITALPalette.steel)
+                        }
+                        .frame(maxWidth: .infinity).padding(.vertical, 11)
+                        .background(isSelected ? VITALPalette.lime.opacity(0.12) : VITALPalette.panel,
+                                    in: RoundedRectangle(cornerRadius: 15, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: 15).stroke(isSelected ? VITALPalette.lime.opacity(0.55) : Color.white.opacity(0.055), lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Humör: \\(choice.2)")
+                    .accessibilityAddTraits(isSelected ? .isSelected : [])
+                }
+            }
+        }
+        .padding(15)
+        .background(VITALPalette.panel.opacity(0.65), in: RoundedRectangle(cornerRadius: 21, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 21).stroke(Color.white.opacity(0.055), lineWidth: 1))
+    }
+
+    private func restoreTodayMood() {
+        let today = Calendar.current.startOfDay(for: Date()).formatted(.iso8601.year().month().day().dateSeparator(.dash))
+        selectedMood = savedMoodDate == today ? savedMood : ""
     }
 
     private var quickMetrics: some View {
