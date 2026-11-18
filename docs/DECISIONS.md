@@ -166,3 +166,13 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - Shared `VITALCard` surfaces use a restrained navy gradient, fine light edge and soft shadow to carry the approved glass-like visual language across Insights, Activity and Health.
 - The tab bar uses the same Midnight background and lime selection tint.
 - Existing destinations and their data/entry workflows remain in place; the visual redesign must not hide or remove them.
+
+
+## 2026-11-18 — Hälsa: informationshierarki i Midnight
+
+- Hälsa-fliken grupperar innehållet i fem tydliga områden: Hälsoöversikt, Hjärta & kärl, Andning, Kropp & utveckling samt Vardag.
+- Hälsoöversikten lyfter vilopuls, HRV och senaste huvudsömn som de tre centrala orienteringsvärdena. Den ersätter inte detaljsektionerna längre ned.
+- Blodtryck ligger under Hjärta & kärl; vikt och framstegsbilder under Kropp & utveckling; vätskespårning och sömn under Vardag.
+- Sektionerna använder små typografiska rubriker i lime i stället för att ge varje del ett lika tungt stort kort. Det ger tydligare skanning och en lugnare visuell rytm.
+- Omstruktureringen är en presentationsändring. HealthKit-källor, lokala journaler, redigering, påminnelser och historik ska bevaras.
+- Saknade värden ska fortsatt visas som saknade. Senaste mätningens tidsstämpel och upplysningen om att HealthKit-värden inte nödvändigtvis är realtid ska finnas kvar.
