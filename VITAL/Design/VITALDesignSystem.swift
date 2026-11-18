@@ -1,4 +1,19 @@
 import SwiftUI
+import UIKit
+
+extension Font {
+    /// Keeps VITAL's deliberate type scale while allowing iOS Dynamic Type to enlarge it.
+    static func vital(
+        size: CGFloat,
+        weight: UIFont.Weight = .regular,
+        design: UIFontDescriptor.SystemDesign = .default
+    ) -> Font {
+        let baseFont = UIFont.systemFont(ofSize: size, weight: weight)
+        let descriptor = baseFont.fontDescriptor.withDesign(design) ?? baseFont.fontDescriptor
+        let fontName = UIFont(descriptor: descriptor, size: size).fontName
+        return .custom(fontName, size: size, relativeTo: .body)
+    }
+}
 
 enum VITALPalette {
     static let midnight = Color(hex: 0x080F1C)
