@@ -17,9 +17,9 @@ struct VITALDashboardView: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 22) {
                     header
-                    recoveryHero
+                    bodyBatteryHero
+                    recoverySummary
                     quickMetrics
-                    bodyBatteryPanel
                     movementPanel
                     baselinePanel
                     dataFooter
@@ -56,79 +56,91 @@ struct VITALDashboardView: View {
         }
     }
 
-    private var recoveryHero: some View {
-        ZStack(alignment: .topTrailing) {
-            RoundedRectangle(cornerRadius: 30, style: .continuous)
-                .fill(LinearGradient(colors: [Color(hex: 0x182B3A), Color(hex: 0x111D2A), Color(hex: 0x17233A)], startPoint: .topLeading, endPoint: .bottomTrailing))
-            Circle().stroke(VITALPalette.lime.opacity(0.08), lineWidth: 1).frame(width: 230).offset(x: 90, y: -105)
-            Circle().stroke(VITALPalette.lime.opacity(0.06), lineWidth: 1).frame(width: 290).offset(x: 110, y: -130)
-            VStack(alignment: .leading, spacing: 18) {
+    /// Main visual anchor: the live daytime body-battery estimate.
+    private var bodyBatteryHero: some View {
+        let battery = health.snapshot.bodyBattery
+        let score = battery?.score
+        let progress = CGFloat(max(0, min(score ?? 0, 100))) / 100
+        return ZStack {
+            RoundedRectangle(cornerRadius: 32, style: .continuous)
+                .fill(LinearGradient(colors: [Color(hex: 0x172B3C), Color(hex: 0x0D1928), Color(hex: 0x101D2D)], startPoint: .topLeading, endPoint: .bottomTrailing))
+            Circle().fill(VITALPalette.lime.opacity(0.08)).frame(width: 210, height: 210).blur(radius: 55).offset(y: -18)
+            VStack(spacing: 15) {
                 HStack {
-                    Label("NATTENS ÅTERHÄMTNING", systemImage: "moon.stars.fill")
-                        .font(.system(size: 10, weight: .bold, design: .rounded)).tracking(1.3)
+                    Label("KROPPSBATTERI", systemImage: "battery.100percent")
+                        .font(.system(size: 10, weight: .heavy, design: .rounded)).tracking(1.5)
                         .foregroundStyle(VITALPalette.steel)
                     Spacer()
-                    Text("PERSONLIG BASLINJE")
-                        .font(.system(size: 8, weight: .heavy, design: .rounded)).tracking(1)
+                    Text("IDAG")
+                        .font(.system(size: 9, weight: .heavy)).tracking(1.1)
                         .foregroundStyle(VITALPalette.lime)
-                        .padding(.horizontal, 9).padding(.vertical, 6)
+                        .padding(.horizontal, 10).padding(.vertical, 6)
                         .background(VITALPalette.lime.opacity(0.10), in: Capsule())
                 }
-                HStack(spacing: 20) {
-                    ZStack {
-                        Circle().stroke(Color.white.opacity(0.08), lineWidth: 12)
-                        Circle().trim(from: 0, to: CGFloat(max(0, min(recovery.score ?? 0, 100))) / 100)
-                            .stroke(AngularGradient(colors: [VITALPalette.lime, Color(hex: 0xB8F36A), Color(hex: 0x4CAFA0)], center: .center), style: StrokeStyle(lineWidth: 12, lineCap: .round))
-                            .rotationEffect(.degrees(-90))
-                        Circle().stroke(VITALPalette.lime.opacity(0.13), lineWidth: 1).padding(17)
-                        VStack(spacing: 1) {
-                            Text(recovery.score.map(String.init) ?? "—")
-                                .font(.system(size: 39, weight: .bold, design: .rounded)).monospacedDigit()
-                                .foregroundStyle(VITALPalette.paper)
-                            Text("/ 100").font(.system(size: 9, weight: .bold)).tracking(1.2).foregroundStyle(VITALPalette.steel)
-                        }
-                    }
-                    .frame(width: 132, height: 132)
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(guidance.title.uppercased())
-                            .font(.system(size: 14, weight: .heavy, design: .rounded)).tracking(0.8)
-                            .foregroundStyle(recoveryTint)
-                        Text(recovery.score == nil ? recovery.explanation : guidance.detail)
-                            .font(.system(size: 12, weight: .medium)).lineSpacing(3)
-                            .foregroundStyle(Color(hex: 0xB9C6D2))
-                            .fixedSize(horizontal: false, vertical: true)
+                ZStack {
+                    Circle().stroke(Color.white.opacity(0.07), lineWidth: 15)
+                    Circle().trim(from: 0, to: progress)
+                        .stroke(AngularGradient(colors: [Color(hex: 0x8FBF45), VITALPalette.lime, Color(hex: 0xE4FF9B)], center: .center), style: StrokeStyle(lineWidth: 15, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                        .shadow(color: VITALPalette.lime.opacity(0.45), radius: 12)
+                    Circle().stroke(VITALPalette.lime.opacity(0.12), lineWidth: 1).padding(23)
+                    VStack(spacing: 1) {
+                        Image(systemName: "battery.100percent").font(.system(size: 19, weight: .medium)).foregroundStyle(VITALPalette.lime)
+                        Text(score.map(String.init) ?? "—")
+                            .font(.system(size: 54, weight: .bold, design: .rounded)).monospacedDigit()
+                            .foregroundStyle(VITALPalette.paper)
+                        Text("AV 100").font(.system(size: 9, weight: .heavy)).tracking(1.5).foregroundStyle(VITALPalette.steel)
                     }
                 }
-                Rectangle().fill(Color.white.opacity(0.08)).frame(height: 1)
-                HStack(spacing: 0) {
-                    heroFact("SÖMN", value: health.snapshot.sleepText, icon: "bed.double.fill")
-                    Spacer(minLength: 8)
-                    heroFact("HRV", value: health.snapshot.overnightHRV.map { "\(Int($0.rounded())) ms" } ?? "—", icon: "waveform.path")
-                    Spacer(minLength: 8)
-                    heroFact("VILOPULS", value: health.snapshot.overnightRestingHeartRate.map { "\(Int($0.rounded()))" } ?? "—", icon: "heart.fill")
+                .frame(width: 190, height: 190)
+                Text(score == nil ? "Samlar in data" : (score ?? 0) >= 75 ? "Bra energinivå" : (score ?? 0) >= 45 ? "Måttlig energinivå" : "Låg energinivå")
+                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .foregroundStyle(score == nil ? VITALPalette.steel : VITALPalette.lime)
+                Text(battery?.explanation ?? "VITAL behöver fler pulsmätningar för att beräkna kroppsbatteriet.")
+                    .font(.system(size: 11, weight: .medium)).lineSpacing(3)
+                    .multilineTextAlignment(.center).foregroundStyle(Color(hex: 0xB9C6D2))
+                    .frame(maxWidth: 270)
+                Rectangle().fill(Color.white.opacity(0.09)).frame(height: 1)
+                HStack {
+                    heroFact("PULSMÄTNINGAR", value: battery.map { "\\($0.heartRateSampleCount)" } ?? "—", icon: "heart.fill")
+                    Spacer()
+                    heroFact("AKTIV ENERGI", value: health.snapshot.activeEnergy.map { "\\(Int($0.rounded())) kcal" } ?? "—", icon: "flame.fill")
+                    Spacer()
+                    heroFact("ÅTERHÄMTNING I VILA", value: battery.map { "+\\(Int($0.recoveryGain.rounded()))" } ?? "—", icon: "leaf.fill")
                 }
-                if !guidance.attentionSignals.isEmpty {
-                    VStack(alignment: .leading, spacing: 6) {
-                        ForEach(guidance.attentionSignals, id: \.self) { signal in
-                            Label(signal, systemImage: "exclamationmark.circle.fill")
-                                .font(.system(size: 11, weight: .medium)).foregroundStyle(VITALPalette.amber)
-                        }
-                    }
-                    .padding(12).frame(maxWidth: .infinity, alignment: .leading)
-                    .background(VITALPalette.amber.opacity(0.09), in: RoundedRectangle(cornerRadius: 14))
-                }
-                HStack(alignment: .top, spacing: 10) {
-                    Image(systemName: "sparkles").foregroundStyle(VITALPalette.lime)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("DAGENS RIKTNING").font(.system(size: 9, weight: .heavy)).tracking(1.2).foregroundStyle(VITALPalette.lime)
-                        Text(guidance.recommendation).font(.system(size: 12, weight: .medium)).foregroundStyle(VITALPalette.paper).fixedSize(horizontal: false, vertical: true)
-                    }
-                }
+                Text("Preliminär modell – inte ett medicinskt mått.")
+                    .font(.system(size: 9, weight: .medium)).foregroundStyle(VITALPalette.steel)
             }
             .padding(20)
         }
-        .overlay(RoundedRectangle(cornerRadius: 30).stroke(Color.white.opacity(0.07), lineWidth: 1))
-        .shadow(color: .black.opacity(0.22), radius: 22, y: 12)
+        .overlay(RoundedRectangle(cornerRadius: 32).stroke(Color.white.opacity(0.08), lineWidth: 1))
+        .shadow(color: VITALPalette.lime.opacity(0.08), radius: 24, y: 12)
+    }
+
+    /// Overnight recovery stays distinct from the changing daytime body battery.
+    private var recoverySummary: some View {
+        HStack(spacing: 14) {
+            ZStack {
+                Circle().fill(recoveryTint.opacity(0.12)).frame(width: 48, height: 48)
+                Image(systemName: "moon.stars.fill").font(.system(size: 19, weight: .semibold)).foregroundStyle(recoveryTint)
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text("NATTENS ÅTERHÄMTNING")
+                    .font(.system(size: 9, weight: .heavy)).tracking(1.1).foregroundStyle(VITALPalette.steel)
+                HStack(alignment: .firstTextBaseline, spacing: 7) {
+                    Text(recovery.score.map(String.init) ?? "—")
+                        .font(.system(size: 25, weight: .bold, design: .rounded)).monospacedDigit().foregroundStyle(VITALPalette.paper)
+                    Text(guidance.title).font(.system(size: 11, weight: .semibold)).foregroundStyle(recoveryTint)
+                }
+                Text("Baserad på sömn, HRV och vilopuls")
+                    .font(.system(size: 9, weight: .medium)).foregroundStyle(VITALPalette.steel)
+            }
+            Spacer(minLength: 0)
+            Image(systemName: "chevron.right").font(.system(size: 11, weight: .bold)).foregroundStyle(VITALPalette.steel)
+        }
+        .padding(15)
+        .background(VITALPalette.panel, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.white.opacity(0.06), lineWidth: 1))
     }
 
     private func heroFact(_ title: String, value: String, icon: String) -> some View {
