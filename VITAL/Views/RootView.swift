@@ -241,33 +241,37 @@ private struct ReportSnapshotDetailView: View {
                     VITALCard {
                         HStack {
                             VStack(alignment: .leading, spacing: 5) {
-                                Text(report.kind == .morning ? "NATTENS ÅTERHÄMTNING" : "ÅTERHÄMTNING VID KVÄLLSRAPPORT").font(.caption.weight(.bold)).tracking(0.7).foregroundStyle(VITALPalette.muted)
-                                Text(report.recoveryScore.map { "\($0) / 100" } ?? "Saknar underlag")
+                                Text(report.kind == .morning ? "NATTENS ÅTERHÄMTNING" : "DAGENS KROPPSBATTERI").font(.caption.weight(.bold)).tracking(0.7).foregroundStyle(VITALPalette.muted)
+                                Text((report.kind == .morning ? report.recoveryScore : report.bodyBatteryScore).map { "\($0) / 100" } ?? "Saknar underlag")
                                     .font(.system(size: 32, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.teal)
                             }
                             Spacer()
                             Image(systemName: "moon.stars.fill").font(.system(size: 32)).foregroundStyle(VITALPalette.teal)
                         }
-                        Divider().overlay(VITALPalette.track)
-                        reportComponent("Sömn", score: report.sleepComponentScore)
-                        reportComponent("HRV", score: report.hrvComponentScore)
-                        reportComponent("Vilopuls", score: report.restingPulseComponentScore)
+                        if report.kind == .morning {
+                            Divider().overlay(VITALPalette.track)
+                            reportComponent("Sömn", score: report.sleepComponentScore)
+                            reportComponent("HRV", score: report.hrvComponentScore)
+                            reportComponent("Vilopuls", score: report.restingPulseComponentScore)
+                        }
                     }
                     VITALCard {
                         VStack(alignment: .leading, spacing: 13) {
                             Text(report.kind == .morning ? "SPARADE MÄTVÄRDEN" : "DAGENS BELASTNING OCH MÄTVÄRDEN").font(.caption.weight(.heavy)).tracking(0.8).foregroundStyle(VITALPalette.muted)
-                            savedMetric("Sömn", value: report.sleepDurationSeconds.map { duration in
-                                let minutes = Int(duration / 60)
-                                return "\(minutes / 60) h \(String(format: "%02d", minutes % 60)) min"
-                            })
-                            savedMetric("Natt-HRV", value: report.hrvMilliseconds.map { "\(Int($0.rounded())) ms" })
-                            savedMetric("Vilopuls", value: report.restingHeartRateBPM.map { "\(Int($0.rounded())) bpm" })
+                            if report.kind == .morning {
+                                savedMetric("Sömn", value: report.sleepDurationSeconds.map { duration in
+                                    let minutes = Int(duration / 60)
+                                    return "\(minutes / 60) h \(String(format: "%02d", minutes % 60)) min"
+                                })
+                                savedMetric("Natt-HRV", value: report.hrvMilliseconds.map { "\(Int($0.rounded())) ms" })
+                                savedMetric("Vilopuls", value: report.restingHeartRateBPM.map { "\(Int($0.rounded())) bpm" })
+                            }
                             savedMetric("Kroppsbatteri", value: report.bodyBatteryScore.map { "\($0) / 100" })
                             savedMetric(report.kind == .morning ? "Steg vid fångst" : "Dagens steg", value: report.steps.map { Int($0).formatted() })
                             savedMetric(report.kind == .morning ? "Aktiv energi" : "Dagens aktiva energi", value: report.activeEnergyKcal.map { "\(Int($0.rounded())) kcal" })
                         }
                     }
-                    Text(report.kind == .morning ? "Det här är värdena som sparades vid morgonrapporten. De uppdateras inte när nya data kommer från Apple Hälsa." : "Det här är värdena som sparades vid kvällsrapporten. Dagens aktivitet och återhämtning visas som en fryst ögonblicksbild.")
+                    Text(report.kind == .morning ? "Det här är värdena som sparades vid morgonrapporten. De uppdateras inte när nya data kommer från Apple Hälsa." : "Kvällsrapporten visar dagens aktivitet och kroppsbatteri vid fångsttillfället. Nattens återhämtningspoäng redovisas separat i morgonrapporten.")
                         .font(.caption).foregroundStyle(VITALPalette.muted).padding(.horizontal, 4)
                 }
                 .padding(VITALSpacing.page).padding(.top, 12).padding(.bottom, 28)
