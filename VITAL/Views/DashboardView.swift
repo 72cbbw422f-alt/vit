@@ -71,7 +71,7 @@ struct DashboardView: View {
                 Text(recovery.score == nil ? recovery.explanation : guidance.detail).font(.subheadline).foregroundStyle(VITALPalette.muted).fixedSize(horizontal: false, vertical: true)
                 if !guidance.attentionSignals.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
-                        Label("VÄRT ATT UPPMÄRKSAMMA", systemImage: "exclamationmark.circle").font(.caption2.weight(.bold)).tracking(0.6).foregroundStyle(VITALPalette.amber)
+                        Label("VÄRT ATT UPPMÄRKSAMMA", systemImage: "exclamationmark.circle").font(.caption.weight(.bold)).tracking(0.6).foregroundStyle(VITALPalette.amber)
                         ForEach(guidance.attentionSignals, id: \.self) { signal in
                             HStack(alignment: .top, spacing: 8) {
                                 Circle().fill(VITALPalette.amber).frame(width: 6, height: 6).padding(.top, 6)
@@ -83,7 +83,7 @@ struct DashboardView: View {
                 HStack(spacing: 10) {
                     Image(systemName: guidance.hasAttentionSignal ? "leaf" : "figure.walk").font(.headline).foregroundStyle(statusTint).frame(width: 34, height: 34).background(statusTint.opacity(0.13), in: RoundedRectangle(cornerRadius: 11))
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("DAGENS RÅD").font(.caption2.weight(.bold)).tracking(0.7).foregroundStyle(statusTint)
+                        Text("DAGENS RÅD").font(.caption.weight(.bold)).tracking(0.7).foregroundStyle(statusTint)
                         Text(guidance.recommendation).font(.subheadline.weight(.medium)).foregroundStyle(VITALPalette.cloud).fixedSize(horizontal: false, vertical: true)
                     }
                 }.padding(13).frame(maxWidth: .infinity, alignment: .leading).background(VITALPalette.surfaceRaised, in: RoundedRectangle(cornerRadius: 16))
@@ -97,7 +97,7 @@ struct DashboardView: View {
                     Text("Vilopuls")
                     Text(health.snapshot.overnightRestingHeartRate.map { "\(Int($0.rounded())) bpm" } ?? "—")
                 }.font(.caption.weight(.medium)).foregroundStyle(VITALPalette.muted)
-                Text("Över natten · Kroppsbatteriet följer dagens förändringar separat").font(.caption2).foregroundStyle(VITALPalette.muted)
+                Text("Över natten · Kroppsbatteriet följer dagens förändringar separat").font(.caption).foregroundStyle(VITALPalette.muted)
             }
         }
     }
@@ -132,7 +132,7 @@ struct DashboardView: View {
                         Spacer()
                         VStack(alignment: .trailing, spacing: 2) {
                             Text("\(latest.intensity)/5").font(.title2.bold().monospacedDigit()).foregroundStyle(latest.mood.color)
-                            Text("intensitet").font(.caption2).foregroundStyle(VITALPalette.muted)
+                            Text("intensitet").font(.caption).foregroundStyle(VITALPalette.muted)
                         }
                     }
                     if recent.count > 1 {
@@ -143,7 +143,7 @@ struct DashboardView: View {
                                         .fill(entry.mood.color.gradient)
                                         .frame(height: CGFloat(entry.mood.level) * 13 + 8)
                                     Text(entry.date.formatted(.dateTime.weekday(.narrow)))
-                                        .font(.caption2).foregroundStyle(VITALPalette.muted)
+                                        .font(.caption).foregroundStyle(VITALPalette.muted)
                                 }
                                 .frame(maxWidth: .infinity)
                             }
@@ -151,7 +151,7 @@ struct DashboardView: View {
                         .frame(height: 92, alignment: .bottom)
                         .padding(.horizontal, 4)
                         Text("Senaste registreringar")
-                            .font(.caption2).foregroundStyle(VITALPalette.muted)
+                            .font(.caption).foregroundStyle(VITALPalette.muted)
                     } else {
                         Text("Din måendekurva visas här när du har fler registreringar.")
                             .font(.caption).foregroundStyle(VITALPalette.muted)
@@ -236,16 +236,16 @@ struct DashboardView: View {
                         Label("\(battery.heartRateSampleCount) pulsmätningar", systemImage: "heart")
                         Spacer(minLength: 4)
                         Text("\(Int(battery.activeEnergyKcal.rounded())) kcal aktivitet")
-                    }.font(.caption2).foregroundStyle(VITALPalette.teal)
+                    }.font(.caption).foregroundStyle(VITALPalette.teal)
                     HStack {
                         Label("Återhämtning i vila", systemImage: "leaf")
                         Spacer()
                         Text("+\(Int(battery.recoveryGain.rounded()))")
                             .monospacedDigit()
-                    }.font(.caption2.weight(.medium)).foregroundStyle(VITALPalette.teal)
+                    }.font(.caption.weight(.medium)).foregroundStyle(VITALPalette.teal)
                 }
                 Text("Preliminär uppskattning")
-                    .font(.caption2).foregroundStyle(VITALPalette.amber)
+                    .font(.caption).foregroundStyle(VITALPalette.amber)
             }
         }
     }
@@ -321,7 +321,7 @@ private struct MetricCard: View {
             }
             Text(title).font(.caption.weight(.semibold)).tracking(0.5).foregroundStyle(VITALPalette.muted)
             Text(value).font(.vital(size: 25, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud).lineLimit(1).minimumScaleFactor(0.75)
-            Text(detail).font(.caption2).foregroundStyle(accent).lineLimit(1)
+            Text(detail).font(.caption).foregroundStyle(accent).lineLimit(1)
         }.frame(maxWidth: .infinity, minHeight: 132, alignment: .leading).padding(15)
             .background(
                 LinearGradient(colors: [VITALPalette.midnight, VITALPalette.midnight.opacity(0.82)], startPoint: .topLeading, endPoint: .bottomTrailing),
@@ -456,7 +456,7 @@ private struct MoodCheckInSheet: View {
                             }
                             Slider(value: Binding(get: { Double(intensity) }, set: { intensity = Int($0) }), in: 1...5, step: 1).tint(VITALPalette.teal)
                             HStack { Text("Milt"); Spacer(); Text("Måttligt"); Spacer(); Text("Mycket starkt") }
-                                .font(.caption2).foregroundStyle(VITALPalette.muted)
+                                .font(.caption).foregroundStyle(VITALPalette.muted)
                         }
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Anteckningar").font(.headline).foregroundStyle(VITALPalette.cloud)
