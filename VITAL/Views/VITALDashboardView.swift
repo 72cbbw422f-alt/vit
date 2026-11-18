@@ -79,7 +79,7 @@ struct VITALDashboardView: View {
                     .foregroundStyle(VITALPalette.steel)
                 Spacer()
                 Text("ÖVERSIKT")
-                    .font(.vital(size: 12, weight: .heavy, design: .rounded))
+                    .font(.vital(size: 14, weight: .heavy, design: .rounded))
                     .tracking(1.4)
                     .foregroundStyle(VITALPalette.lime)
             }
@@ -109,7 +109,7 @@ struct VITALDashboardView: View {
                         .foregroundStyle(VITALPalette.steel)
                     Spacer()
                     Text("IDAG")
-                        .font(.vital(size: 12, weight: .heavy)).tracking(1.1)
+                        .font(.vital(size: 14, weight: .heavy)).tracking(1.1)
                         .foregroundStyle(VITALPalette.lime)
                         .padding(.horizontal, 10).padding(.vertical, 6)
                         .background(VITALPalette.lime.opacity(0.10), in: Capsule())
@@ -134,19 +134,17 @@ struct VITALDashboardView: View {
                     .font(.vital(size: 21.1, weight: .bold, design: .rounded))
                     .foregroundStyle(score == nil ? VITALPalette.steel : VITALPalette.lime)
                 Text(battery?.explanation ?? "VITAL behöver fler pulsmätningar för att beräkna kroppsbatteriet.")
-                    .font(.vital(size: 13.6, weight: .medium)).lineSpacing(3)
+                    .font(.vital(size: 15, weight: .medium)).lineSpacing(3)
                     .multilineTextAlignment(.center).foregroundStyle(Color(hex: 0xB9C6D2))
                     .frame(maxWidth: 270)
                 Rectangle().fill(Color.white.opacity(0.09)).frame(height: 1)
-                HStack {
-                    heroFact("PULSMÄTNINGAR", value: battery.map { "\($0.heartRateSampleCount)" } ?? "—", icon: "heart.fill")
-                    Spacer()
-                    heroFact("AKTIV ENERGI", value: health.snapshot.activeEnergy.map { "\(Int($0.rounded())) kcal" } ?? "—", icon: "flame.fill")
-                    Spacer()
-                    heroFact("ÅTERHÄMTNING I VILA", value: battery.map { "+\(Int($0.recoveryGain.rounded()))" } ?? "—", icon: "leaf.fill")
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)], alignment: .leading, spacing: 14) {
+                    heroFact("Pulsmätningar", value: battery.map { "\($0.heartRateSampleCount)" } ?? "—", icon: "heart.fill")
+                    heroFact("Aktiv energi", value: health.snapshot.activeEnergy.map { "\(Int($0.rounded())) kcal" } ?? "—", icon: "flame.fill")
+                    heroFact("Återhämtning i vila", value: battery.map { "+\(Int($0.recoveryGain.rounded()))" } ?? "—", icon: "leaf.fill")
                 }
                 Text("Preliminär modell – inte ett medicinskt mått.")
-                    .font(.vital(size: 12, weight: .medium)).foregroundStyle(VITALPalette.steel)
+                    .font(.vital(size: 14, weight: .medium)).foregroundStyle(VITALPalette.steel)
             }
             .padding(20)
         }
@@ -167,10 +165,10 @@ struct VITALDashboardView: View {
                 HStack(alignment: .firstTextBaseline, spacing: 7) {
                     Text(recovery.score.map(String.init) ?? "—")
                         .font(.vital(size: 31, weight: .bold, design: .rounded)).monospacedDigit().foregroundStyle(VITALPalette.paper)
-                    Text(guidance.title).font(.vital(size: 13.6, weight: .semibold)).foregroundStyle(recoveryTint)
+                    Text(guidance.title).font(.vital(size: 15, weight: .semibold)).foregroundStyle(recoveryTint)
                 }
                 Text("Baserad på sömn, HRV och vilopuls")
-                    .font(.vital(size: 12, weight: .medium)).foregroundStyle(VITALPalette.steel)
+                    .font(.vital(size: 14, weight: .medium)).foregroundStyle(VITALPalette.steel)
             }
             Spacer(minLength: 0)
             Image(systemName: "chevron.right").font(.vital(size: 13.6, weight: .bold)).foregroundStyle(VITALPalette.steel)
@@ -266,8 +264,10 @@ struct VITALDashboardView: View {
 
     private func heroFact(_ title: String, value: String, icon: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Label(title, systemImage: icon).font(.vital(size: 12, weight: .bold)).tracking(0.8).foregroundStyle(VITALPalette.steel)
-            Text(value).font(.vital(size: 17.4, weight: .bold, design: .rounded)).monospacedDigit().foregroundStyle(VITALPalette.paper)
+            Label(title, systemImage: icon).font(.vital(size: 14, weight: .semibold)).tracking(0.25).foregroundStyle(VITALPalette.steel)
+                .fixedSize(horizontal: false, vertical: true)
+            Text(value).font(.vital(size: 18, weight: .bold, design: .rounded)).monospacedDigit().foregroundStyle(VITALPalette.paper)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -297,7 +297,7 @@ struct VITALDashboardView: View {
                     } label: {
                         VStack(spacing: 6) {
                             Text(choice.1).font(.vital(size: 31))
-                            Text(choice.2).font(.vital(size: 12, weight: .semibold))
+                            Text(choice.2).font(.vital(size: 14, weight: .semibold))
                                 .foregroundStyle(isSelected ? VITALPalette.lime : VITALPalette.steel)
                         }
                         .frame(maxWidth: .infinity).padding(.vertical, 11)
@@ -456,8 +456,8 @@ struct VITALDashboardView: View {
 
     private func sectionHeading(_ title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(title).font(.vital(size: 12, weight: .heavy, design: .rounded)).tracking(1.4).foregroundStyle(VITALPalette.lime)
-            Text(subtitle).font(.vital(size: 13.6, weight: .medium)).foregroundStyle(VITALPalette.steel)
+            Text(title).font(.vital(size: 14, weight: .heavy, design: .rounded)).tracking(1.1).foregroundStyle(VITALPalette.lime)
+            Text(subtitle).font(.vital(size: 15, weight: .medium)).foregroundStyle(VITALPalette.steel).fixedSize(horizontal: false, vertical: true)
         }
     }
 
