@@ -206,3 +206,11 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - Text ska tillåtas radbrytas och kort ska växa vertikalt; innehåll får inte krympas eller klippas för att passa en fast höjd.
 - Små etiketter och metadata får inte bli oläsliga. Behåll tydlig hierarki, men prioritera läsbarhet framför att pressa in allt på en rad.
 - Behåll Midnight-paletten och den befintliga visuella riktningen vid tillgänglighetsanpassning.
+
+
+## Historiska hälsomätningar (2026-11-18)
+- Vikt- och blodtryckshistorik från Apple Hälsa hämtas separat från äldre manuella lokala journaler.
+- Historikgraferna visar ett rullande 90-dagarsfönster med faktiska HealthKit-sampel.
+- Blodtryck får endast visas som par från HealthKit-blodtryckskorrelationer med både systoliskt och diastoliskt värde.
+- Saknade eller otillräckliga datapunkter ska inte fyllas ut. En ensam mätning visas som en mätning, inte som en trend.
+- Lokala äldre journaler bevaras och märks separat från Apple Hälsa-data.
