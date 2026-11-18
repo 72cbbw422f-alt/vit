@@ -13,6 +13,27 @@ final class BodyBatteryEngineTests: XCTestCase {
         XCTAssertNil(result.score)
     }
 
+    func testMissingMorningRecoveryStillReportsAvailablePulseSamples() {
+        let result = BodyBatteryEngine.calculate(BodyBatteryInputs(
+            wakeTime: wake, asOf: wake.addingTimeInterval(3600),
+            overnightRecoveryScore: nil, restingHeartRateBaselineBPM: 60,
+            heartRateSamples: samples([70, 72, 68]), activeEnergySamples: []
+        ))
+        XCTAssertNil(result.score)
+        XCTAssertEqual(result.heartRateSampleCount, 3)
+        XCTAssertTrue(result.explanation.contains("morgonspoäng"))
+    }
+
+    func testMissingRestingBaselineStillReportsAvailablePulseSamples() {
+        let result = BodyBatteryEngine.calculate(BodyBatteryInputs(
+            wakeTime: wake, asOf: wake.addingTimeInterval(3600),
+            overnightRecoveryScore: 80, restingHeartRateBaselineBPM: nil,
+            heartRateSamples: samples([70, 72, 68]), activeEnergySamples: []
+        ))
+        XCTAssertNil(result.score)
+        XCTAssertEqual(result.heartRateSampleCount, 3)
+    }
+
     func testInsufficientHeartRateCoverageReturnsNoScore() {
         let result = BodyBatteryEngine.calculate(BodyBatteryInputs(
             wakeTime: wake, asOf: wake.addingTimeInterval(3600),
