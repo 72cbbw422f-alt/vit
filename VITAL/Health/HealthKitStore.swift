@@ -19,10 +19,19 @@ struct HealthDataDiagnostic: Identifiable {
     let title: String
     let sampleCount: Int
     let latestDate: Date?
+    let errorMessage: String?
+
+    init(title: String, sampleCount: Int, latestDate: Date?, errorMessage: String? = nil) {
+        self.title = title
+        self.sampleCount = sampleCount
+        self.latestDate = latestDate
+        self.errorMessage = errorMessage
+    }
 
     var id: String { title }
     var statusText: String {
-        sampleCount == 0 ? "Inga mätningar hittades" : "\(sampleCount) mätningar"
+        if errorMessage != nil { return "Kunde inte läsa" }
+        return sampleCount == 0 ? "Inga mätningar hittades" : "\(sampleCount) mätningar"
     }
 }
 
@@ -332,7 +341,7 @@ final class HealthKitStore: ObservableObject {
         var results: [HealthDataDiagnostic] = []
         for (title, type) in definitions {
             guard let type else {
-                results.append(HealthDataDiagnostic(title: title, sampleCount: 0, latestDate: nil))
+                results.append(HealthDataDiagnostic(title: title, sampleCount: 0, latestDate: nil, errorMessage: "Datatypen stöds inte av den här iOS-versionen."))
                 continue
             }
             results.append(await countRecentSamples(title: title, type: type))
@@ -347,8 +356,8 @@ final class HealthKitStore: ObservableObject {
         return await withCheckedContinuation { continuation in
             let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit,
                 sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { _, samples, error in
-                    if error != nil {
-                        continuation.resume(returning: HealthDataDiagnostic(title: title, sampleCount: 0, latestDate: nil))
+                    if let error {
+                        continuation.resume(returning: HealthDataDiagnostic(title: title, sampleCount: 0, latestDate: nil, errorMessage: error.localizedDescription))
                         return
                     }
                     let values = samples ?? []
