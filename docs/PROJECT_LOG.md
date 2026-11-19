@@ -779,3 +779,12 @@ Efter denna körning togs överbliven, oanvänd kvällsrapport-state och rapport
 - Historiken filtrerar bort ofullständiga par, icke-ändliga värden, värden utanför defensiva datakvalitetsgränser och par där övertrycket inte överstiger undertrycket.
 - Samma valideringsregel används av presentationen och täcks av nya enhetstester. Gränserna är tekniska skydd mot felaktig/importerad data, inte medicinska referensvärden.
 - Full CI krävs innan ändringen betraktas som verifierad.
+
+
+## 2026-11-19 – Reservberäkning för nattlig puls
+- Skärmbilderna visade att Apple Hälsa levererade ett senaste vilopulsvärde men inte ett vilopulssampel inne i den valda sömnperioden. Samtidigt fanns nattliga pulsmätningar.
+- OvernightMetricSelector använder nu HealthKit-vilopuls när ett giltigt sampel finns i sömnfönstret. Om det saknas beräknas en nattlig pulsproxy som medelvärde av giltiga pulssampel under exakt samma sömnperiod.
+- Mätningar utanför sömnfönstret, icke-finita värden och värden utanför defensiva tekniska gränser ignoreras.
+- Reservvärdet är ett nattligt pulsmedelvärde, inte ett HealthKit-vilopulsprov. Det är en pragmatisk wellness-proxy inspirerad av hur andra Apple Watch-appar använder nattlig puls; fysisk validering och separat nattlig baslinje återstår.
+- Tre nya tester täcker reservmetod, prioritet för HealthKit-vilopuls och filtrering.
+- Ingen ny IPA betraktas som verifierad förrän full CI har passerat.

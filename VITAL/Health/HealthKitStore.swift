@@ -193,6 +193,7 @@ final class HealthKitStore: ObservableObject {
             overnightMetrics = OvernightMetricSelector.select(
                 hrv: await overnightHRVSamples,
                 restingHeartRate: await overnightPulseSamples,
+                heartRate: await bodyBatteryHeartRateSamples,
                 sleepSession: sleepSession
             )
         } else {

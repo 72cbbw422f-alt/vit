@@ -63,4 +63,49 @@ final class OvernightMetricSelectorTests: XCTestCase {
         XCTAssertTrue(result.hrvMilliseconds?.isFinite == true)
     }
 
+    func testFallsBackToMeanHeartRateSamplesInsideSleepWhenNoRestingSamplesExist() {
+        let result = OvernightMetricSelector.select(
+            hrv: [],
+            restingHeartRate: [],
+            heartRate: [
+                TimedHealthValue(timestamp: date(1).addingTimeInterval(24 * 60 * 60), value: 50),
+                TimedHealthValue(timestamp: date(2).addingTimeInterval(24 * 60 * 60), value: 60),
+                TimedHealthValue(timestamp: date(3).addingTimeInterval(24 * 60 * 60), value: 70),
+                TimedHealthValue(timestamp: date(12).addingTimeInterval(24 * 60 * 60), value: 180)
+            ],
+            sleepSession: session
+        )
+        XCTAssertEqual(result.restingHeartRateBPM, 60)
+        XCTAssertEqual(result.restingHeartRateSampleCount, 3)
+    }
+
+    func testPrefersHealthKitRestingHeartRateWhenAvailable() {
+        let result = OvernightMetricSelector.select(
+            hrv: [],
+            restingHeartRate: [TimedHealthValue(timestamp: date(2).addingTimeInterval(24 * 60 * 60), value: 52)],
+            heartRate: [
+                TimedHealthValue(timestamp: date(1).addingTimeInterval(24 * 60 * 60), value: 80),
+                TimedHealthValue(timestamp: date(2).addingTimeInterval(24 * 60 * 60), value: 90)
+            ],
+            sleepSession: session
+        )
+        XCTAssertEqual(result.restingHeartRateBPM, 52)
+        XCTAssertEqual(result.restingHeartRateSampleCount, 1)
+    }
+
+    func testNightlyPulseFallbackRejectsInvalidAndOutOfSessionSamples() {
+        let result = OvernightMetricSelector.select(
+            hrv: [],
+            restingHeartRate: [],
+            heartRate: [
+                TimedHealthValue(timestamp: date(1).addingTimeInterval(24 * 60 * 60), value: .nan),
+                TimedHealthValue(timestamp: date(2).addingTimeInterval(24 * 60 * 60), value: 0),
+                TimedHealthValue(timestamp: date(12).addingTimeInterval(24 * 60 * 60), value: 60)
+            ],
+            sleepSession: session
+        )
+        XCTAssertNil(result.restingHeartRateBPM)
+        XCTAssertEqual(result.restingHeartRateSampleCount, 0)
+    }
+
 }

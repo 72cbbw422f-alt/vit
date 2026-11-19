@@ -28,26 +28,43 @@ enum OvernightMetricSelector {
     static func select(
         hrv: [TimedHealthValue],
         restingHeartRate: [TimedHealthValue],
+        heartRate: [TimedHealthValue] = [],
         sleepSession: SleepSession
     ) -> OvernightMetrics {
-        let hrvValues = validValues(hrv, during: sleepSession)
-        let restingValues = validValues(restingHeartRate, during: sleepSession)
+        let hrvValues = validValues(hrv, during: sleepSession, range: 1...300)
+        let restingValues = validValues(restingHeartRate, during: sleepSession, range: 25...220)
+        // Apple Health's restingHeartRate samples are not guaranteed to be timestamped
+        // inside the sleep session. Bevel-style fallback: derive a nightly pulse proxy
+        // from actual heart-rate samples collected during that same sleep session.
+        // This is explicitly a proxy, not an Apple Health resting-heart-rate sample.
+        let sleepHeartRateValues = validValues(heartRate, during: sleepSession, range: 25...220)
+        let nightlyPulse = median(restingValues) ?? mean(sleepHeartRateValues)
         return OvernightMetrics(
             hrvMilliseconds: median(hrvValues),
-            restingHeartRateBPM: median(restingValues),
+            restingHeartRateBPM: nightlyPulse,
             hrvSampleCount: hrvValues.count,
-            restingHeartRateSampleCount: restingValues.count
+            restingHeartRateSampleCount: restingValues.isEmpty ? sleepHeartRateValues.count : restingValues.count
         )
     }
 
-    private static func validValues(_ samples: [TimedHealthValue], during session: SleepSession) -> [Double] {
+    private static func validValues(
+        _ samples: [TimedHealthValue],
+        during session: SleepSession,
+        range: ClosedRange<Double>
+    ) -> [Double] {
         samples.compactMap { sample in
             guard sample.timestamp >= session.start,
                   sample.timestamp <= session.end,
                   sample.value.isFinite,
-                  sample.value > 0 else { return nil }
+                  range.contains(sample.value) else { return nil }
             return sample.value
         }
+    }
+
+    private static func mean(_ values: [Double]) -> Double? {
+        guard !values.isEmpty else { return nil }
+        let result = values.reduce(0, +) / Double(values.count)
+        return result.isFinite ? result : nil
     }
 
     private static func median(_ values: [Double]) -> Double? {

@@ -534,3 +534,13 @@ Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa 
 - [x] Dela samma defensiva valideringsregel mellan hämtning och presentation
 - [ ] Verifiera senaste värde och historik mot faktiska HealthKit-poster på fysisk iPhone
 - [ ] Kör och godkänn fullständig CI
+
+
+## 2026-11-19 – Nattlig puls och återhämtningsdata
+- [x] Behåll HealthKit-vilopulsmätning när den faktiskt finns inne i sömnperioden.
+- [x] Lägg till en tydligt avgränsad reservmetod: medelvärde av giltiga pulssampel från samma sömnperiod när nattliga vilopulssampel saknas.
+- [x] Filtrera nattpuls till rimliga tekniska datakvalitetsgränser och uteslut mätningar utanför sömnperioden.
+- [x] Lägg till tester för reservmetod, prioritet för HealthKit-vilopuls samt ogiltiga/utanförliggande sampel.
+- [ ] Verifiera på fysisk Apple Watch att nattlig puls ger underlag för återhämtning utan att förväxlas med dagens senaste vilopuls.
+- [ ] Utvärdera om en separat nattlig pulsnorm ska byggas från historiska sömnperioder innan jämförelsen med personlig vilopulsbaslinje betraktas som slutlig.
+- [ ] Fortsätt därefter med sömnpoäng, sömneffektivitet, stress och träningsbelastning.
