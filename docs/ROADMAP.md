@@ -578,3 +578,8 @@ Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa 
 - [x] Minst fem giltiga nätter krävs; dagssömn hanteras utan nattantaganden.
 - [x] Tester för saknad/ofullständig sängtidsdata, ogiltiga intervall, midnatt och skiftarbete.
 - [ ] Koppla beräkningarna till HealthKit och verifiera på fysisk iPhone.
+
+
+## Byggkonfiguration – 2026-11-19
+- [x] Registrera SleepQualityCalculator.swift i Swift Package och Xcode-projektets Sources-fas efter att CI identifierade att filen inte ingick i target.
+- [ ] Kör om fullständig CI.

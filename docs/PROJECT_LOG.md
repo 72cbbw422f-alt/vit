@@ -822,3 +822,9 @@ Efter denna körning togs överbliven, oanvänd kvällsrapport-state och rapport
 - HealthSnapshot förbereds för sammanfattningarna. HealthKit-koppling och UI-visning återstår.
 - Tester täcker intervallens täckning, ogiltiga data, midnatt och dagssömn.
 - Full CI krävs innan ändringen betraktas som verifierad.
+
+
+## 2026-11-19 – Korrigering av Swift-källfilsregistrering
+- CI 497 misslyckades i kärntesterna eftersom den nya SleepQualityCalculator.swift inte var registrerad i Swift Package-manifestet eller Xcode-projektets källfas.
+- Registrerar filen i båda byggsystemen. Felet gäller projektkonfiguration, inte beräkningslogik.
+- CI 497 körde inga simulator-, arkiv- eller IPA-steg. Ingen ny IPA finns från den körningen.
