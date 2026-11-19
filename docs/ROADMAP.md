@@ -515,3 +515,13 @@ Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa 
 
 - [x] Dela upp InsightsView i mindre SwiftUI-delvyer för att minska kompilatorns typkontrollbelastning
 - [ ] Verifiera simulatorbygge och full CI efter refaktoreringen
+
+
+## Uppdatering 2026-11-19 – Veckojämförelsens datakälla
+
+- [x] Hämta 30 dagars faktiska HRV-sampel från HealthKit
+- [x] Hämta 30 dagars faktiska vilopulssampel från HealthKit
+- [x] Använda historiken som underlag för Insikters sjudagarsjämförelse
+- [x] Filtrera bort ogiltiga och icke-positiva mätvärden
+- [ ] Verifiera historikfrågorna och jämförelsen med verkliga HealthKit-data på iPhone
+- [ ] Godkänna full CI efter korrigeringen

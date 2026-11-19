@@ -39,6 +39,8 @@ struct HealthDataDiagnostic: Identifiable {
 final class HealthKitStore: ObservableObject {
     @Published private(set) var snapshot = HealthSnapshot.empty
     @Published private(set) var weightHistory: [HealthTrendPoint] = []
+    @Published private(set) var hrvHistory: [HealthTrendPoint] = []
+    @Published private(set) var restingHeartRateHistory: [HealthTrendPoint] = []
     @Published private(set) var bloodPressureHistory: [BloodPressureTrendPoint] = []
     @Published private(set) var dataDiagnostics: [HealthDataDiagnostic] = []
     @Published private(set) var isAvailable = HKHealthStore.isHealthDataAvailable()
@@ -165,6 +167,8 @@ final class HealthKitStore: ObservableObject {
         async let weightSample = latestQuantitySample(.bodyMass, unit: .gramUnit(with: .kilo))
         async let bloodPressureSample = latestBloodPressureSample()
         async let historicalWeight = historicalWeightSamples()
+        async let historicalHRV = historicalQuantitySamples(.heartRateVariabilitySDNN, unit: .secondUnit(with: .milli), context: "HRV-historik")
+        async let historicalRestingHeartRate = historicalQuantitySamples(.restingHeartRate, unit: HKUnit.count().unitDivided(by: .minute()), context: "Vilopulshistorik")
         async let historicalBloodPressure = historicalBloodPressureSamples()
         async let respiratoryRateSample = latestQuantitySample(.respiratoryRate, unit: HKUnit.count().unitDivided(by: .minute()))
         async let wristTemperatureSample = latestQuantitySample(.appleSleepingWristTemperature, unit: .degreeCelsius())
@@ -251,6 +255,8 @@ final class HealthKitStore: ObservableObject {
         }
         snapshot = updatedSnapshot
         weightHistory = await historicalWeight
+        hrvHistory = await historicalHRV
+        restingHeartRateHistory = await historicalRestingHeartRate
         bloodPressureHistory = await historicalBloodPressure
         dataDiagnostics = await diagnostics
         // New scheduled morning/evening reports are intentionally disabled.
@@ -533,6 +539,39 @@ final class HealthKitStore: ObservableObject {
                     }
                     continuation.resume(returning: values)
                 }
+            store.execute(query)
+        }
+    }
+
+    /// Returns the last 30 days of actual HealthKit quantity samples for trend comparisons.
+    private func historicalQuantitySamples(
+        _ identifier: HKQuantityTypeIdentifier,
+        unit: HKUnit,
+        context: String
+    ) async -> [HealthTrendPoint] {
+        guard let type = HKObjectType.quantityType(forIdentifier: identifier) else { return [] }
+        let end = Date()
+        let start = Calendar.current.date(byAdding: .day, value: -30, to: end) ?? end
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end)
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(
+                sampleType: type,
+                predicate: predicate,
+                limit: HKObjectQueryNoLimit,
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)]
+            ) { [weak self] _, samples, error in
+                if let error {
+                    Task { @MainActor [weak self] in self?.recordQueryError(error, context: context) }
+                    continuation.resume(returning: [])
+                    return
+                }
+                let values = ((samples as? [HKQuantitySample]) ?? []).compactMap { sample -> HealthTrendPoint? in
+                    let value = sample.quantity.doubleValue(for: unit)
+                    guard value.isFinite, value > 0 else { return nil }
+                    return HealthTrendPoint(date: sample.endDate, value: value)
+                }
+                continuation.resume(returning: values)
+            }
             store.execute(query)
         }
     }

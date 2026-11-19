@@ -763,3 +763,11 @@ Efter denna körning togs överbliven, oanvänd kvällsrapport-state och rapport
 - CI run 44488595514 passed core unit tests but failed the simulator build because Swift could not type-check the large InsightsView body in reasonable time.
 - Split the screen into smaller computed view sections and extracted the recovery gauge, recovery title, and history chart into focused helpers. Intended behavior and visual styling are preserved.
 - Awaiting a full CI run to verify compilation, archive, IPA packaging, and simulator launch.
+
+
+## 2026-11-19 – Korrigering av veckojämförelsens HealthKit-källa
+
+- CI-run 489 visade att Insikter refererade till `hrvHistory` och `restingHeartRateHistory` innan dessa historikfält fanns i HealthKitStore.
+- Lägg till faktiska historiska HealthKit-sampel för HRV och vilopuls, med 30 dagars tidsfönster och validering av positiva, ändliga värden.
+- Koppla historikfrågorna till den vanliga uppdateringscykeln så veckojämförelsen får verkliga mätpunkter.
+- Ingen syntetisk data eller uppskattning används; tom historik förblir tom.
