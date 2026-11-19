@@ -329,19 +329,15 @@ final class HealthKitStore: ObservableObject {
             ("Kroppsfett", HKObjectType.quantityType(forIdentifier: .bodyFatPercentage)),
             ("Muskelmassa", HKObjectType.quantityType(forIdentifier: .leanBodyMass))
         ]
-        return await withTaskGroup(of: HealthDataDiagnostic.self) { group in
-            for (title, type) in definitions {
-                group.addTask { [weak self] in
-                    guard let self, let type else {
-                        return HealthDataDiagnostic(title: title, sampleCount: 0, latestDate: nil)
-                    }
-                    return await self.countRecentSamples(title: title, type: type)
-                }
+        var results: [HealthDataDiagnostic] = []
+        for (title, type) in definitions {
+            guard let type else {
+                results.append(HealthDataDiagnostic(title: title, sampleCount: 0, latestDate: nil))
+                continue
             }
-            var results: [HealthDataDiagnostic] = []
-            for await result in group { results.append(result) }
-            return results.sorted { $0.title < $1.title }
+            results.append(await countRecentSamples(title: title, type: type))
         }
+        return results.sorted { $0.title < $1.title }
     }
 
     private func countRecentSamples(title: String, type: HKSampleType) async -> HealthDataDiagnostic {
