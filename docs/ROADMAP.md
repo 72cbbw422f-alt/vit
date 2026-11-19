@@ -32,9 +32,11 @@ Status betyder:
 - [x] Implementera sömnsammanställning utan dubbelräkning av överlappande segment
 - [x] Läs HRV SDNN med separat nattfönster och senaste värde
 - [x] Läs vilopuls, steg, aktiv energi, vikt och blodtryck där tillgängligt
-- [x] Läsa andningsfrekvens och syremättnad när HealthKit-typer finns
+- [x] Läsa andningsfrekvens, syremättnad och handledstemperaturens baslinjeavvikelse när HealthKit-typer finns
 - [~] Datakälla, tidsstämpel och saknat-underlagstillstånd visas för flera mått; full konsekvent granskning återstår
-- [ ] Verifiera verkliga HealthKit-serier och blodtryckskorrelationer på fysisk iPhone
+- [x] Koppla träningstid, gång-/löpdistanser, cykeldistans, trappor, gångpuls, VO₂ max, kroppssammansättning och gångmått
+- [x] Koppla syremättnad och handledstemperatur som avvikelse från personlig baslinje
+- [ ] Verifiera verkliga HealthKit-serier, handledstemperaturens semantik och blodtryckskorrelationer på fysisk iPhone
 - [x] Hämta 90 dagars vikt- och blodtryckshistorik från HealthKit separat från äldre lokala journaler
 - [x] Visa separata historikgrafer med tydliga datakällor och tom-/enstaka-mätningstillstånd
 - [ ] Verifiera verkliga historikserier och grafers läsbarhet på fysisk iPhone
