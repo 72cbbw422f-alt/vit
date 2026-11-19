@@ -164,6 +164,17 @@ final class HealthKitStore: ObservableObject {
         async let historicalWeight = historicalWeightSamples()
         async let historicalBloodPressure = historicalBloodPressureSamples()
         async let respiratoryRateSample = latestQuantitySample(.respiratoryRate, unit: HKUnit.count().unitDivided(by: .minute()))
+        async let exerciseMinutesValue = todaySum(.appleExerciseTime, unit: .minute())
+        async let walkingDistanceValue = todaySum(.distanceWalkingRunning, unit: HKUnit.meterUnit(with: .kilo))
+        async let cyclingDistanceValue = todaySum(.distanceCycling, unit: HKUnit.meterUnit(with: .kilo))
+        async let flightsClimbedValue = todaySum(.flightsClimbed, unit: .count())
+        async let walkingHeartRateSample = latestQuantitySample(.walkingHeartRateAverage, unit: HKUnit.count().unitDivided(by: .minute()))
+        async let vo2MaxSample = latestQuantitySample(.vo2Max, unit: HKUnit(from: "mL/kg*min"))
+        async let bodyFatSample = latestQuantitySample(.bodyFatPercentage, unit: .percent())
+        async let leanBodyMassSample = latestQuantitySample(.leanBodyMass, unit: .gramUnit(with: .kilo))
+        async let walkingSpeedSample = latestQuantitySample(.walkingSpeed, unit: HKUnit.meter().unitDivided(by: .second()))
+        async let walkingStepLengthSample = latestQuantitySample(.walkingStepLength, unit: HKUnit.meterUnit(with: .centi))
+        async let walkingAsymmetrySample = latestQuantitySample(.walkingAsymmetryPercentage, unit: .percent())
         async let diagnostics = loadDataDiagnostics()
         async let baselines = loadPersonalBaselines(asOf: now)
 
@@ -199,6 +210,17 @@ final class HealthKitStore: ObservableObject {
             bloodPressureDate: await bloodPressureSample?.date,
             respiratoryRate: await respiratoryRateSample?.value,
             respiratoryRateDate: await respiratoryRateSample?.date,
+            exerciseMinutes: await exerciseMinutesValue,
+            walkingRunningDistanceKM: await walkingDistanceValue,
+            cyclingDistanceKM: await cyclingDistanceValue,
+            flightsClimbed: await flightsClimbedValue,
+            walkingHeartRate: await walkingHeartRateSample?.value,
+            vo2Max: await vo2MaxSample?.value,
+            bodyFatPercentage: await bodyFatSample?.value,
+            leanBodyMassKG: await leanBodyMassSample?.value,
+            walkingSpeedMetersPerSecond: await walkingSpeedSample?.value,
+            walkingStepLengthCM: await walkingStepLengthSample?.value,
+            walkingAsymmetryPercentage: await walkingAsymmetrySample?.value,
             restingHeartRateBaseline: baselineValues.resting,
             hrvBaseline: baselineValues.hrv,
             sleepBaseline: baselineValues.sleep,
@@ -336,7 +358,10 @@ final class HealthKitStore: ObservableObject {
             ("Gångpuls", HKObjectType.quantityType(forIdentifier: .walkingHeartRateAverage)),
             ("VO₂ max", HKObjectType.quantityType(forIdentifier: .vo2Max)),
             ("Kroppsfett", HKObjectType.quantityType(forIdentifier: .bodyFatPercentage)),
-            ("Muskelmassa", HKObjectType.quantityType(forIdentifier: .leanBodyMass))
+            ("Muskelmassa", HKObjectType.quantityType(forIdentifier: .leanBodyMass)),
+            ("Gånghastighet", HKObjectType.quantityType(forIdentifier: .walkingSpeed)),
+            ("Steglängd", HKObjectType.quantityType(forIdentifier: .walkingStepLength)),
+            ("Gångasymmetri", HKObjectType.quantityType(forIdentifier: .walkingAsymmetryPercentage))
         ]
         var results: [HealthDataDiagnostic] = []
         for (title, type) in definitions {

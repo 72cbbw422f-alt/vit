@@ -43,6 +43,43 @@ final class HealthSnapshotMetricFormattingTests: XCTestCase {
         }
     }
 
+    func testNewActivityMetricsFormatWithExplicitUnits() {
+        var snapshot = HealthSnapshot.empty
+        snapshot.exerciseMinutes = 42
+        snapshot.walkingRunningDistanceKM = 3.25
+        snapshot.cyclingDistanceKM = 12.4
+        snapshot.flightsClimbed = 8
+        snapshot.walkingHeartRate = 102
+        snapshot.vo2Max = 41.6
+        snapshot.walkingSpeedMetersPerSecond = 1.24
+        snapshot.walkingStepLengthCM = 72
+        snapshot.walkingAsymmetryPercentage = 3.5
+
+        XCTAssertEqual(snapshot.exerciseMinutesText, "42 min")
+        XCTAssertTrue(snapshot.walkingRunningDistanceText.hasSuffix(" km"))
+        XCTAssertTrue(snapshot.cyclingDistanceText.hasSuffix(" km"))
+        XCTAssertEqual(snapshot.flightsClimbedText, "8 våningar")
+        XCTAssertEqual(snapshot.walkingHeartRateText, "102 bpm")
+        XCTAssertTrue(snapshot.vo2MaxText.hasSuffix(" ml/kg/min"))
+        XCTAssertTrue(snapshot.walkingSpeedText.hasSuffix(" m/s"))
+        XCTAssertEqual(snapshot.walkingStepLengthText, "72 cm")
+        XCTAssertTrue(snapshot.walkingAsymmetryText.hasSuffix(" %"))
+    }
+
+    func testBodyCompositionMetricsRejectMissingAndImplausibleValues() {
+        var snapshot = HealthSnapshot.empty
+        XCTAssertEqual(snapshot.bodyFatText, "—")
+        XCTAssertEqual(snapshot.leanBodyMassText, "—")
+        snapshot.bodyFatPercentage = 22.5
+        snapshot.leanBodyMassKG = 68.4
+        XCTAssertTrue(snapshot.bodyFatText.hasSuffix(" %"))
+        XCTAssertTrue(snapshot.leanBodyMassText.hasSuffix(" kg"))
+        snapshot.bodyFatPercentage = 90
+        snapshot.leanBodyMassKG = .infinity
+        XCTAssertEqual(snapshot.bodyFatText, "—")
+        XCTAssertEqual(snapshot.leanBodyMassText, "—")
+    }
+
     func testCoreMetricsRejectNonFiniteAndOutOfRangeValues() {
         var snapshot = HealthSnapshot.empty
         snapshot.sleepDuration = .infinity

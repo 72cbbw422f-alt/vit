@@ -537,8 +537,34 @@ private struct HealthOverviewView: View {
                             }
                         }
 
-                        healthSectionLabel("KROPP & UTVECKLING", detail: "Vikt och personlig uppföljning")
+                        healthSectionLabel("RÖRELSE & KAPACITET", detail: "Aktivitet och gångförmåga")
+                        VITALCard {
+                            LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], alignment: .leading, spacing: 12) {
+                                HealthValueTile(title: "Träningstid idag", value: health.snapshot.exerciseMinutesText, tint: VITALPalette.teal)
+                                HealthValueTile(title: "Gång & löpning idag", value: health.snapshot.walkingRunningDistanceText, tint: VITALPalette.teal)
+                                HealthValueTile(title: "Cykling idag", value: health.snapshot.cyclingDistanceText, tint: VITALPalette.teal)
+                                HealthValueTile(title: "Trappor idag", value: health.snapshot.flightsClimbedText, tint: VITALPalette.teal)
+                                HealthValueTile(title: "Gångpuls", value: health.snapshot.walkingHeartRateText, tint: VITALPalette.violet)
+                                HealthValueTile(title: "VO₂ max", value: health.snapshot.vo2MaxText, tint: VITALPalette.violet)
+                                HealthValueTile(title: "Gånghastighet", value: health.snapshot.walkingSpeedText, tint: VITALPalette.violet)
+                                HealthValueTile(title: "Steglängd", value: health.snapshot.walkingStepLengthText, tint: VITALPalette.violet)
+                                HealthValueTile(title: "Gångasymmetri", value: health.snapshot.walkingAsymmetryText, tint: VITALPalette.violet)
+                            }
+                            Text("Dagens aktivitet summeras från Apple Hälsa. Övriga värden visas när en kompatibel enhet har registrerat dem.")
+                                .font(.footnote).foregroundStyle(VITALPalette.muted)
+                        }
+
+                        healthSectionLabel("KROPP & UTVECKLING", detail: "Vikt, kroppssammansättning och personlig uppföljning")
                         weightCard
+                        VITALCard {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("KROPPSAMMANSÄTTNING").font(.vital(size: 12, weight: .heavy)).tracking(0.9).foregroundStyle(VITALPalette.muted)
+                                LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], alignment: .leading, spacing: 12) {
+                                    HealthValueTile(title: "Kroppsfett", value: health.snapshot.bodyFatText, tint: VITALPalette.violet)
+                                    HealthValueTile(title: "Fettfri massa", value: health.snapshot.leanBodyMassText, tint: VITALPalette.violet)
+                                }
+                            }
+                        }
                         progressPhotosCard
 
                         healthSectionLabel("LÄKEMEDEL & UPPFÖLJNING", detail: "Doshistorik, upplevda besvär och påminnelser")

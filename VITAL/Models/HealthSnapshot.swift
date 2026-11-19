@@ -16,6 +16,17 @@ struct HealthSnapshot {
     /// Latest HealthKit respiratory rate in breaths per minute.
     var respiratoryRate: Double?
     var respiratoryRateDate: Date?
+    var exerciseMinutes: Double?
+    var walkingRunningDistanceKM: Double?
+    var cyclingDistanceKM: Double?
+    var flightsClimbed: Double?
+    var walkingHeartRate: Double?
+    var vo2Max: Double?
+    var bodyFatPercentage: Double?
+    var leanBodyMassKG: Double?
+    var walkingSpeedMetersPerSecond: Double?
+    var walkingStepLengthCM: Double?
+    var walkingAsymmetryPercentage: Double?
     var restingHeartRateBaseline: PersonalBaseline?
     var hrvBaseline: PersonalBaseline?
     var sleepBaseline: PersonalBaseline?
@@ -73,6 +84,50 @@ struct HealthSnapshot {
         guard let respiratoryRate, respiratoryRate.isFinite,
               (1...100).contains(respiratoryRate) else { return "—" }
         return "\(Int(respiratoryRate.rounded())) andetag/min"
+    }
+    var exerciseMinutesText: String {
+        guard let exerciseMinutes, exerciseMinutes.isFinite, (0...1440).contains(exerciseMinutes) else { return "—" }
+        return "\(Int(exerciseMinutes.rounded())) min"
+    }
+    var walkingRunningDistanceText: String {
+        guard let walkingRunningDistanceKM, walkingRunningDistanceKM.isFinite, (0...500).contains(walkingRunningDistanceKM) else { return "—" }
+        return walkingRunningDistanceKM.formatted(.number.precision(.fractionLength(1))) + " km"
+    }
+    var cyclingDistanceText: String {
+        guard let cyclingDistanceKM, cyclingDistanceKM.isFinite, (0...1000).contains(cyclingDistanceKM) else { return "—" }
+        return cyclingDistanceKM.formatted(.number.precision(.fractionLength(1))) + " km"
+    }
+    var flightsClimbedText: String {
+        guard let flightsClimbed, flightsClimbed.isFinite, (0...1000).contains(flightsClimbed) else { return "—" }
+        return "\(Int(flightsClimbed.rounded())) våningar"
+    }
+    var walkingHeartRateText: String {
+        guard let walkingHeartRate, walkingHeartRate.isFinite, (25...220).contains(walkingHeartRate) else { return "—" }
+        return "\(Int(walkingHeartRate.rounded())) bpm"
+    }
+    var vo2MaxText: String {
+        guard let vo2Max, vo2Max.isFinite, (5...100).contains(vo2Max) else { return "—" }
+        return vo2Max.formatted(.number.precision(.fractionLength(1))) + " ml/kg/min"
+    }
+    var bodyFatText: String {
+        guard let bodyFatPercentage, bodyFatPercentage.isFinite, (1...70).contains(bodyFatPercentage) else { return "—" }
+        return bodyFatPercentage.formatted(.number.precision(.fractionLength(1))) + " %"
+    }
+    var leanBodyMassText: String {
+        guard let leanBodyMassKG, leanBodyMassKG.isFinite, (1...250).contains(leanBodyMassKG) else { return "—" }
+        return leanBodyMassKG.formatted(.number.precision(.fractionLength(1))) + " kg"
+    }
+    var walkingSpeedText: String {
+        guard let walkingSpeedMetersPerSecond, walkingSpeedMetersPerSecond.isFinite, (0.1...5).contains(walkingSpeedMetersPerSecond) else { return "—" }
+        return walkingSpeedMetersPerSecond.formatted(.number.precision(.fractionLength(2))) + " m/s"
+    }
+    var walkingStepLengthText: String {
+        guard let walkingStepLengthCM, walkingStepLengthCM.isFinite, (10...200).contains(walkingStepLengthCM) else { return "—" }
+        return "\(Int(walkingStepLengthCM.rounded())) cm"
+    }
+    var walkingAsymmetryText: String {
+        guard let walkingAsymmetryPercentage, walkingAsymmetryPercentage.isFinite, (0...100).contains(walkingAsymmetryPercentage) else { return "—" }
+        return walkingAsymmetryPercentage.formatted(.number.precision(.fractionLength(1))) + " %"
     }
 }
 
