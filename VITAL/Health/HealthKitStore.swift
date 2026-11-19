@@ -15,11 +15,23 @@ struct BloodPressureTrendPoint: Identifiable {
     let diastolic: Double
 }
 
+struct HealthDataDiagnostic: Identifiable {
+    let title: String
+    let sampleCount: Int
+    let latestDate: Date?
+
+    var id: String { title }
+    var statusText: String {
+        sampleCount == 0 ? "Inga mätningar hittades" : "\(sampleCount) mätningar"
+    }
+}
+
 @MainActor
 final class HealthKitStore: ObservableObject {
     @Published private(set) var snapshot = HealthSnapshot.empty
     @Published private(set) var weightHistory: [HealthTrendPoint] = []
     @Published private(set) var bloodPressureHistory: [BloodPressureTrendPoint] = []
+    @Published private(set) var dataDiagnostics: [HealthDataDiagnostic] = []
     @Published private(set) var isAvailable = HKHealthStore.isHealthDataAvailable()
     @Published private(set) var authorizationRequested = false
     @Published private(set) var backgroundSleepDeliveryEnabled = false
@@ -51,6 +63,19 @@ final class HealthKitStore: ObservableObject {
         }
         // Optional metrics must never prevent access to core sleep and activity data.
         var readTypes: Set<HKObjectType> = [sleep, resting, hrv, heartRate, steps, energy, weight]
+        // Expand read access to common Apple Health metrics used for activity,
+        // cardiovascular trends and body composition. Unsupported types are skipped.
+        let additionalIdentifiers: [HKQuantityTypeIdentifier] = [
+            .appleExerciseTime, .distanceWalkingRunning, .distanceCycling,
+            .flightsClimbed, .walkingHeartRateAverage, .vo2Max,
+            .bodyFatPercentage, .leanBodyMass, .walkingSpeed,
+            .walkingStepLength, .walkingAsymmetryPercentage
+        ]
+        for identifier in additionalIdentifiers {
+            if let type = HKObjectType.quantityType(forIdentifier: identifier) {
+                readTypes.insert(type)
+            }
+        }
         let systolicType = HKObjectType.quantityType(forIdentifier: .bloodPressureSystolic)
         let diastolicType = HKObjectType.quantityType(forIdentifier: .bloodPressureDiastolic)
         // Blood pressure correlations are queried as a paired sample below,
@@ -130,6 +155,7 @@ final class HealthKitStore: ObservableObject {
         async let historicalWeight = historicalWeightSamples()
         async let historicalBloodPressure = historicalBloodPressureSamples()
         async let respiratoryRateSample = latestQuantitySample(.respiratoryRate, unit: HKUnit.count().unitDivided(by: .minute()))
+        async let diagnostics = loadDataDiagnostics()
         async let baselines = loadPersonalBaselines(asOf: now)
 
         let baselineValues = await baselines
@@ -182,6 +208,7 @@ final class HealthKitStore: ObservableObject {
         snapshot = updatedSnapshot
         weightHistory = await historicalWeight
         bloodPressureHistory = await historicalBloodPressure
+        dataDiagnostics = await diagnostics
         // New scheduled morning/evening reports are intentionally disabled.
         // Previously saved report history remains available and is loaded unchanged.
         isRefreshing = false
@@ -278,6 +305,65 @@ final class HealthKitStore: ObservableObject {
               let data = try? JSONEncoder().encode(reportArchive) else { return }
         UserDefaults.standard.set(data, forKey: reportArchiveKey)
         reportHistory = Array(reportArchive.snapshots.reversed())
+    }
+
+    /// Counts recent samples per HealthKit type so an empty UI value can be
+    /// investigated instead of silently appearing as a dash.
+    private func loadDataDiagnostics() async -> [HealthDataDiagnostic] {
+        let definitions: [(String, HKObjectType?)] = [
+            ("Sömn", HKObjectType.categoryType(forIdentifier: .sleepAnalysis)),
+            ("Steg", HKObjectType.quantityType(forIdentifier: .stepCount)),
+            ("Aktiv energi", HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)),
+            ("Vilopuls", HKObjectType.quantityType(forIdentifier: .restingHeartRate)),
+            ("Puls", HKObjectType.quantityType(forIdentifier: .heartRate)),
+            ("HRV", HKObjectType.quantityType(forIdentifier: .heartRateVariabilitySDNN)),
+            ("Vikt", HKObjectType.quantityType(forIdentifier: .bodyMass)),
+            ("Blodtryck", HKObjectType.correlationType(forIdentifier: .bloodPressure)),
+            ("Andningsfrekvens", HKObjectType.quantityType(forIdentifier: .respiratoryRate)),
+            ("Träningstid", HKObjectType.quantityType(forIdentifier: .appleExerciseTime)),
+            ("Gång- och löpdistans", HKObjectType.quantityType(forIdentifier: .distanceWalkingRunning)),
+            ("Cykeldistans", HKObjectType.quantityType(forIdentifier: .distanceCycling)),
+            ("Trappor", HKObjectType.quantityType(forIdentifier: .flightsClimbed)),
+            ("Gångpuls", HKObjectType.quantityType(forIdentifier: .walkingHeartRateAverage)),
+            ("VO₂ max", HKObjectType.quantityType(forIdentifier: .vo2Max)),
+            ("Kroppsfett", HKObjectType.quantityType(forIdentifier: .bodyFatPercentage)),
+            ("Muskelmassa", HKObjectType.quantityType(forIdentifier: .leanBodyMass))
+        ]
+        return await withTaskGroup(of: HealthDataDiagnostic.self) { group in
+            for (title, type) in definitions {
+                group.addTask { [weak self] in
+                    guard let self, let type else {
+                        return HealthDataDiagnostic(title: title, sampleCount: 0, latestDate: nil)
+                    }
+                    return await self.countRecentSamples(title: title, type: type)
+                }
+            }
+            var results: [HealthDataDiagnostic] = []
+            for await result in group { results.append(result) }
+            return results.sorted { $0.title < $1.title }
+        }
+    }
+
+    private func countRecentSamples(title: String, type: HKSampleType) async -> HealthDataDiagnostic {
+        let end = Date()
+        let start = Calendar.current.date(byAdding: .day, value: -30, to: end) ?? end
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end)
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit,
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { _, samples, error in
+                    if error != nil {
+                        continuation.resume(returning: HealthDataDiagnostic(title: title, sampleCount: 0, latestDate: nil))
+                        return
+                    }
+                    let values = samples ?? []
+                    continuation.resume(returning: HealthDataDiagnostic(
+                        title: title,
+                        sampleCount: values.count,
+                        latestDate: values.first?.endDate
+                    ))
+                }
+            store.execute(query)
+        }
     }
 
     private func recordQueryError(_ error: Error, context: String) {
