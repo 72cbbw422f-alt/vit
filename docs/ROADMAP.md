@@ -525,3 +525,12 @@ Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa 
 - [x] Filtrera bort ogiltiga och icke-positiva mätvärden
 - [ ] Verifiera historikfrågorna och jämförelsen med verkliga HealthKit-data på iPhone
 - [ ] Godkänna full CI efter korrigeringen
+
+
+## Uppdatering 2026-11-19 – Blodtryckskvalitet
+- [x] Validera att HealthKit-korrelationen innehåller både övertryck och undertryck
+- [x] Filtrera bort ogiltiga, icke-ändliga och orimliga blodtryckspar från historiken
+- [x] Välj senaste giltiga blodtryckskorrelation i stället för att låsa fast vid en ogiltig senaste post
+- [x] Dela samma defensiva valideringsregel mellan hämtning och presentation
+- [ ] Verifiera senaste värde och historik mot faktiska HealthKit-poster på fysisk iPhone
+- [ ] Kör och godkänn fullständig CI

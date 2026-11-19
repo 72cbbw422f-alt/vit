@@ -1,5 +1,15 @@
 import Foundation
 
+enum BloodPressureReadingValidator {
+    /// Defensive data-quality bounds for imported HealthKit pairs, not clinical thresholds.
+    static func isValid(systolic: Double, diastolic: Double) -> Bool {
+        systolic.isFinite && diastolic.isFinite &&
+        (60...260).contains(systolic) &&
+        (30...160).contains(diastolic) &&
+        systolic > diastolic
+    }
+}
+
 struct HealthSnapshot {
     var sleepDuration: TimeInterval?
     var restingHeartRate: Double?
@@ -84,10 +94,7 @@ struct HealthSnapshot {
     }
     var bloodPressureText: String {
         guard let systolicBloodPressure, let diastolicBloodPressure,
-              systolicBloodPressure.isFinite, diastolicBloodPressure.isFinite,
-              systolicBloodPressure > diastolicBloodPressure,
-              (60...260).contains(systolicBloodPressure),
-              (30...160).contains(diastolicBloodPressure) else { return "—" }
+              BloodPressureReadingValidator.isValid(systolic: systolicBloodPressure, diastolic: diastolicBloodPressure) else { return "—" }
         return "\(Int(systolicBloodPressure.rounded()))/\(Int(diastolicBloodPressure.rounded()))"
     }
     var respiratoryRateText: String {

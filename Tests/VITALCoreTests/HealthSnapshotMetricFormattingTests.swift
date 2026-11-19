@@ -26,6 +26,15 @@ final class HealthSnapshotMetricFormattingTests: XCTestCase {
         XCTAssertEqual(snapshot.bloodPressureText, "—")
     }
 
+    func testBloodPressureValidatorRejectsInvalidHealthKitPairs() {
+        XCTAssertTrue(BloodPressureReadingValidator.isValid(systolic: 122, diastolic: 78))
+        XCTAssertFalse(BloodPressureReadingValidator.isValid(systolic: 78, diastolic: 122))
+        XCTAssertFalse(BloodPressureReadingValidator.isValid(systolic: .nan, diastolic: 70))
+        XCTAssertFalse(BloodPressureReadingValidator.isValid(systolic: 120, diastolic: .infinity))
+        XCTAssertFalse(BloodPressureReadingValidator.isValid(systolic: 261, diastolic: 80))
+        XCTAssertFalse(BloodPressureReadingValidator.isValid(systolic: 120, diastolic: 161))
+    }
+
     func testMissingOrInvalidValuesRemainUnavailable() {
         var snapshot = HealthSnapshot.empty
         XCTAssertEqual(snapshot.respiratoryRateText, "—")

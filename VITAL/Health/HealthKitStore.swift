@@ -596,10 +596,13 @@ final class HealthKitStore: ObservableObject {
                     let values = ((samples as? [HKCorrelation]) ?? []).compactMap { correlation -> BloodPressureTrendPoint? in
                         guard let systolic = correlation.objects(for: systolicType).first as? HKQuantitySample,
                               let diastolic = correlation.objects(for: diastolicType).first as? HKQuantitySample else { return nil }
+                        let systolicValue = systolic.quantity.doubleValue(for: unit)
+                        let diastolicValue = diastolic.quantity.doubleValue(for: unit)
+                        guard BloodPressureReadingValidator.isValid(systolic: systolicValue, diastolic: diastolicValue) else { return nil }
                         return BloodPressureTrendPoint(
                             date: correlation.endDate,
-                            systolic: systolic.quantity.doubleValue(for: unit),
-                            diastolic: diastolic.quantity.doubleValue(for: unit)
+                            systolic: systolicValue,
+                            diastolic: diastolicValue
                         )
                     }
                     continuation.resume(returning: values)
@@ -613,25 +616,23 @@ final class HealthKitStore: ObservableObject {
               let systolicType = HKObjectType.quantityType(forIdentifier: .bloodPressureSystolic),
               let diastolicType = HKObjectType.quantityType(forIdentifier: .bloodPressureDiastolic) else { return nil }
         return await withCheckedContinuation { continuation in
-            let query = HKSampleQuery(sampleType: correlationType, predicate: nil, limit: 1,
+            let query = HKSampleQuery(sampleType: correlationType, predicate: nil, limit: HKObjectQueryNoLimit,
                 sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { [weak self] _, samples, error in
                     if let error {
                         Task { @MainActor [weak self] in self?.recordQueryError(error, context: "Blodtrycksdata") }
                         continuation.resume(returning: nil)
                         return
                     }
-                    guard let correlation = samples?.first as? HKCorrelation,
-                          let systolic = correlation.objects(for: systolicType).first as? HKQuantitySample,
-                          let diastolic = correlation.objects(for: diastolicType).first as? HKQuantitySample else {
-                        continuation.resume(returning: nil)
-                        return
-                    }
                     let unit = HKUnit.millimeterOfMercury()
-                    continuation.resume(returning: (
-                        systolic.quantity.doubleValue(for: unit),
-                        diastolic.quantity.doubleValue(for: unit),
-                        correlation.endDate
-                    ))
+                    let latestValid = ((samples as? [HKCorrelation]) ?? []).compactMap { correlation -> (systolic: Double, diastolic: Double, date: Date)? in
+                        guard let systolic = correlation.objects(for: systolicType).first as? HKQuantitySample,
+                              let diastolic = correlation.objects(for: diastolicType).first as? HKQuantitySample else { return nil }
+                        let systolicValue = systolic.quantity.doubleValue(for: unit)
+                        let diastolicValue = diastolic.quantity.doubleValue(for: unit)
+                        guard BloodPressureReadingValidator.isValid(systolic: systolicValue, diastolic: diastolicValue) else { return nil }
+                        return (systolicValue, diastolicValue, correlation.endDate)
+                    }.first
+                    continuation.resume(returning: latestValid)
                 }
             store.execute(query)
         }

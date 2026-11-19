@@ -771,3 +771,11 @@ Efter denna körning togs överbliven, oanvänd kvällsrapport-state och rapport
 - Lägg till faktiska historiska HealthKit-sampel för HRV och vilopuls, med 30 dagars tidsfönster och validering av positiva, ändliga värden.
 - Koppla historikfrågorna till den vanliga uppdateringscykeln så veckojämförelsen får verkliga mätpunkter.
 - Ingen syntetisk data eller uppskattning används; tom historik förblir tom.
+
+
+## 2026-11-19 – Validering av blodtryckspar från HealthKit
+- Granskning visade att senaste blodtryckshämtningen endast frågade efter den allra senaste korrelationen. Om den var ofullständig eller innehöll orimliga värden kunde ett äldre giltigt värde döljas.
+- Senaste blodtryck väljer nu den senaste giltiga kompletta korrelationen i stället för att stanna vid en ogiltig post.
+- Historiken filtrerar bort ofullständiga par, icke-ändliga värden, värden utanför defensiva datakvalitetsgränser och par där övertrycket inte överstiger undertrycket.
+- Samma valideringsregel används av presentationen och täcks av nya enhetstester. Gränserna är tekniska skydd mot felaktig/importerad data, inte medicinska referensvärden.
+- Full CI krävs innan ändringen betraktas som verifierad.
