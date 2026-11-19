@@ -10,7 +10,7 @@
 <key>LSRequiresIPhoneOS</key><true/>
 <key>MinimumOSVersion</key><string>17.0</string>
 <key>CFBundleDisplayName</key><string>VITAL</string>
-<key>NSHealthShareUsageDescription</key><string>VITAL läser hälsodata från Apple Hälsa för att visa sömn, puls, HRV och aktivitet.</string>
+<key>NSHealthShareUsageDescription</key><string>VITAL läser relevanta hälsodata från Apple Hälsa, till exempel sömn, puls, HRV, aktivitet, vikt och kroppssammansättning, för att visa din personliga hälsöversikt.</string>
 <key>UILaunchScreen</key><dict/>
 <key>UIUserInterfaceStyle</key><string>Dark</string>
 </dict></plist>
