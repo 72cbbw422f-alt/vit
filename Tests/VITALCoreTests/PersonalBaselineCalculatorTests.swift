@@ -62,4 +62,58 @@ final class PersonalBaselineCalculatorTests: XCTestCase {
         XCTAssertFalse(result.isReady)
         XCTAssertNil(result.median)
     }
+
+    func testTrendComparisonUsesAdjacentSevenDayMedians() {
+        let end = day(20)
+        let samples = [
+            DailyBaselineSample(day: day(7), value: 50),
+            DailyBaselineSample(day: day(8), value: 60),
+            DailyBaselineSample(day: day(9), value: 70),
+            DailyBaselineSample(day: day(14), value: 70),
+            DailyBaselineSample(day: day(15), value: 80),
+            DailyBaselineSample(day: day(16), value: 90)
+        ]
+        let result = TrendComparisonCalculator.compare(samples: samples, endDate: end, periodDays: 7)
+        XCTAssertEqual(result.previousMedian, 60)
+        XCTAssertEqual(result.recentMedian, 80)
+        XCTAssertEqual(result.changePercent ?? 0, 100.0 / 3.0, accuracy: 0.0001)
+        XCTAssertEqual(result.previousSampleCount, 3)
+        XCTAssertEqual(result.recentSampleCount, 3)
+    }
+
+    func testTrendComparisonRequiresTwoSamplesInEachPeriod() {
+        let end = day(20)
+        let samples = [
+            DailyBaselineSample(day: day(14), value: 70),
+            DailyBaselineSample(day: day(15), value: 80),
+            DailyBaselineSample(day: day(7), value: 60)
+        ]
+        let result = TrendComparisonCalculator.compare(samples: samples, endDate: end)
+        XCTAssertFalse(result.hasEnoughData)
+        XCTAssertNil(result.changePercent)
+        XCTAssertEqual(result.recentSampleCount, 2)
+        XCTAssertEqual(result.previousSampleCount, 1)
+    }
+
+    func testTrendComparisonIgnoresInvalidValuesAndPeriodBoundaries() {
+        let end = day(20)
+        let samples = [
+            DailyBaselineSample(day: day(6), value: 100),
+            DailyBaselineSample(day: day(7), value: 40),
+            DailyBaselineSample(day: day(8), value: .nan),
+            DailyBaselineSample(day: day(9), value: -1),
+            DailyBaselineSample(day: day(14), value: 60),
+            DailyBaselineSample(day: day(15), value: 80)
+        ]
+        let result = TrendComparisonCalculator.compare(samples: samples, endDate: end)
+        XCTAssertEqual(result.previousSampleCount, 1)
+        XCTAssertEqual(result.recentSampleCount, 2)
+        XCTAssertFalse(result.hasEnoughData)
+    }
+
+    func testTrendComparisonHandlesZeroPreviousMedianSafely() {
+        let comparison = TrendComparison(recentMedian: 10, previousMedian: 0, recentSampleCount: 2, previousSampleCount: 2)
+        XCTAssertNil(comparison.changePercent)
+    }
+
 }

@@ -725,3 +725,12 @@ Efter denna körning togs överbliven, oanvänd kvällsrapport-state och rapport
 - Rotorsak identifierad i `RootView.swift`: hjälpfunktionen för mättidsstämpel hade den ogiltiga deklarationen `private private func`.
 - Korrigerar deklarationen till en enda `private`-modifierare. Ingen IPA från denna misslyckade körning finns att testa.
 - Ny fullständig CI krävs innan bygget betraktas som verifierat.
+
+
+## 2026-11-19 – Veckojämförelse av HRV och vilopuls
+- Lagt till en gemensam jämförelsemodell som räknar median för två intilliggande sjudagarsperioder.
+- Senaste veckan jämförs med föregående vecka. Perioderna använder faktiska sample-tidsstämplar.
+- Minst två mätningar krävs i respektive period. Om underlaget inte räcker visas det uttryckligen; ingen uppskattning görs.
+- UI visar neutral procentuell skillnad och båda periodernas medianer. En högre eller lägre nivå märks inte automatiskt som bra eller dålig.
+- Fyra tester har lagts till för medianer, minsta datamängd, periodgränser/ogiltiga värden och division med noll.
+- Full CI krävs innan funktionen betraktas som byggverifierad.

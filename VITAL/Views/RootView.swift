@@ -156,6 +156,17 @@ private struct InsightsView: View {
                             InsightMetric(title: "HRV", value: health.snapshot.hrvText, symbol: "waveform.path", tint: VITALPalette.teal)
                         }
                         VITALCard {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Label("Veckojämförelse", systemImage: "arrow.left.arrow.right")
+                                    .font(.headline).foregroundStyle(VITALPalette.cloud)
+                                trendComparisonRow(title: "HRV", comparison: trendComparison(for: health.hrvHistory), suffix: "ms")
+                                Divider().overlay(VITALPalette.track)
+                                trendComparisonRow(title: "Vilopuls", comparison: trendComparison(for: health.restingHeartRateHistory), suffix: "slag/min")
+                                Text("Median av registrerade mätningar: senaste 7 dagarna jämfört med föregående 7 dagar. Minst två mätningar krävs i varje period. Förändringen är en beskrivning, inte en medicinsk bedömning.")
+                                    .font(.footnote).foregroundStyle(VITALPalette.muted)
+                            }
+                        }
+                        VITALCard {
                             VStack(alignment: .leading, spacing: 10) {
                                 Label("Din normala nivå", systemImage: "person.crop.circle")
                                     .font(.headline).foregroundStyle(VITALPalette.cloud)
@@ -174,6 +185,35 @@ private struct InsightsView: View {
             .toolbar(.hidden, for: .navigationBar)
         }
     }
+    private func trendComparison(for points: [HealthTrendPoint]) -> TrendComparison {
+        let samples = points.map { DailyBaselineSample(day: $0.date, value: $0.value) }
+        return TrendComparisonCalculator.compare(samples: samples, endDate: Date())
+    }
+
+    private func trendComparisonRow(title: String, comparison: TrendComparison, suffix: String) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack {
+                Text(title).font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.cloud)
+                Spacer()
+                if let change = comparison.changePercent {
+                    let sign = change > 0 ? "+" : ""
+                    Text("\(sign)\(String(format: "%.1f", change)) %")
+                        .font(.subheadline.weight(.semibold).monospacedDigit())
+                        .foregroundStyle(VITALPalette.teal)
+                } else {
+                    Text("Otillräckligt underlag").font(.footnote).foregroundStyle(VITALPalette.amber)
+                }
+            }
+            if let recent = comparison.recentMedian, let previous = comparison.previousMedian {
+                Text("Median \(String(format: "%.1f", recent)) \(suffix) · föregående \(String(format: "%.1f", previous)) \(suffix)")
+                    .font(.footnote).foregroundStyle(VITALPalette.muted)
+            } else {
+                Text("Senaste period: \(comparison.recentSampleCount) · föregående: \(comparison.previousSampleCount) mätningar")
+                    .font(.footnote).foregroundStyle(VITALPalette.muted)
+            }
+        }
+    }
+
     private func baselineValueRow(_ title: String, value: Double?, suffix: String, decimals: Int) -> some View {
         HStack {
             Text(title).foregroundStyle(VITALPalette.muted)

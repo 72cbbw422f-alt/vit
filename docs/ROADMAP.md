@@ -485,3 +485,11 @@ Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa 
 ## Korrigering 2026-11-19 – Swift-kompilering
 - [x] Rätta dubblerad `private`-modifierare i hjälpfunktionen för HealthKit-tidsstämplar.
 - [ ] Kör om fullständig CI: tester, simulatorbygge, enhetsarkiv och IPA-paketering.
+
+
+## Uppdatering 2026-11-19 – Veckojämförelse i Insikter
+- [x] Jämföra medianvärde för senaste 7 dagarna med föregående 7 dagar för HRV och vilopuls
+- [x] Kräva minst två verkliga mätningar i båda perioderna
+- [x] Visa antal mätningar och neutral procentuell förändring utan medicinsk värdering
+- [x] Lägga till tester för periodgränser, ogiltiga värden och otillräckligt underlag
+- [ ] Verifiera jämförelse och tidsfönster med verklig HealthKit-data på iPhone
