@@ -529,10 +529,11 @@ private struct HealthOverviewView: View {
                         VITALCard {
                             VStack(alignment: .leading, spacing: 14) {
                                 HealthValueTile(title: "Andningsfrekvens", value: health.snapshot.respiratoryRateText, tint: VITALPalette.violet)
-                                    .gridCellColumns(2)
+                                HealthValueTile(title: "Syremättnad", value: health.snapshot.oxygenSaturationText, tint: VITALPalette.violet)
+                                HealthValueTile(title: "Handledstemperatur", value: health.snapshot.sleepingWristTemperatureText, tint: VITALPalette.violet)
                                 Text(health.snapshot.respiratoryRateDate.map { "Senaste mätning: \($0.formatted(date: .abbreviated, time: .shortened))" } ?? "Ingen registrerad mätning från Apple Hälsa")
                                     .font(.footnote).foregroundStyle(VITALPalette.muted)
-                                Text("Senaste registrerade mätning från Apple Hälsa – inte nödvändigtvis ett realtidsvärde.")
+                                Text("Värdena är senaste registrerade mätningar från Apple Hälsa – inte nödvändigtvis realtidsvärden. Handledstemperatur visas som avvikelse från din personliga baslinje, inte som kroppstemperatur.")
                                     .font(.footnote).foregroundStyle(VITALPalette.muted)
                             }
                         }

@@ -43,6 +43,29 @@ final class HealthSnapshotMetricFormattingTests: XCTestCase {
         }
     }
 
+    func testOxygenSaturationFormatsAsPercentageAndRejectsInvalidValues() {
+        var snapshot = HealthSnapshot.empty
+        XCTAssertEqual(snapshot.oxygenSaturationText, "—")
+        snapshot.oxygenSaturation = 98.2
+        XCTAssertEqual(snapshot.oxygenSaturationText, "98 %")
+        snapshot.oxygenSaturation = 0.98
+        XCTAssertEqual(snapshot.oxygenSaturationText, "—")
+        snapshot.oxygenSaturation = .nan
+        XCTAssertEqual(snapshot.oxygenSaturationText, "—")
+    }
+
+    func testSleepingWristTemperatureIsDisplayedAsBaselineDeviation() {
+        var snapshot = HealthSnapshot.empty
+        XCTAssertEqual(snapshot.sleepingWristTemperatureText, "—")
+        snapshot.sleepingWristTemperatureDeviationCelsius = 0.37
+        XCTAssertTrue(snapshot.sleepingWristTemperatureText.hasPrefix("+"))
+        XCTAssertTrue(snapshot.sleepingWristTemperatureText.hasSuffix(" °C"))
+        snapshot.sleepingWristTemperatureDeviationCelsius = -0.24
+        XCTAssertTrue(snapshot.sleepingWristTemperatureText.hasPrefix("-"))
+        snapshot.sleepingWristTemperatureDeviationCelsius = 8
+        XCTAssertEqual(snapshot.sleepingWristTemperatureText, "—")
+    }
+
     func testNewActivityMetricsFormatWithExplicitUnits() {
         var snapshot = HealthSnapshot.empty
         snapshot.exerciseMinutes = 42
