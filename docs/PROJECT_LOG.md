@@ -813,3 +813,12 @@ Efter denna körning togs överbliven, oanvänd kvällsrapport-state och rapport
 - REM, djup, kärna och ospecificerad sömn skickas till SleepStageCalculator; vaken- och i-säng-kategorier räknas inte som sovtid.
 - Sammanfattningen begränsas till överlappande sampel inom den valda huvudsömnens start- och sluttid och lagras i HealthSnapshot.
 - Ingen ny graf eller poäng visas ännu. HealthKit-data måste verifieras på fysisk iPhone innan stadiefördelningen används i användargränssnitt eller återhämtningsmodell.
+
+
+## 2026-11-19 – Sömnkvalitetens beräkningskärna
+- Implementerat sömneffektivitet som endast beräknas när ett verkligt inBed-intervall täcker hela sömnperioden.
+- Implementerat sömnregelbundenhet med cirkulär klocktidsvariation; 23:50 och 00:10 behandlas som närliggande tider.
+- Kräver minst fem giltiga nätter och redovisar variation i minuter, inte en konstruerad hälsopoäng.
+- HealthSnapshot förbereds för sammanfattningarna. HealthKit-koppling och UI-visning återstår.
+- Tester täcker intervallens täckning, ogiltiga data, midnatt och dagssömn.
+- Full CI krävs innan ändringen betraktas som verifierad.

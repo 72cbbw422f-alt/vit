@@ -13,6 +13,8 @@ enum BloodPressureReadingValidator {
 struct HealthSnapshot {
     var sleepDuration: TimeInterval?
     var sleepStageSummary: SleepStageSummary? = nil
+    var sleepEfficiency: SleepEfficiencySummary? = nil
+    var sleepRegularity: SleepRegularitySummary? = nil
     var restingHeartRate: Double?
     var hrv: Double?
     var overnightHRV: Double?

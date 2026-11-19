@@ -570,3 +570,11 @@ Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa 
 - [x] Begränsa stadiesammanfattningen till den valda huvudsömnens tidsfönster.
 - [x] Lagra sammanfattningen i HealthSnapshot för kommande UI-visning.
 - [ ] Validera kategorier, källöverlapp och faktisk täckningsgrad på fysisk iPhone.
+
+
+## Uppdatering 2026-11-19 – Sömnkvalitetens beräkningskärna
+- [x] Sömneffektivitet kräver ett registrerat inBed-intervall som täcker hela den valda sömnperioden.
+- [x] Sömnregelbundenhet beräknas med cirkulär klocktidsvariation och hanterar tider över midnatt.
+- [x] Minst fem giltiga nätter krävs; dagssömn hanteras utan nattantaganden.
+- [x] Tester för saknad/ofullständig sängtidsdata, ogiltiga intervall, midnatt och skiftarbete.
+- [ ] Koppla beräkningarna till HealthKit och verifiera på fysisk iPhone.
