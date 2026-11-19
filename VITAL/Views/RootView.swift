@@ -1791,7 +1791,7 @@ private struct InsightMetric: View {
         }
     }
 }
-private private func healthSampleDateDetail(_ date: Date?) -> String {
+private func healthSampleDateDetail(_ date: Date?) -> String {
     guard let date else { return "Ingen registrerad mätning" }
     return "Senast: " + date.formatted(date: .abbreviated, time: .shortened)
 }

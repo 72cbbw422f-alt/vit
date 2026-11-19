@@ -480,3 +480,8 @@ Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa 
 - [x] Visa senaste mättid direkt på respektive måttkort i Hälsa
 - [x] Visa tydligt när ett kompletterande mått saknar registrerad mätning
 - [ ] Granska kortens läsbarhet och datumformat på fysisk iPhone
+
+
+## Korrigering 2026-11-19 – Swift-kompilering
+- [x] Rätta dubblerad `private`-modifierare i hjälpfunktionen för HealthKit-tidsstämplar.
+- [ ] Kör om fullständig CI: tester, simulatorbygge, enhetsarkiv och IPA-paketering.

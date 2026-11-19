@@ -718,3 +718,10 @@ Efter denna körning togs överbliven, oanvänd kvällsrapport-state och rapport
 - Hälsovyn visar nu senaste mättid per kort i stället för att en enda tidsstämpel får representera flera olika mätningar.
 - Saknade sampel får texten ”Ingen registrerad mätning”; ingen tidsstämpel konstrueras.
 - Nästa verifiering: CI för denna ändring och visuell kontroll på fysisk iPhone.
+
+
+## 2026-11-19 – CI-fel och korrigering
+- CI-körning `44477437565` misslyckades i steget ”Build iOS Simulator target”; kärntesterna passerade men simulatorbygge och efterföljande arkiv/IPA-steg kördes inte.
+- Rotorsak identifierad i `RootView.swift`: hjälpfunktionen för mättidsstämpel hade den ogiltiga deklarationen `private private func`.
+- Korrigerar deklarationen till en enda `private`-modifierare. Ingen IPA från denna misslyckade körning finns att testa.
+- Ny fullständig CI krävs innan bygget betraktas som verifierat.
