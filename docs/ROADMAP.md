@@ -553,3 +553,12 @@ Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa 
 - [x] Kräva minst 14 giltiga nätter via den gemensamma personliga baslinjekalkylatorn
 - [ ] Verifiera nattpulsserier och återhämtningspoäng mot verkliga HealthKit-data på fysisk iPhone
 - [ ] Full CI-verifiering av ändringen
+
+
+## Nästa tekniska steg – sömnstadier
+- [x] Ta fram en fristående beräkningsmodell för REM, djup-, kärn- och ospecificerad sömn.
+- [x] Dela tidslinjen vid varje sampelgräns så överlapp aldrig dubbelräknas.
+- [x] Prioritera specifika stadier framför ospecificerad sömn vid källöverlapp.
+- [x] Lägga till tester för stadiefördelning, överlapp, dubbletter och saknad stadieinformation.
+- [ ] Koppla sammanfattningen till HealthKitStore och HealthSnapshot.
+- [ ] Verifiera HealthKit-kategorier och källkonflikter med data från fysisk iPhone.

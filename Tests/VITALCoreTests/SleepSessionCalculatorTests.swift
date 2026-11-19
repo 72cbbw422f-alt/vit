@@ -118,3 +118,63 @@ final class SleepSessionCalculatorTests: XCTestCase {
         XCTAssertNil(SleepSessionCalculator.latestSessionDuration(intervals: []))
     }
 }
+
+
+final class SleepStageCalculatorTests: XCTestCase {
+    private func date(_ day: Int, _ hour: Int, _ minute: Int = 0) -> Date {
+        Calendar(identifier: .gregorian).date(from: DateComponents(year: 2026, month: 11, day: day, hour: hour, minute: minute))!
+    }
+
+    func testSummarizesDistinctStagesWithoutOverlap() {
+        let result = SleepStageCalculator.summarize([
+            SleepStageInterval(start: date(14, 22), end: date(14, 23), stage: .core),
+            SleepStageInterval(start: date(14, 23), end: date(15, 0), stage: .deep),
+            SleepStageInterval(start: date(15, 0), end: date(15, 1), stage: .rem)
+        ])
+        XCTAssertEqual(result.totalAsleep, 3 * 3600)
+        XCTAssertEqual(result.core, 3600)
+        XCTAssertEqual(result.deep, 3600)
+        XCTAssertEqual(result.rem, 3600)
+        XCTAssertEqual(result.unspecified, 0)
+        XCTAssertEqual(result.stageCoverage, 1, accuracy: 0.0001)
+    }
+
+    func testMoreSpecificStageWinsOverlappingUnspecifiedInterval() {
+        let result = SleepStageCalculator.summarize([
+            SleepStageInterval(start: date(14, 22), end: date(15, 2), stage: .unspecified),
+            SleepStageInterval(start: date(14, 23), end: date(15, 0), stage: .deep),
+            SleepStageInterval(start: date(15, 0), end: date(15, 1), stage: .rem)
+        ])
+        XCTAssertEqual(result.totalAsleep, 4 * 3600)
+        XCTAssertEqual(result.unspecified, 2 * 3600)
+        XCTAssertEqual(result.deep, 3600)
+        XCTAssertEqual(result.rem, 3600)
+    }
+
+    func testDuplicateSamplesOfSameStageAreNotDoubleCounted() {
+        let result = SleepStageCalculator.summarize([
+            SleepStageInterval(start: date(14, 22), end: date(15, 1), stage: .core),
+            SleepStageInterval(start: date(14, 23), end: date(15, 0), stage: .core)
+        ])
+        XCTAssertEqual(result.totalAsleep, 3 * 3600)
+        XCTAssertEqual(result.core, 3 * 3600)
+    }
+
+    func testInvalidAndEmptyIntervalsProduceNoSleep() {
+        let result = SleepStageCalculator.summarize([
+            SleepStageInterval(start: date(14, 23), end: date(14, 22), stage: .rem)
+        ])
+        XCTAssertEqual(result.totalAsleep, 0)
+        XCTAssertFalse(result.hasStageData)
+        XCTAssertEqual(result.stageCoverage, 0)
+    }
+
+    func testUnspecifiedOnlyDataHasZeroStageCoverage() {
+        let result = SleepStageCalculator.summarize([
+            SleepStageInterval(start: date(14, 22), end: date(15, 6), stage: .unspecified)
+        ])
+        XCTAssertEqual(result.totalAsleep, 8 * 3600)
+        XCTAssertEqual(result.unspecified, 8 * 3600)
+        XCTAssertEqual(result.stageCoverage, 0)
+    }
+}

@@ -120,3 +120,79 @@ enum SleepSessionCalculator {
         latestSession(intervals: intervals, maximumWakeGap: maximumWakeGap)?.duration
     }
 }
+
+
+enum SleepStage: Int, CaseIterable {
+    case unspecified = 0
+    case core = 1
+    case deep = 2
+    case rem = 3
+
+    /// More specific stage data wins when HealthKit sources overlap.
+    var priority: Int {
+        switch self {
+        case .unspecified: 0
+        case .core: 1
+        case .deep: 2
+        case .rem: 3
+        }
+    }
+}
+
+struct SleepStageInterval {
+    let start: Date
+    let end: Date
+    let stage: SleepStage
+}
+
+struct SleepStageSummary: Equatable {
+    let totalAsleep: TimeInterval
+    let rem: TimeInterval
+    let deep: TimeInterval
+    let core: TimeInterval
+    let unspecified: TimeInterval
+
+    var classifiedDuration: TimeInterval { rem + deep + core }
+    var stageCoverage: Double {
+        guard totalAsleep > 0 else { return 0 }
+        return min(1, max(0, classifiedDuration / totalAsleep))
+    }
+    var hasStageData: Bool { totalAsleep > 0 }
+}
+
+enum SleepStageCalculator {
+    /// Partitions the timeline at every sample boundary. Each second is counted
+    /// once; overlapping samples resolve to the most specific available stage.
+    static func summarize(_ intervals: [SleepStageInterval]) -> SleepStageSummary {
+        let valid = intervals.filter { $0.end > $0.start }
+        let boundaries = Array(Set(valid.flatMap { [$0.start, $0.end] })).sorted()
+        guard boundaries.count > 1 else {
+            return SleepStageSummary(totalAsleep: 0, rem: 0, deep: 0, core: 0, unspecified: 0)
+        }
+
+        var totals: [SleepStage: TimeInterval] = [:]
+        for pair in zip(boundaries, boundaries.dropFirst()) {
+            let start = pair.0
+            let end = pair.1
+            let duration = end.timeIntervalSince(start)
+            guard duration > 0,
+                  let selected = valid
+                    .filter({ $0.start < end && $0.end > start })
+                    .map(\.stage)
+                    .max(by: { $0.priority < $1.priority }) else { continue }
+            totals[selected, default: 0] += duration
+        }
+
+        let rem = totals[.rem, default: 0]
+        let deep = totals[.deep, default: 0]
+        let core = totals[.core, default: 0]
+        let unspecified = totals[.unspecified, default: 0]
+        return SleepStageSummary(
+            totalAsleep: rem + deep + core + unspecified,
+            rem: rem,
+            deep: deep,
+            core: core,
+            unspecified: unspecified
+        )
+    }
+}

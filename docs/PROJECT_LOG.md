@@ -797,3 +797,12 @@ Efter denna körning togs överbliven, oanvänd kvällsrapport-state och rapport
 - Saknas nattliga pulssampel för en historisk natt räknas den natten inte som giltig baslinjedag.
 - Två nya tester täcker natt-till-natt-beräkning och frånvaro av sampel i sömnfönstret.
 - Ändringen inväntar full CI och därefter fysisk HealthKit-validering.
+
+
+## 2026-11-19 – Kärnmodell för sömnstadier
+- Lagt till en fristående SleepStageCalculator för REM, djupsömn, bassömn och ospecificerad sömn.
+- Tidslinjen delas vid varje start- och sluttid. Varje delintervall räknas högst en gång.
+- Vid överlapp vinner ett specificerat stadium över ospecificerad sömn; mellan specificerade stadier används en deterministisk prioritetsordning (REM, djup, kärna).
+- Sammanfattningen redovisar total sömntid, respektive stadietid och täckningsgrad för specificerade stadier.
+- Fem nya tester täcker vanlig stadiefördelning, blandning av specificerad/ospecificerad sömn, dubbla sampel, ogiltiga intervall och endast ospecificerad data.
+- Detta är nu en testbar kärnmodell. HealthKitStore och gränssnittet använder ännu inte sammanfattningen; ingen stadiefördelning visas i appen förrän integration och fysisk datavalidering är genomförda.
