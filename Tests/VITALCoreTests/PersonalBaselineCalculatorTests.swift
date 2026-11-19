@@ -73,7 +73,7 @@ final class PersonalBaselineCalculatorTests: XCTestCase {
             DailyBaselineSample(day: day(15), value: 80),
             DailyBaselineSample(day: day(16), value: 90)
         ]
-        let result = TrendComparisonCalculator.compare(samples: samples, endDate: end, periodDays: 7)
+        let result = TrendComparisonCalculator.compare(samples: samples, endDate: end, periodDays: 7, calendar: calendar)
         XCTAssertEqual(result.previousMedian, 60)
         XCTAssertEqual(result.recentMedian, 80)
         XCTAssertEqual(result.changePercent ?? 0, 100.0 / 3.0, accuracy: 0.0001)
@@ -88,7 +88,7 @@ final class PersonalBaselineCalculatorTests: XCTestCase {
             DailyBaselineSample(day: day(15), value: 80),
             DailyBaselineSample(day: day(7), value: 60)
         ]
-        let result = TrendComparisonCalculator.compare(samples: samples, endDate: end)
+        let result = TrendComparisonCalculator.compare(samples: samples, endDate: end, calendar: calendar)
         XCTAssertFalse(result.hasEnoughData)
         XCTAssertNil(result.changePercent)
         XCTAssertEqual(result.recentSampleCount, 2)

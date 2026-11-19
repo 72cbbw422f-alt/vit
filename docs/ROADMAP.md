@@ -493,3 +493,10 @@ Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa 
 - [x] Visa antal mätningar och neutral procentuell förändring utan medicinsk värdering
 - [x] Lägga till tester för periodgränser, ogiltiga värden och otillräckligt underlag
 - [ ] Verifiera jämförelse och tidsfönster med verklig HealthKit-data på iPhone
+
+
+## Uppdatering 2026-11-19 – Veckojämförelse, tidszonssäkring
+- Första CI-körningen för veckojämförelsen hittade två testfel i periodgränserna.
+- Rotorsaken var att kalkylatorn använde `Calendar.current` trots att testernas datum uttryckligen byggdes i UTC. På CI-runnerns tidszon flyttades periodgränsen, vilket gjorde att ett gränssampel hamnade i fel vecka.
+- Kalkylatorn tar nu emot en kalender som parameter; appen använder fortsatt aktuell lokal kalender medan testerna använder UTC explicit.
+- Ny CI krävs innan funktionen kan godkännas.

@@ -83,10 +83,15 @@ enum TrendComparisonCalculator {
 
     /// Compares medians from two adjacent, equal-length periods ending at endDate.
     /// Periods are half-open: [end-days, end) and [end-2*days, end-days).
-    static func compare(samples: [DailyBaselineSample], endDate: Date, periodDays: Int = 7) -> TrendComparison {
+    static func compare(
+        samples: [DailyBaselineSample],
+        endDate: Date,
+        periodDays: Int = 7,
+        calendar: Calendar = .current
+    ) -> TrendComparison {
         guard periodDays > 0,
-              let recentStart = Calendar.current.date(byAdding: .day, value: -periodDays, to: endDate),
-              let previousStart = Calendar.current.date(byAdding: .day, value: -periodDays * 2, to: endDate) else {
+              let recentStart = calendar.date(byAdding: .day, value: -periodDays, to: endDate),
+              let previousStart = calendar.date(byAdding: .day, value: -periodDays * 2, to: endDate) else {
             return TrendComparison(recentMedian: nil, previousMedian: nil, recentSampleCount: 0, previousSampleCount: 0)
         }
         let valid = samples.filter { $0.value.isFinite && $0.value > 0 }

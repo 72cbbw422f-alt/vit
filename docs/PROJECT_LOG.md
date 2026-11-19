@@ -734,3 +734,11 @@ Efter denna körning togs överbliven, oanvänd kvällsrapport-state och rapport
 - UI visar neutral procentuell skillnad och båda periodernas medianer. En högre eller lägre nivå märks inte automatiskt som bra eller dålig.
 - Fyra tester har lagts till för medianer, minsta datamängd, periodgränser/ogiltiga värden och division med noll.
 - Full CI krävs innan funktionen betraktas som byggverifierad.
+
+
+## 2026-11-19 – Veckojämförelse: korrigering av tidszon i test
+- CI run `44483129052` misslyckades i kärntesterna: 97 tester kördes, varav två assertion-fel i `testTrendComparisonIgnoresInvalidValuesAndPeriodBoundaries`.
+- Rotorsak: `TrendComparisonCalculator` använde `Calendar.current` medan testdata skapades med UTC-kalender. På GitHub-runnern flyttade den lokala tidszonen sjudagarsgränsen och räknade ett sampel i fel period.
+- Åtgärd: kalendern injiceras nu i kalkylatorn. Produktion använder fortsatt `.current` och därmed användarens lokala kalender; testerna skickar in sin UTC-kalender explicit.
+- Inga simulator-, arkiv- eller IPA-steg kördes efter testfelet. Ingen IPA skapades från den misslyckade körningen.
+- Ny fullständig CI inväntas.
