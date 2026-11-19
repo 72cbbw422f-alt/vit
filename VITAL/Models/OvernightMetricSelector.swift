@@ -79,3 +79,29 @@ enum OvernightMetricSelector {
         return sorted[middle]
     }
 }
+
+
+/// Builds one comparable nightly pulse value per primary sleep session.
+/// Uses the same heart-rate fallback as the live overnight selector so the
+/// current night and its historical baseline share a measurement method.
+enum NightlyPulseBaselineCalculator {
+    static func calculate(
+        sessions: [SleepSession],
+        heartRateSamples: [TimedHealthValue],
+        calendar: Calendar = .current
+    ) -> [DailyBaselineSample] {
+        sessions.compactMap { session in
+            let metrics = OvernightMetricSelector.select(
+                hrv: [],
+                restingHeartRate: [],
+                heartRate: heartRateSamples,
+                sleepSession: session
+            )
+            guard let pulse = metrics.restingHeartRateBPM else { return nil }
+            return DailyBaselineSample(
+                day: calendar.startOfDay(for: session.end),
+                value: pulse
+            )
+        }
+    }
+}

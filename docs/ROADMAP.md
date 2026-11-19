@@ -544,3 +544,12 @@ Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa 
 - [ ] Verifiera på fysisk Apple Watch att nattlig puls ger underlag för återhämtning utan att förväxlas med dagens senaste vilopuls.
 - [ ] Utvärdera om en separat nattlig pulsnorm ska byggas från historiska sömnperioder innan jämförelsen med personlig vilopulsbaslinje betraktas som slutlig.
 - [ ] Fortsätt därefter med sömnpoäng, sömneffektivitet, stress och träningsbelastning.
+
+
+## Uppdatering 2026-11-19 – Separat nattpulsbaslinje
+- [x] Skapa historisk nattpulsserie från faktiska pulssampel inom respektive primär sömnperiod
+- [x] Använd samma nattliga pulsproxy för aktuell natt och historiska nätter
+- [x] Hålla nattpulsbaslinjen separat från HealthKit:s vanliga vilopulsbaslinje
+- [x] Kräva minst 14 giltiga nätter via den gemensamma personliga baslinjekalkylatorn
+- [ ] Verifiera nattpulsserier och återhämtningspoäng mot verkliga HealthKit-data på fysisk iPhone
+- [ ] Full CI-verifiering av ändringen

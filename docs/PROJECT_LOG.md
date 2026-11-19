@@ -788,3 +788,12 @@ Efter denna körning togs överbliven, oanvänd kvällsrapport-state och rapport
 - Reservvärdet är ett nattligt pulsmedelvärde, inte ett HealthKit-vilopulsprov. Det är en pragmatisk wellness-proxy inspirerad av hur andra Apple Watch-appar använder nattlig puls; fysisk validering och separat nattlig baslinje återstår.
 - Tre nya tester täcker reservmetod, prioritet för HealthKit-vilopuls och filtrering.
 - Ingen ny IPA betraktas som verifierad förrän full CI har passerat.
+
+
+## 2026-11-19 – Separat nattpulsbaslinje
+- Rättade en jämförelse som blandade nattens pulsproxy (pulssampel under sömn) med en historisk baslinje byggd på HealthKit:s vanliga vilopuls.
+- HealthKitStore hämtar nu 30 dagars sömnintervall och pulssampel, väljer primär sömn per natt och beräknar nattpuls med samma urvalsmetod som aktuell natt.
+- HealthSnapshot använder den separata nattpulsbaslinjen för återhämtningsmotorn. Den vanliga vilopulsbaslinjen finns kvar för kroppsbatteriets dagsberäkning.
+- Saknas nattliga pulssampel för en historisk natt räknas den natten inte som giltig baslinjedag.
+- Två nya tester täcker natt-till-natt-beräkning och frånvaro av sampel i sömnfönstret.
+- Ändringen inväntar full CI och därefter fysisk HealthKit-validering.

@@ -240,6 +240,7 @@ final class HealthKitStore: ObservableObject {
             walkingAsymmetryPercentage: await walkingAsymmetrySample?.value,
             walkingAsymmetryDate: await walkingAsymmetrySample?.date,
             restingHeartRateBaseline: baselineValues.resting,
+            nightlyPulseBaseline: baselineValues.nightlyPulse,
             hrvBaseline: baselineValues.hrv,
             sleepBaseline: baselineValues.sleep,
             lastUpdated: now
@@ -434,7 +435,7 @@ final class HealthKitStore: ObservableObject {
         }
     }
 
-    private func loadPersonalBaselines(asOf date: Date) async -> (resting: PersonalBaseline, hrv: PersonalBaseline, sleep: PersonalBaseline) {
+    private func loadPersonalBaselines(asOf date: Date) async -> (resting: PersonalBaseline, nightlyPulse: PersonalBaseline, hrv: PersonalBaseline, sleep: PersonalBaseline) {
         let today = baselineCalendar.startOfDay(for: date)
         let start = baselineCalendar.date(byAdding: .day, value: -30, to: today) ?? today
         let end = today
@@ -452,14 +453,17 @@ final class HealthKitStore: ObservableObject {
             end: end
         )
         async let sleepSamples = historicalSleepSessions(start: start, end: end)
+        async let nightlyPulseSamples = historicalNightlyPulseSamples(start: start, end: end)
 
         let resting = await restingSamples
+        let nightlyPulse = await nightlyPulseSamples
         let hrv = await hrvSamples
         let sleep = await sleepSamples
         return (
-            PersonalBaselineCalculator.calculate(samples: resting, windowStart: start, windowEnd: end),
-            PersonalBaselineCalculator.calculate(samples: hrv, windowStart: start, windowEnd: end),
-            PersonalBaselineCalculator.calculate(samples: sleep, windowStart: start, windowEnd: end)
+            PersonalBaselineCalculator.calculate(samples: resting, windowStart: start, windowEnd: end, calendar: baselineCalendar),
+            PersonalBaselineCalculator.calculate(samples: nightlyPulse, windowStart: start, windowEnd: end, calendar: baselineCalendar),
+            PersonalBaselineCalculator.calculate(samples: hrv, windowStart: start, windowEnd: end, calendar: baselineCalendar),
+            PersonalBaselineCalculator.calculate(samples: sleep, windowStart: start, windowEnd: end, calendar: baselineCalendar)
         )
     }
 
@@ -485,6 +489,80 @@ final class HealthKitStore: ObservableObject {
                         DailyBaselineSample(day: $0.endDate, value: $0.quantity.doubleValue(for: unit))
                     }
                     continuation.resume(returning: values)
+                }
+            store.execute(query)
+        }
+    }
+
+    /// Builds historical nightly pulse values from the same sleep-window heart-rate
+    /// fallback used for the current night. Daytime resting-heart-rate samples are
+    /// deliberately not mixed into this series.
+    private func historicalNightlyPulseSamples(start: Date, end: Date) async -> [DailyBaselineSample] {
+        async let intervals = historicalSleepIntervals(start: start, end: end)
+        async let heartRates = historicalTimedQuantitySamples(
+            .heartRate,
+            unit: HKUnit.count().unitDivided(by: .minute()),
+            start: start,
+            end: end
+        )
+        let sessions = SleepSessionCalculator.dailyPrimarySessions(intervals: await intervals)
+        return NightlyPulseBaselineCalculator.calculate(
+            sessions: sessions,
+            heartRateSamples: await heartRates,
+            calendar: baselineCalendar
+        )
+    }
+
+    private func historicalTimedQuantitySamples(
+        _ identifier: HKQuantityTypeIdentifier,
+        unit: HKUnit,
+        start: Date,
+        end: Date
+    ) async -> [TimedHealthValue] {
+        guard let type = HKObjectType.quantityType(forIdentifier: identifier) else { return [] }
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit,
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)]) { [weak self] _, samples, error in
+                    if let error {
+                        Task { @MainActor [weak self] in
+                            self?.recordQueryError(error, context: "Historisk nattpuls")
+                        }
+                        continuation.resume(returning: [])
+                        return
+                    }
+                    let values = ((samples as? [HKQuantitySample]) ?? []).map {
+                        TimedHealthValue(timestamp: $0.endDate, value: $0.quantity.doubleValue(for: unit), startTimestamp: $0.startDate)
+                    }
+                    continuation.resume(returning: values)
+                }
+            store.execute(query)
+        }
+    }
+
+    private func historicalSleepIntervals(start: Date, end: Date) async -> [SleepInterval] {
+        guard let type = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else { return [] }
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit,
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)]) { [weak self] _, samples, error in
+                    if let error {
+                        Task { @MainActor [weak self] in
+                            self?.recordQueryError(error, context: "Historisk sömndata för nattpuls")
+                        }
+                        continuation.resume(returning: [])
+                        return
+                    }
+                    let asleepValues = [
+                        HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue,
+                        HKCategoryValueSleepAnalysis.asleepCore.rawValue,
+                        HKCategoryValueSleepAnalysis.asleepDeep.rawValue,
+                        HKCategoryValueSleepAnalysis.asleepREM.rawValue
+                    ]
+                    let intervals = ((samples as? [HKCategorySample]) ?? [])
+                        .filter { asleepValues.contains($0.value) }
+                        .map { SleepInterval(start: $0.startDate, end: $0.endDate) }
+                    continuation.resume(returning: intervals)
                 }
             store.execute(query)
         }

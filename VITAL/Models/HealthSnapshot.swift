@@ -48,6 +48,8 @@ struct HealthSnapshot {
     var walkingAsymmetryPercentage: Double?
     var walkingAsymmetryDate: Date?
     var restingHeartRateBaseline: PersonalBaseline?
+    /// Personal baseline calculated from heart-rate samples inside historical sleep sessions.
+    var nightlyPulseBaseline: PersonalBaseline?
     var hrvBaseline: PersonalBaseline?
     var sleepBaseline: PersonalBaseline?
     var lastUpdated: Date?
@@ -59,7 +61,7 @@ struct HealthSnapshot {
     /// make the overall baseline appear ready when another is incomplete.
     var recoveryResult: RecoveryResult {
         let availableDays = min(
-            restingHeartRateBaseline?.validDays ?? 0,
+            nightlyPulseBaseline?.validDays ?? 0,
             hrvBaseline?.validDays ?? 0,
             sleepBaseline?.validDays ?? 0
         )
@@ -69,7 +71,7 @@ struct HealthSnapshot {
             hrvMilliseconds: overnightHRV,
             baselineHRVMilliseconds: hrvBaseline?.median,
             restingHeartRateBPM: overnightRestingHeartRate,
-            baselineRestingHeartRateBPM: restingHeartRateBaseline?.median,
+            baselineRestingHeartRateBPM: nightlyPulseBaseline?.median,
             baselineDaysAvailable: availableDays
         ))
     }

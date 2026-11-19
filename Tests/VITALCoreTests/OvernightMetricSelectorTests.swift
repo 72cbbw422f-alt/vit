@@ -109,3 +109,47 @@ final class OvernightMetricSelectorTests: XCTestCase {
     }
 
 }
+
+
+final class NightlyPulseBaselineCalculatorTests: XCTestCase {
+    private var calendar: Calendar {
+        var value = Calendar(identifier: .gregorian)
+        value.timeZone = TimeZone(secondsFromGMT: 0)!
+        return value
+    }
+
+    private func date(_ day: Int, _ hour: Int) -> Date {
+        calendar.date(from: DateComponents(year: 2026, month: 11, day: day, hour: hour))!
+    }
+
+    func testBuildsOneNightlyPulsePerSleepSessionUsingSameFallback() {
+        let sessions = [
+            SleepSession(start: date(1, 23), end: date(2, 7)),
+            SleepSession(start: date(2, 23), end: date(3, 7))
+        ]
+        let samples = [
+            TimedHealthValue(timestamp: date(2, 1), value: 50),
+            TimedHealthValue(timestamp: date(2, 3), value: 60),
+            TimedHealthValue(timestamp: date(3, 1), value: 60),
+            TimedHealthValue(timestamp: date(3, 3), value: 70),
+            TimedHealthValue(timestamp: date(3, 12), value: 180)
+        ]
+        let result = NightlyPulseBaselineCalculator.calculate(
+            sessions: sessions, heartRateSamples: samples, calendar: calendar
+        )
+        XCTAssertEqual(result.count, 2)
+        XCTAssertEqual(result[0].day, calendar.startOfDay(for: date(2, 7)))
+        XCTAssertEqual(result[0].value, 55)
+        XCTAssertEqual(result[1].value, 65)
+    }
+
+    func testDoesNotCreateBaselineDayWithoutInSessionHeartRateSamples() {
+        let sessions = [SleepSession(start: date(1, 23), end: date(2, 7))]
+        let result = NightlyPulseBaselineCalculator.calculate(
+            sessions: sessions,
+            heartRateSamples: [TimedHealthValue(timestamp: date(2, 12), value: 60)],
+            calendar: calendar
+        )
+        XCTAssertTrue(result.isEmpty)
+    }
+}
