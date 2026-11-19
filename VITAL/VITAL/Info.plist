@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDisplayName</key><string>VITAL</string>
+    <key>CFBundleIdentifier</key><string>app.walnut8211.radish6181</string>
+    <key>CFBundleName</key><string>VITAL</string>
+    <key>CFBundleExecutable</key><string>VITAL</string>
+    <key>CFBundleVersion</key><string>1</string>
+    <key>CFBundleShortVersionString</key><string>3.0</string>
+    <key>CFBundlePackageType</key><string>APPL</string>
+    <key>LSRequiresIPhoneOS</key><true/>
+    <key>BGTaskSchedulerPermittedIdentifiers</key>
+    <array>
+        <string>app.walnut8211.radish6181.morning-refresh</string>
+        <string>app.walnut8211.radish6181.evening-refresh</string>
+    </array>
+    <key>UIBackgroundModes</key>
+    <array><string>fetch</string></array>
+    <key>UIApplicationSceneManifest</key>
+    <dict><key>UIApplicationSupportsMultipleScenes</key><false/></dict>
+    <key>UILaunchScreen</key><dict/>
+    <key>NSHealthShareUsageDescription</key>
+    <string>VITAL läser relevanta hälsodata från Apple Hälsa för att visa sömn, puls, HRV, vikt, blodtryck och återhämtning.</string>
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>VITAL kan i framtiden spara utvalda hälsodata till Apple Hälsa.</string>
+    <key>NSUserNotificationUsageDescription</key>
+    <string>VITAL skickar valfria morgon-, kvälls- och daglig blodtryckspåminnelse.</string>
+    <key>UISupportedInterfaceOrientations</key>
+    <array><string>UIInterfaceOrientationPortrait</string></array>
+</dict>
+</plist>

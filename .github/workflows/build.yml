@@ -1,0 +1,58 @@
+name: Build VITAL 3.0
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - v3.0-foundation
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify project files
+        run: |
+          test -d VITAL/VITAL.xcodeproj
+          test -f VITAL/VITAL/Info.plist
+          test -f VITAL/VITAL/HealthStore.swift
+          echo "VITAL version: $(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' VITAL/VITAL/Info.plist)"
+          echo "Build number: $(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' VITAL/VITAL/Info.plist)"
+
+      - name: Build VITAL for iPhone
+        run: |
+          xcodebuild \
+            -project VITAL/VITAL.xcodeproj \
+            -scheme VITAL \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath "$RUNNER_TEMP/VITALDerivedData" \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Verify and package IPA
+        run: |
+          APP_PATH="$RUNNER_TEMP/VITALDerivedData/Build/Products/Release-iphoneos/VITAL.app"
+          test -d "$APP_PATH"
+          BUILT_VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP_PATH/Info.plist")
+          BUILT_BUILD=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$APP_PATH/Info.plist")
+          test "$BUILT_VERSION" = "3.0"
+          test "$BUILT_BUILD" = "1"
+          mkdir -p package/Payload
+          cp -R "$APP_PATH" package/Payload/VITAL.app
+          cd package
+          zip -qry "$GITHUB_WORKSPACE/VITAL-3.0.ipa" Payload
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: VITAL-3.0-IPA
+          path: VITAL-3.0.ipa
+          if-no-files-found: error
+          retention-days: 7
