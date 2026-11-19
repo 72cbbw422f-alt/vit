@@ -37,3 +37,7 @@ The commit adds unit coverage for metric formatting and defensive bounds. GitHub
 | `appleSleepingWristTemperature` | °C | Deviation from the user's personal wrist-temperature baseline; not core body temperature |
 
 Both metrics are requested as optional read types, queried as latest samples, displayed in the respiratory section, and included in the 30-day diagnostics list. Missing values remain unavailable. Actual sample availability and units must still be confirmed on a supported physical Apple Watch/iPhone setup.
+
+
+## Sample timestamps
+All latest-sample metrics now retain their own HealthKit sample end date in `HealthSnapshot`. The Hälsa tiles show the local formatted sample date/time individually. This avoids implying that one metric's timestamp applies to neighboring metrics. A missing sample is explicitly labeled as unavailable; it is not assigned a synthetic timestamp.

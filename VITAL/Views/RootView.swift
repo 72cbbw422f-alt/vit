@@ -528,11 +528,9 @@ private struct HealthOverviewView: View {
                         healthSectionLabel("ANDNING", detail: "Andningsfrekvens")
                         VITALCard {
                             VStack(alignment: .leading, spacing: 14) {
-                                HealthValueTile(title: "Andningsfrekvens", value: health.snapshot.respiratoryRateText, tint: VITALPalette.violet)
-                                HealthValueTile(title: "Syremättnad", value: health.snapshot.oxygenSaturationText, tint: VITALPalette.violet)
-                                HealthValueTile(title: "Handledstemperatur", value: health.snapshot.sleepingWristTemperatureText, tint: VITALPalette.violet)
-                                Text(health.snapshot.respiratoryRateDate.map { "Senaste mätning: \($0.formatted(date: .abbreviated, time: .shortened))" } ?? "Ingen registrerad mätning från Apple Hälsa")
-                                    .font(.footnote).foregroundStyle(VITALPalette.muted)
+                                HealthValueTile(title: "Andningsfrekvens", value: health.snapshot.respiratoryRateText, tint: VITALPalette.violet, detail: healthSampleDateDetail(health.snapshot.respiratoryRateDate))
+                                HealthValueTile(title: "Syremättnad", value: health.snapshot.oxygenSaturationText, tint: VITALPalette.violet, detail: healthSampleDateDetail(health.snapshot.oxygenSaturationDate))
+                                HealthValueTile(title: "Handledstemperatur", value: health.snapshot.sleepingWristTemperatureText, tint: VITALPalette.violet, detail: healthSampleDateDetail(health.snapshot.sleepingWristTemperatureDate))
                                 Text("Värdena är senaste registrerade mätningar från Apple Hälsa – inte nödvändigtvis realtidsvärden. Handledstemperatur visas som avvikelse från din personliga baslinje, inte som kroppstemperatur.")
                                     .font(.footnote).foregroundStyle(VITALPalette.muted)
                             }
@@ -545,11 +543,11 @@ private struct HealthOverviewView: View {
                                 HealthValueTile(title: "Gång & löpning idag", value: health.snapshot.walkingRunningDistanceText, tint: VITALPalette.teal)
                                 HealthValueTile(title: "Cykling idag", value: health.snapshot.cyclingDistanceText, tint: VITALPalette.teal)
                                 HealthValueTile(title: "Trappor idag", value: health.snapshot.flightsClimbedText, tint: VITALPalette.teal)
-                                HealthValueTile(title: "Gångpuls", value: health.snapshot.walkingHeartRateText, tint: VITALPalette.violet)
-                                HealthValueTile(title: "VO₂ max", value: health.snapshot.vo2MaxText, tint: VITALPalette.violet)
-                                HealthValueTile(title: "Gånghastighet", value: health.snapshot.walkingSpeedText, tint: VITALPalette.violet)
-                                HealthValueTile(title: "Steglängd", value: health.snapshot.walkingStepLengthText, tint: VITALPalette.violet)
-                                HealthValueTile(title: "Gångasymmetri", value: health.snapshot.walkingAsymmetryText, tint: VITALPalette.violet)
+                                HealthValueTile(title: "Gångpuls", value: health.snapshot.walkingHeartRateText, tint: VITALPalette.violet, detail: healthSampleDateDetail(health.snapshot.walkingHeartRateDate))
+                                HealthValueTile(title: "VO₂ max", value: health.snapshot.vo2MaxText, tint: VITALPalette.violet, detail: healthSampleDateDetail(health.snapshot.vo2MaxDate))
+                                HealthValueTile(title: "Gånghastighet", value: health.snapshot.walkingSpeedText, tint: VITALPalette.violet, detail: healthSampleDateDetail(health.snapshot.walkingSpeedDate))
+                                HealthValueTile(title: "Steglängd", value: health.snapshot.walkingStepLengthText, tint: VITALPalette.violet, detail: healthSampleDateDetail(health.snapshot.walkingStepLengthDate))
+                                HealthValueTile(title: "Gångasymmetri", value: health.snapshot.walkingAsymmetryText, tint: VITALPalette.violet, detail: healthSampleDateDetail(health.snapshot.walkingAsymmetryDate))
                             }
                             Text("Dagens aktivitet summeras från Apple Hälsa. Övriga värden visas när en kompatibel enhet har registrerat dem.")
                                 .font(.footnote).foregroundStyle(VITALPalette.muted)
@@ -561,8 +559,8 @@ private struct HealthOverviewView: View {
                             VStack(alignment: .leading, spacing: 12) {
                                 Text("KROPPSAMMANSÄTTNING").font(.vital(size: 12, weight: .heavy)).tracking(0.9).foregroundStyle(VITALPalette.muted)
                                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], alignment: .leading, spacing: 12) {
-                                    HealthValueTile(title: "Kroppsfett", value: health.snapshot.bodyFatText, tint: VITALPalette.violet)
-                                    HealthValueTile(title: "Fettfri massa", value: health.snapshot.leanBodyMassText, tint: VITALPalette.violet)
+                                    HealthValueTile(title: "Kroppsfett", value: health.snapshot.bodyFatText, tint: VITALPalette.violet, detail: healthSampleDateDetail(health.snapshot.bodyFatDate))
+                                    HealthValueTile(title: "Fettfri massa", value: health.snapshot.leanBodyMassText, tint: VITALPalette.violet, detail: healthSampleDateDetail(health.snapshot.leanBodyMassDate))
                                 }
                             }
                         }
@@ -1793,14 +1791,23 @@ private struct InsightMetric: View {
         }
     }
 }
-private struct HealthValueTile: View {
+private private func healthSampleDateDetail(_ date: Date?) -> String {
+    guard let date else { return "Ingen registrerad mätning" }
+    return "Senast: " + date.formatted(date: .abbreviated, time: .shortened)
+}
+
+struct HealthValueTile: View {
     let title: String
     let value: String
     let tint: Color
+    var detail: String? = nil
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title).font(.footnote).foregroundStyle(VITALPalette.muted)
             Text(value).font(.system(.title2, design: .rounded).bold()).foregroundStyle(tint).fixedSize(horizontal: false, vertical: true)
+            if let detail {
+                Text(detail).font(.caption2).foregroundStyle(VITALPalette.muted).fixedSize(horizontal: false, vertical: true)
+            }
         }.frame(maxWidth: .infinity, alignment: .leading).padding(14)
             .background(VITALPalette.surfaceRaised, in: RoundedRectangle(cornerRadius: 16))
     }

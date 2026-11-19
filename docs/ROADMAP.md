@@ -473,3 +473,10 @@ Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa 
 - [x] Ge ändra- och ta bort-knappar i besvärsloggen etiketter med besvärsnamnet.
 - [x] Märka ångra-knappen för vattenregistrering med en tydlig tillgänglighetsetikett.
 - [ ] Verifiera fokusordning, knappnamn och destruktiva åtgärder med VoiceOver på fysisk iPhone.
+
+
+## Uppdatering 2026-11-19 – Tidsstämplar för kompletterande mått
+- [x] Bevara HealthKit-samplets sluttid för gångpuls, VO₂ max, kroppsfett, fettfri massa och gångmått
+- [x] Visa senaste mättid direkt på respektive måttkort i Hälsa
+- [x] Visa tydligt när ett kompletterande mått saknar registrerad mätning
+- [ ] Granska kortens läsbarhet och datumformat på fysisk iPhone

@@ -27,12 +27,19 @@ struct HealthSnapshot {
     var cyclingDistanceKM: Double?
     var flightsClimbed: Double?
     var walkingHeartRate: Double?
+    var walkingHeartRateDate: Date?
     var vo2Max: Double?
+    var vo2MaxDate: Date?
     var bodyFatPercentage: Double?
+    var bodyFatDate: Date?
     var leanBodyMassKG: Double?
+    var leanBodyMassDate: Date?
     var walkingSpeedMetersPerSecond: Double?
+    var walkingSpeedDate: Date?
     var walkingStepLengthCM: Double?
+    var walkingStepLengthDate: Date?
     var walkingAsymmetryPercentage: Double?
+    var walkingAsymmetryDate: Date?
     var restingHeartRateBaseline: PersonalBaseline?
     var hrvBaseline: PersonalBaseline?
     var sleepBaseline: PersonalBaseline?

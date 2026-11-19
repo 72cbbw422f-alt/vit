@@ -710,3 +710,11 @@ Efter denna körning togs överbliven, oanvänd kvällsrapport-state och rapport
 - GitHub Actions run 44473109322, commit `20852e3050fdb8dc01bf63b186ce847b4d5c7365`: kärntester, iOS Simulator-build, osignerat enhetsarkiv, IPA-paketering och simulator-smoketest godkända. Artefakterna `VITAL-unsigned-IPA` och `VITAL-unsigned-device-archive` skapades.
 - Följande commit `488cf04f737db3ba141faee49779ce9a9292db23` lägger till syremättnad och handledstemperatur. CI för den senaste committen inväntas.
 - CI-verifiering innebär inte att HealthKit-data finns eller att behörighetsflödet fungerar på fysisk iPhone. Ingen fysisk iPhone-testning är utförd.
+
+
+## 2026-11-19 – Enhetliga tidsstämplar för kompletterande hälsomått
+- CI-körning `44476018680` godkänd: kärntester, simulatorbygge, osignerat iOS-arkiv, IPA-paketering och simulatorstart.
+- Utökar `HealthSnapshot` med separata tidsstämplar för gångpuls, VO₂ max, kroppsfett, fettfri massa, gånghastighet, steglängd och gångasymmetri.
+- Hälsovyn visar nu senaste mättid per kort i stället för att en enda tidsstämpel får representera flera olika mätningar.
+- Saknade sampel får texten ”Ingen registrerad mätning”; ingen tidsstämpel konstrueras.
+- Nästa verifiering: CI för denna ändring och visuell kontroll på fysisk iPhone.
