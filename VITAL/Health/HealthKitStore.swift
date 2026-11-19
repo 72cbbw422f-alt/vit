@@ -310,7 +310,7 @@ final class HealthKitStore: ObservableObject {
     /// Counts recent samples per HealthKit type so an empty UI value can be
     /// investigated instead of silently appearing as a dash.
     private func loadDataDiagnostics() async -> [HealthDataDiagnostic] {
-        let definitions: [(String, HKObjectType?)] = [
+        let definitions: [(String, HKSampleType?)] = [
             ("Sömn", HKObjectType.categoryType(forIdentifier: .sleepAnalysis)),
             ("Steg", HKObjectType.quantityType(forIdentifier: .stepCount)),
             ("Aktiv energi", HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)),
