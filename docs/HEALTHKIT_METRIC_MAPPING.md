@@ -27,3 +27,13 @@ The HealthKit types below are now requested, queried, stored in `HealthSnapshot`
 
 ## Verification status
 The commit adds unit coverage for metric formatting and defensive bounds. GitHub Actions must pass core tests and the iOS Simulator build before this mapping is considered CI-verified. Real HealthKit values still require testing on a physical iPhone.
+
+
+## Additional metrics added 2026-11-19
+
+| HealthKit type | VITAL unit | Display meaning |
+|---|---|---|
+| `oxygenSaturation` | percent | Latest oxygen saturation |
+| `appleSleepingWristTemperature` | °C | Deviation from the user's personal wrist-temperature baseline; not core body temperature |
+
+Both metrics are requested as optional read types, queried as latest samples, displayed in the respiratory section, and included in the 30-day diagnostics list. Missing values remain unavailable. Actual sample availability and units must still be confirmed on a supported physical Apple Watch/iPhone setup.
