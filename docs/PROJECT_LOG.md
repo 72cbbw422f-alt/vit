@@ -757,3 +757,9 @@ Efter denna körning togs överbliven, oanvänd kvällsrapport-state och rapport
 - Granskning av UTC-datumen visade att provet på dag 6 låg exakt på föregående periods inkluderande startgräns. Testet förväntade sig att detta prov skulle ligga utanför perioden.
 - Flyttade just det ogiltiga gränsprovet en dag bakåt. Beräkningslogiken ändras inte; testet får nu data som motsvarar sitt avsedda gränsfall.
 - Ny CI krävs för att verifiera rättningen och därefter hela iOS-bygget.
+
+
+## 2026-11-19 – InsightsView compiler refactor
+- CI run 44488595514 passed core unit tests but failed the simulator build because Swift could not type-check the large InsightsView body in reasonable time.
+- Split the screen into smaller computed view sections and extracted the recovery gauge, recovery title, and history chart into focused helpers. Intended behavior and visual styling are preserved.
+- Awaiting a full CI run to verify compilation, archive, IPA packaging, and simulator launch.

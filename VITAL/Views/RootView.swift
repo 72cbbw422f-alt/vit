@@ -46,143 +46,185 @@ private struct InsightsView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
                         pageHeader("Insikter", subtitle: "Dina mönster över tid")
-                        NavigationLink {
-                            ReportHistoryView()
-                        } label: {
-                            HStack(spacing: 13) {
-                                Image(systemName: "doc.text.magnifyingglass")
-                                    .font(.vital(size: 20.5, weight: .semibold))
-                                    .foregroundStyle(VITALPalette.teal)
-                                    .frame(width: 44, height: 44)
-                                    .background(VITALPalette.teal.opacity(0.12), in: RoundedRectangle(cornerRadius: 13))
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text("Rapporthistorik").font(.headline).foregroundStyle(VITALPalette.cloud)
-                                    Text("\(health.reportHistory.count) sparade rapporter · frysta ögonblicksbilder")
-                                        .font(.footnote).foregroundStyle(VITALPalette.muted)
-                                }
-                                Spacer()
-                                Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(VITALPalette.muted)
-                            }
-                            .padding(15)
-                            .background(
-                                LinearGradient(colors: [VITALPalette.surfaceRaised, VITALPalette.surface], startPoint: .topLeading, endPoint: .bottomTrailing),
-                                in: RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            )
-                            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(Color.white.opacity(0.08), lineWidth: 1))
-                            .shadow(color: .black.opacity(0.15), radius: 12, y: 6)
-                        }
-                        .buttonStyle(.plain)
-                        VITALCard {
-                            let recovery = health.snapshot.recoveryResult
-                            VStack(alignment: .leading, spacing: 12) {
-                                Label("Aktuell återhämtning", systemImage: "waveform.path.ecg")
-                                    .font(.headline).foregroundStyle(VITALPalette.cloud)
-                                HStack(spacing: 18) {
-                                    ZStack {
-                                        Circle().stroke(VITALPalette.track.opacity(0.75), lineWidth: 9)
-                                        Circle()
-                                            .trim(from: 0, to: CGFloat(max(0, min(recovery.score ?? 0, 100))) / 100)
-                                            .stroke(
-                                                AngularGradient(colors: [VITALPalette.teal.opacity(0.65), VITALPalette.teal, Color(hex: 0xE5FF9A)], center: .center),
-                                                style: StrokeStyle(lineWidth: 9, lineCap: .round)
-                                            )
-                                            .rotationEffect(.degrees(-90))
-                                            .shadow(color: VITALPalette.teal.opacity(0.35), radius: 8)
-                                        VStack(spacing: 0) {
-                                            Text(recovery.score.map(String.init) ?? "—")
-                                                .font(.vital(size: 31.3, weight: .bold, design: .rounded))
-                                                .foregroundStyle(VITALPalette.cloud).monospacedDigit()
-                                            Text("AV 100")
-                                                .font(.vital(size: 14, weight: .heavy)).tracking(1)
-                                                .foregroundStyle(VITALPalette.muted)
-                                        }
-                                    }
-                                    .frame(width: 94, height: 94)
-                                    VStack(alignment: .leading, spacing: 6) {
-                                        Text(recovery.score == nil ? "Inväntar data" : (recovery.score ?? 0) >= 80 ? "God återhämtning" : (recovery.score ?? 0) >= 55 ? "Måttlig återhämtning" : "Behöver återhämtning")
-                                            .font(.vital(size: 16.2, weight: .bold, design: .rounded))
-                                            .foregroundStyle(VITALPalette.teal)
-                                        Text("Senaste nattens sömn")
-                                            .font(.vital(size: 14, weight: .semibold)).foregroundStyle(VITALPalette.muted)
-                                        Text(recovery.explanation)
-                                            .font(.vital(size: 14)).lineSpacing(2)
-                                            .foregroundStyle(VITALPalette.muted)
-                                            .fixedSize(horizontal: false, vertical: true)
-                                    }
-                                }
-                                Divider().overlay(VITALPalette.track)
-                                baselineRow("Sömn", days: health.snapshot.sleepBaseline?.validDays ?? 0)
-                                baselineRow("HRV", days: health.snapshot.hrvBaseline?.validDays ?? 0)
-                                baselineRow("Vilopuls", days: health.snapshot.restingHeartRateBaseline?.validDays ?? 0)
-                                Text("Värdet räknas om när VITAL hämtar nya data från Apple Hälsa. Baslinjen bygger på tillgängliga mätningar från de senaste 30 dagarna.")
-                                    .font(.footnote).foregroundStyle(VITALPalette.muted)
-                            }
-                        }
-                        VITALCard {
-                            VStack(alignment: .leading, spacing: 14) {
-                                Label("Historisk återhämtning", systemImage: "clock.arrow.circlepath")
-                                    .font(.headline).foregroundStyle(VITALPalette.cloud)
-                                if recoveryReports.isEmpty {
-                                    EmptyChartState(symbol: "chart.xyaxis.line", title: "Ingen trend ännu", detail: "Äldre sparade morgonvärden visas här. Den aktuella återhämtningen visas separat ovan.")
-                                } else {
-                                    Chart {
-                                        ForEach(Array(recoveryReports.enumerated()), id: \.element.id) { item in
-                                            BarMark(
-                                                x: .value("Dag", item.offset),
-                                                y: .value("Återhämtning", item.element.recoveryScore ?? 0)
-                                            )
-                                            .foregroundStyle(VITALPalette.teal.gradient)
-                                            .cornerRadius(5)
-                                        }
-                                    }
-                                    .chartYScale(domain: 0...100)
-                                    .accessibilityLabel("Historisk återhämtning")
-                                    .accessibilityValue("\(recoveryReports.count) sparade morgonvärden, skala noll till hundra")
-                                    .chartXAxis(.hidden)
-                                    .chartYAxis {
-                                        AxisMarks(position: .leading, values: [0, 50, 100]) { value in
-                                            AxisGridLine().foregroundStyle(VITALPalette.track)
-                                            AxisValueLabel().foregroundStyle(VITALPalette.muted)
-                                        }
-                                    }
-                                    .frame(height: 180)
-                                    Text("\(recoveryReports.count) äldre sparade morgonvärden")
-                                        .font(.footnote).foregroundStyle(VITALPalette.muted)
-                                }
-                            }
-                        }
-                        HStack(spacing: 12) {
-                            InsightMetric(title: "Sömn", value: health.snapshot.sleepText, symbol: "moon.stars.fill", tint: VITALPalette.violet)
-                            InsightMetric(title: "HRV", value: health.snapshot.hrvText, symbol: "waveform.path", tint: VITALPalette.teal)
-                        }
-                        VITALCard {
-                            VStack(alignment: .leading, spacing: 12) {
-                                Label("Veckojämförelse", systemImage: "arrow.left.arrow.right")
-                                    .font(.headline).foregroundStyle(VITALPalette.cloud)
-                                trendComparisonRow(title: "HRV", comparison: trendComparison(for: health.hrvHistory), suffix: "ms")
-                                Divider().overlay(VITALPalette.track)
-                                trendComparisonRow(title: "Vilopuls", comparison: trendComparison(for: health.restingHeartRateHistory), suffix: "slag/min")
-                                Text("Median av registrerade mätningar: senaste 7 dagarna jämfört med föregående 7 dagar. Minst två mätningar krävs i varje period. Förändringen är en beskrivning, inte en medicinsk bedömning.")
-                                    .font(.footnote).foregroundStyle(VITALPalette.muted)
-                            }
-                        }
-                        VITALCard {
-                            VStack(alignment: .leading, spacing: 10) {
-                                Label("Din normala nivå", systemImage: "person.crop.circle")
-                                    .font(.headline).foregroundStyle(VITALPalette.cloud)
-                                baselineValueRow("Sömn", value: health.snapshot.sleepBaseline?.median, suffix: "h", decimals: 1)
-                                baselineValueRow("HRV", value: health.snapshot.hrvBaseline?.median, suffix: "ms", decimals: 0)
-                                baselineValueRow("Vilopuls", value: health.snapshot.restingHeartRateBaseline?.median, suffix: "bpm", decimals: 0)
-                                Text("Median från de senaste 30 dagarna. Kräver minst 14 giltiga dagar per mätvärde.")
-                                    .font(.footnote).foregroundStyle(VITALPalette.muted)
-                            }
-                        }
+                        reportHistoryLink
+                        currentRecoveryCard
+                        recoveryHistoryCard
+                        recentMetricRow
+                        weeklyComparisonCard
+                        baselineCard
                         Text("Trender visas endast när sparade mätvärden finns. VITAL fyller aldrig ut luckor med uppskattade datapunkter.")
                             .font(.footnote).foregroundStyle(VITALPalette.muted).padding(.horizontal, 4)
-                    }.padding(.horizontal, VITALSpacing.page).padding(.top, 14).padding(.bottom, 30)
+                    }
+                    .padding(.horizontal, VITALSpacing.page)
+                    .padding(.top, 14)
+                    .padding(.bottom, 30)
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
+        }
+    }
+
+    private var reportHistoryLink: some View {
+        NavigationLink {
+            ReportHistoryView()
+        } label: {
+            HStack(spacing: 13) {
+                Image(systemName: "doc.text.magnifyingglass")
+                    .font(.vital(size: 20.5, weight: .semibold))
+                    .foregroundStyle(VITALPalette.teal)
+                    .frame(width: 44, height: 44)
+                    .background(VITALPalette.teal.opacity(0.12), in: RoundedRectangle(cornerRadius: 13))
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Rapporthistorik").font(.headline).foregroundStyle(VITALPalette.cloud)
+                    Text("\(health.reportHistory.count) sparade rapporter · frysta ögonblicksbilder")
+                        .font(.footnote).foregroundStyle(VITALPalette.muted)
+                }
+                Spacer()
+                Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(VITALPalette.muted)
+            }
+            .padding(15)
+            .background(
+                LinearGradient(colors: [VITALPalette.surfaceRaised, VITALPalette.surface], startPoint: .topLeading, endPoint: .bottomTrailing),
+                in: RoundedRectangle(cornerRadius: 20, style: .continuous)
+            )
+            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(Color.white.opacity(0.08), lineWidth: 1))
+            .shadow(color: .black.opacity(0.15), radius: 12, y: 6)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var currentRecoveryCard: some View {
+        let recovery = health.snapshot.recoveryResult
+        return VITALCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Label("Aktuell återhämtning", systemImage: "waveform.path.ecg")
+                    .font(.headline).foregroundStyle(VITALPalette.cloud)
+                HStack(spacing: 18) {
+                    recoveryGauge(recovery.score)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(recoveryTitle(recovery.score))
+                            .font(.vital(size: 16.2, weight: .bold, design: .rounded))
+                            .foregroundStyle(VITALPalette.teal)
+                        Text("Senaste nattens sömn")
+                            .font(.vital(size: 14, weight: .semibold)).foregroundStyle(VITALPalette.muted)
+                        Text(recovery.explanation)
+                            .font(.vital(size: 14)).lineSpacing(2)
+                            .foregroundStyle(VITALPalette.muted)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                Divider().overlay(VITALPalette.track)
+                baselineRow("Sömn", days: health.snapshot.sleepBaseline?.validDays ?? 0)
+                baselineRow("HRV", days: health.snapshot.hrvBaseline?.validDays ?? 0)
+                baselineRow("Vilopuls", days: health.snapshot.restingHeartRateBaseline?.validDays ?? 0)
+                Text("Värdet räknas om när VITAL hämtar nya data från Apple Hälsa. Baslinjen bygger på tillgängliga mätningar från de senaste 30 dagarna.")
+                    .font(.footnote).foregroundStyle(VITALPalette.muted)
+            }
+        }
+    }
+
+    private func recoveryGauge(_ score: Int?) -> some View {
+        ZStack {
+            Circle().stroke(VITALPalette.track.opacity(0.75), lineWidth: 9)
+            Circle()
+                .trim(from: 0, to: CGFloat(max(0, min(score ?? 0, 100))) / 100)
+                .stroke(
+                    AngularGradient(colors: [VITALPalette.teal.opacity(0.65), VITALPalette.teal, Color(hex: 0xE5FF9A)], center: .center),
+                    style: StrokeStyle(lineWidth: 9, lineCap: .round)
+                )
+                .rotationEffect(.degrees(-90))
+                .shadow(color: VITALPalette.teal.opacity(0.35), radius: 8)
+            VStack(spacing: 0) {
+                Text(score.map(String.init) ?? "—")
+                    .font(.vital(size: 31.3, weight: .bold, design: .rounded))
+                    .foregroundStyle(VITALPalette.cloud).monospacedDigit()
+                Text("AV 100")
+                    .font(.vital(size: 14, weight: .heavy)).tracking(1)
+                    .foregroundStyle(VITALPalette.muted)
+            }
+        }
+        .frame(width: 94, height: 94)
+    }
+
+    private func recoveryTitle(_ score: Int?) -> String {
+        guard let score else { return "Inväntar data" }
+        if score >= 80 { return "God återhämtning" }
+        if score >= 55 { return "Måttlig återhämtning" }
+        return "Behöver återhämtning"
+    }
+
+    private var recoveryHistoryCard: some View {
+        VITALCard {
+            VStack(alignment: .leading, spacing: 14) {
+                Label("Historisk återhämtning", systemImage: "clock.arrow.circlepath")
+                    .font(.headline).foregroundStyle(VITALPalette.cloud)
+                if recoveryReports.isEmpty {
+                    EmptyChartState(symbol: "chart.xyaxis.line", title: "Ingen trend ännu", detail: "Äldre sparade morgonvärden visas här. Den aktuella återhämtningen visas separat ovan.")
+                } else {
+                    recoveryHistoryChart
+                    Text("\(recoveryReports.count) äldre sparade morgonvärden")
+                        .font(.footnote).foregroundStyle(VITALPalette.muted)
+                }
+            }
+        }
+    }
+
+    private var recoveryHistoryChart: some View {
+        Chart {
+            ForEach(Array(recoveryReports.enumerated()), id: \.element.id) { item in
+                BarMark(
+                    x: .value("Dag", item.offset),
+                    y: .value("Återhämtning", item.element.recoveryScore ?? 0)
+                )
+                .foregroundStyle(VITALPalette.teal.gradient)
+                .cornerRadius(5)
+            }
+        }
+        .chartYScale(domain: 0...100)
+        .accessibilityLabel("Historisk återhämtning")
+        .accessibilityValue("\(recoveryReports.count) sparade morgonvärden, skala noll till hundra")
+        .chartXAxis(.hidden)
+        .chartYAxis {
+            AxisMarks(position: .leading, values: [0, 50, 100]) { _ in
+                AxisGridLine().foregroundStyle(VITALPalette.track)
+                AxisValueLabel().foregroundStyle(VITALPalette.muted)
+            }
+        }
+        .frame(height: 180)
+    }
+
+    private var recentMetricRow: some View {
+        HStack(spacing: 12) {
+            InsightMetric(title: "Sömn", value: health.snapshot.sleepText, symbol: "moon.stars.fill", tint: VITALPalette.violet)
+            InsightMetric(title: "HRV", value: health.snapshot.hrvText, symbol: "waveform.path", tint: VITALPalette.teal)
+        }
+    }
+
+    private var weeklyComparisonCard: some View {
+        VITALCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Label("Veckojämförelse", systemImage: "arrow.left.arrow.right")
+                    .font(.headline).foregroundStyle(VITALPalette.cloud)
+                trendComparisonRow(title: "HRV", comparison: trendComparison(for: health.hrvHistory), suffix: "ms")
+                Divider().overlay(VITALPalette.track)
+                trendComparisonRow(title: "Vilopuls", comparison: trendComparison(for: health.restingHeartRateHistory), suffix: "slag/min")
+                Text("Median av registrerade mätningar: senaste 7 dagarna jämfört med föregående 7 dagar. Minst två mätningar krävs i varje period. Förändringen är en beskrivning, inte en medicinsk bedömning.")
+                    .font(.footnote).foregroundStyle(VITALPalette.muted)
+            }
+        }
+    }
+
+    private var baselineCard: some View {
+        VITALCard {
+            VStack(alignment: .leading, spacing: 10) {
+                Label("Din normala nivå", systemImage: "person.crop.circle")
+                    .font(.headline).foregroundStyle(VITALPalette.cloud)
+                baselineValueRow("Sömn", value: health.snapshot.sleepBaseline?.median, suffix: "h", decimals: 1)
+                baselineValueRow("HRV", value: health.snapshot.hrvBaseline?.median, suffix: "ms", decimals: 0)
+                baselineValueRow("Vilopuls", value: health.snapshot.restingHeartRateBaseline?.median, suffix: "bpm", decimals: 0)
+                Text("Median från de senaste 30 dagarna. Kräver minst 14 giltiga dagar per mätvärde.")
+                    .font(.footnote).foregroundStyle(VITALPalette.muted)
+            }
         }
     }
     private func trendComparison(for points: [HealthTrendPoint]) -> TrendComparison {

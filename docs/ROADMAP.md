@@ -512,3 +512,6 @@ Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa 
 
 - [x] Korrigera testdata för veckojämförelsens periodgräns (testfel, inte produktionslogik)
 - [ ] Få samtliga 96+ kärntester och hela iOS-byggkedjan godkända
+
+- [x] Dela upp InsightsView i mindre SwiftUI-delvyer för att minska kompilatorns typkontrollbelastning
+- [ ] Verifiera simulatorbygge och full CI efter refaktoreringen
