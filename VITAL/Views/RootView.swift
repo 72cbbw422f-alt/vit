@@ -582,6 +582,32 @@ private struct HealthOverviewView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             }
                         }
+                        VITALCard {
+                            VStack(alignment: .leading, spacing: 11) {
+                                Label("HealthKit-diagnostik", systemImage: "stethoscope")
+                                    .font(.headline).foregroundStyle(VITALPalette.cloud)
+                                Text("Antal registrerade mätningar under de senaste 30 dagarna. En nolla kan betyda att data saknas eller att läsbehörighet inte är tillgänglig.")
+                                    .font(.footnote).foregroundStyle(VITALPalette.muted)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                ForEach(health.dataDiagnostics) { item in
+                                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                                        Text(item.title).foregroundStyle(VITALPalette.muted)
+                                        Spacer(minLength: 8)
+                                        VStack(alignment: .trailing, spacing: 2) {
+                                            Text(item.statusText)
+                                                .font(.subheadline.weight(.semibold).monospacedDigit())
+                                                .foregroundStyle(item.sampleCount == 0 ? VITALPalette.amber : VITALPalette.teal)
+                                            if let date = item.latestDate {
+                                                Text("Senast \(date.formatted(date: .abbreviated, time: .shortened))")
+                                                    .font(.caption).foregroundStyle(VITALPalette.muted)
+                                            }
+                                        }
+                                    }
+                                    Divider().overlay(VITALPalette.track)
+                                }
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
                     }.padding(.horizontal, VITALSpacing.page).padding(.top, 14).padding(.bottom, 30)
                 }
             }
