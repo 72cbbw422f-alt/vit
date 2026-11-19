@@ -701,3 +701,12 @@ Efter denna körning togs överbliven, oanvänd kvällsrapport-state och rapport
 - Äldre rapportarkiv och avkodningsmodeller lämnas kvar för bakåtkompatibilitet; inga nya morgonposter skapas av det aktiva refreshflödet.
 - Korrigerade även symbolmappningen i dashboardens mätvärdeskort så natt-HRV, senaste HRV och nattpuls får relevanta ikoner.
 - Dessa kodändringar inväntar separat CI-verifiering.
+
+
+## 2026-11-19 – Utökade HealthKit-mått och CI
+- Kopplade träningstid, gång-/löpdistanser, cykeldistans, trappor, gångpuls, VO₂ max, kroppsfett, fettfri massa, gånghastighet, steglängd och gångasymmetri till HealthSnapshot och Hälsa-vyn.
+- Lade till syremättnad samt handledstemperatur från Apple Watch. Handledstemperatur presenteras uttryckligen som avvikelse från personlig baslinje, inte som kroppstemperatur.
+- Utökade HealthKit-diagnostiken och lade till tester för enheter, saknade värden och defensiva intervall.
+- GitHub Actions run 44473109322, commit `20852e3050fdb8dc01bf63b186ce847b4d5c7365`: kärntester, iOS Simulator-build, osignerat enhetsarkiv, IPA-paketering och simulator-smoketest godkända. Artefakterna `VITAL-unsigned-IPA` och `VITAL-unsigned-device-archive` skapades.
+- Följande commit `488cf04f737db3ba141faee49779ce9a9292db23` lägger till syremättnad och handledstemperatur. CI för den senaste committen inväntas.
+- CI-verifiering innebär inte att HealthKit-data finns eller att behörighetsflödet fungerar på fysisk iPhone. Ingen fysisk iPhone-testning är utförd.
