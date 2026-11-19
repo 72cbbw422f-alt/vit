@@ -500,3 +500,12 @@ Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa 
 - Rotorsaken var att kalkylatorn använde `Calendar.current` trots att testernas datum uttryckligen byggdes i UTC. På CI-runnerns tidszon flyttades periodgränsen, vilket gjorde att ett gränssampel hamnade i fel vecka.
 - Kalkylatorn tar nu emot en kalender som parameter; appen använder fortsatt aktuell lokal kalender medan testerna använder UTC explicit.
 - Ny CI krävs innan funktionen kan godkännas.
+
+
+## 2026-11-19 – Hälsovyns datakvalitet
+- [x] Ta bort syremättnad från UI, HealthKit-läsning, behörighet, snapshot och diagnostik
+- [x] Korrigera blodtrycksgrafen med två namngivna serier och separata färger
+- [x] Rätta UTC-kalendern i veckojämförelsens gränstest
+- [ ] Godkänna full CI efter korrigeringarna
+- [ ] Verifiera blodtrycksgrafens utseende och HealthKit-data på fysisk iPhone
+- [ ] Förtydliga visuellt skillnaden mellan natt-HRV och senaste HRV

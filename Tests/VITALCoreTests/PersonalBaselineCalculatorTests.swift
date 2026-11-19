@@ -105,7 +105,7 @@ final class PersonalBaselineCalculatorTests: XCTestCase {
             DailyBaselineSample(day: day(14), value: 60),
             DailyBaselineSample(day: day(15), value: 80)
         ]
-        let result = TrendComparisonCalculator.compare(samples: samples, endDate: end)
+        let result = TrendComparisonCalculator.compare(samples: samples, endDate: end, calendar: calendar)
         XCTAssertEqual(result.previousSampleCount, 1)
         XCTAssertEqual(result.recentSampleCount, 2)
         XCTAssertFalse(result.hasEnoughData)

@@ -95,9 +95,6 @@ final class HealthKitStore: ObservableObject {
         if let respiratoryRate = HKObjectType.quantityType(forIdentifier: .respiratoryRate) {
             readTypes.insert(respiratoryRate)
         }
-        if let oxygenSaturation = HKObjectType.quantityType(forIdentifier: .oxygenSaturation) {
-            readTypes.insert(oxygenSaturation)
-        }
         if let wristTemperature = HKObjectType.quantityType(forIdentifier: .appleSleepingWristTemperature) {
             readTypes.insert(wristTemperature)
         }
@@ -170,7 +167,6 @@ final class HealthKitStore: ObservableObject {
         async let historicalWeight = historicalWeightSamples()
         async let historicalBloodPressure = historicalBloodPressureSamples()
         async let respiratoryRateSample = latestQuantitySample(.respiratoryRate, unit: HKUnit.count().unitDivided(by: .minute()))
-        async let oxygenSaturationSample = latestQuantitySample(.oxygenSaturation, unit: .percent())
         async let wristTemperatureSample = latestQuantitySample(.appleSleepingWristTemperature, unit: .degreeCelsius())
         async let exerciseMinutesValue = todaySum(.appleExerciseTime, unit: .minute())
         async let walkingDistanceValue = todaySum(.distanceWalkingRunning, unit: HKUnit.meterUnit(with: .kilo))
@@ -218,8 +214,6 @@ final class HealthKitStore: ObservableObject {
             bloodPressureDate: await bloodPressureSample?.date,
             respiratoryRate: await respiratoryRateSample?.value,
             respiratoryRateDate: await respiratoryRateSample?.date,
-            oxygenSaturation: await oxygenSaturationSample?.value,
-            oxygenSaturationDate: await oxygenSaturationSample?.date,
             sleepingWristTemperatureDeviationCelsius: await wristTemperatureSample?.value,
             sleepingWristTemperatureDate: await wristTemperatureSample?.date,
             exerciseMinutes: await exerciseMinutesValue,
@@ -370,7 +364,6 @@ final class HealthKitStore: ObservableObject {
             ("Vikt", HKObjectType.quantityType(forIdentifier: .bodyMass)),
             ("Blodtryck", HKObjectType.correlationType(forIdentifier: .bloodPressure)),
             ("Andningsfrekvens", HKObjectType.quantityType(forIdentifier: .respiratoryRate)),
-            ("Syremättnad", HKObjectType.quantityType(forIdentifier: .oxygenSaturation)),
             ("Handledstemperatur", HKObjectType.quantityType(forIdentifier: .appleSleepingWristTemperature)),
             ("Träningstid", HKObjectType.quantityType(forIdentifier: .appleExerciseTime)),
             ("Gång- och löpdistans", HKObjectType.quantityType(forIdentifier: .distanceWalkingRunning)),

@@ -742,3 +742,11 @@ Efter denna körning togs överbliven, oanvänd kvällsrapport-state och rapport
 - Åtgärd: kalendern injiceras nu i kalkylatorn. Produktion använder fortsatt `.current` och därmed användarens lokala kalender; testerna skickar in sin UTC-kalender explicit.
 - Inga simulator-, arkiv- eller IPA-steg kördes efter testfelet. Ingen IPA skapades från den misslyckade körningen.
 - Ny fullständig CI inväntas.
+
+
+## 2026-11-19 – Syremättnad borttagen och blodtrycksgraf korrigerad
+- Tagit bort syremättnad från Hälsa-vyn, HealthSnapshot, HealthKit-behörighetsbegäran, dataläsning och diagnostik. VITAL frågar därmed inte längre efter eller visar detta mätvärde.
+- Korrigerat blodtrycksgrafen genom att deklarera övertryck och undertryck som två uttryckliga Swift Charts-serier med separata färger. Linjerna använder linjär interpolation så kurvan inte skapar visuella översvängningar mellan mätningar.
+- Korrigerat veckojämförelsetestet så att det skickar in samma UTC-kalender som testdatumen byggdes med. CI-felet berodde på att just detta test fortfarande använde runnerns lokala kalender.
+- Övriga granskade värden: natt-HRV och senaste HRV är separata tidsfönster och ska märkas tydligt; kroppsbatteri och historisk återhämtning visar avsiktligt tomt läge när underlag saknas. Vikt och blodtryck visar senaste registrerade mätning, inte realtid.
+- Full CI krävs innan ändringen betraktas som verifierad. Ingen ny IPA lämnas ut före godkänd körning.

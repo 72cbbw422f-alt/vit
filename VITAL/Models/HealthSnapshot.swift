@@ -16,9 +16,6 @@ struct HealthSnapshot {
     /// Latest HealthKit respiratory rate in breaths per minute.
     var respiratoryRate: Double?
     var respiratoryRateDate: Date?
-    /// Oxygen saturation as a percentage (e.g. 98, not 0.98).
-    var oxygenSaturation: Double?
-    var oxygenSaturationDate: Date?
     /// Apple Watch sleeping wrist temperature is a deviation from baseline, not core body temperature.
     var sleepingWristTemperatureDeviationCelsius: Double?
     var sleepingWristTemperatureDate: Date?
@@ -97,10 +94,6 @@ struct HealthSnapshot {
         guard let respiratoryRate, respiratoryRate.isFinite,
               (1...100).contains(respiratoryRate) else { return "—" }
         return "\(Int(respiratoryRate.rounded())) andetag/min"
-    }
-    var oxygenSaturationText: String {
-        guard let oxygenSaturation, oxygenSaturation.isFinite, (50...100).contains(oxygenSaturation) else { return "—" }
-        return "\(Int(oxygenSaturation.rounded())) %"
     }
     var sleepingWristTemperatureText: String {
         guard let sleepingWristTemperatureDeviationCelsius,

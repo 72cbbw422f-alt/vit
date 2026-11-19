@@ -569,7 +569,6 @@ private struct HealthOverviewView: View {
                         VITALCard {
                             VStack(alignment: .leading, spacing: 14) {
                                 HealthValueTile(title: "Andningsfrekvens", value: health.snapshot.respiratoryRateText, tint: VITALPalette.violet, detail: healthSampleDateDetail(health.snapshot.respiratoryRateDate))
-                                HealthValueTile(title: "Syremättnad", value: health.snapshot.oxygenSaturationText, tint: VITALPalette.violet, detail: healthSampleDateDetail(health.snapshot.oxygenSaturationDate))
                                 HealthValueTile(title: "Handledstemperatur", value: health.snapshot.sleepingWristTemperatureText, tint: VITALPalette.violet, detail: healthSampleDateDetail(health.snapshot.sleepingWristTemperatureDate))
                                 Text("Värdena är senaste registrerade mätningar från Apple Hälsa – inte nödvändigtvis realtidsvärden. Handledstemperatur visas som avvikelse från din personliga baslinje, inte som kroppstemperatur.")
                                     .font(.footnote).foregroundStyle(VITALPalette.muted)
@@ -1168,14 +1167,15 @@ private struct HealthOverviewView: View {
                             .font(.subheadline.weight(.semibold)).foregroundStyle(VITALPalette.muted)
                         Chart {
                             ForEach(health.bloodPressureHistory) { point in
-                                LineMark(x: .value("Datum", point.date), y: .value("Systoliskt", point.systolic))
-                                    .foregroundStyle(VITALPalette.teal)
-                                    .interpolationMethod(.catmullRom)
-                                LineMark(x: .value("Datum", point.date), y: .value("Diastoliskt", point.diastolic))
-                                    .foregroundStyle(VITALPalette.violet)
-                                    .interpolationMethod(.catmullRom)
+                                LineMark(x: .value("Datum", point.date), y: .value("Systoliskt", point.systolic), series: .value("Mätning", "Övertryck"))
+                                    .foregroundStyle(by: .value("Mätning", "Övertryck"))
+                                    .interpolationMethod(.linear)
+                                LineMark(x: .value("Datum", point.date), y: .value("Diastoliskt", point.diastolic), series: .value("Mätning", "Undertryck"))
+                                    .foregroundStyle(by: .value("Mätning", "Undertryck"))
+                                    .interpolationMethod(.linear)
                             }
                         }
+                        .chartForegroundStyleScale(["Övertryck": VITALPalette.teal, "Undertryck": VITALPalette.violet])
                         .chartYAxisLabel("mmHg")
                         .accessibilityLabel("Blodtrycksutveckling från Apple Hälsa")
                         .accessibilityValue("\(health.bloodPressureHistory.count) mätningar under de senaste 90 dagarna. Visar övertryck och undertryck i millimeter kvicksilver.")
