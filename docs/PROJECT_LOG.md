@@ -750,3 +750,10 @@ Efter denna körning togs överbliven, oanvänd kvällsrapport-state och rapport
 - Korrigerat veckojämförelsetestet så att det skickar in samma UTC-kalender som testdatumen byggdes med. CI-felet berodde på att just detta test fortfarande använde runnerns lokala kalender.
 - Övriga granskade värden: natt-HRV och senaste HRV är separata tidsfönster och ska märkas tydligt; kroppsbatteri och historisk återhämtning visar avsiktligt tomt läge när underlag saknas. Vikt och blodtryck visar senaste registrerade mätning, inte realtid.
 - Full CI krävs innan ändringen betraktas som verifierad. Ingen ny IPA lämnas ut före godkänd körning.
+
+
+## 2026-11-19 – Veckotestets periodgräns
+- CI run 44484820605 körde 96 tester och rapporterade två assertion-fel i ett gränsfall för veckojämförelsen.
+- Granskning av UTC-datumen visade att provet på dag 6 låg exakt på föregående periods inkluderande startgräns. Testet förväntade sig att detta prov skulle ligga utanför perioden.
+- Flyttade just det ogiltiga gränsprovet en dag bakåt. Beräkningslogiken ändras inte; testet får nu data som motsvarar sitt avsedda gränsfall.
+- Ny CI krävs för att verifiera rättningen och därefter hela iOS-bygget.

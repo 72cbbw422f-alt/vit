@@ -98,7 +98,7 @@ final class PersonalBaselineCalculatorTests: XCTestCase {
     func testTrendComparisonIgnoresInvalidValuesAndPeriodBoundaries() {
         let end = day(20)
         let samples = [
-            DailyBaselineSample(day: day(6), value: 100),
+            DailyBaselineSample(day: day(5), value: 100),
             DailyBaselineSample(day: day(7), value: 40),
             DailyBaselineSample(day: day(8), value: .nan),
             DailyBaselineSample(day: day(9), value: -1),

@@ -509,3 +509,6 @@ Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa 
 - [ ] Godkänna full CI efter korrigeringarna
 - [ ] Verifiera blodtrycksgrafens utseende och HealthKit-data på fysisk iPhone
 - [ ] Förtydliga visuellt skillnaden mellan natt-HRV och senaste HRV
+
+- [x] Korrigera testdata för veckojämförelsens periodgräns (testfel, inte produktionslogik)
+- [ ] Få samtliga 96+ kärntester och hela iOS-byggkedjan godkända
