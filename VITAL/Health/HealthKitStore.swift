@@ -155,7 +155,7 @@ final class HealthKitStore: ObservableObject {
         isRefreshing = true
         lastError = nil
         let now = Date()
-        async let sleepSessionValue = latestSleepSession()
+        async let sleepDataValue = latestSleepData()
         async let overnightHRVSamples = recentTimedQuantitySamples(.heartRateVariabilitySDNN, unit: .secondUnit(with: .milli))
         async let overnightPulseSamples = recentTimedQuantitySamples(.restingHeartRate, unit: HKUnit.count().unitDivided(by: .minute()))
         async let bodyBatteryHeartRateSamples = recentTimedQuantitySamples(.heartRate, unit: HKUnit.count().unitDivided(by: .minute()))
@@ -187,7 +187,8 @@ final class HealthKitStore: ObservableObject {
         async let baselines = loadPersonalBaselines(asOf: now)
 
         let baselineValues = await baselines
-        let sleepSession = await sleepSessionValue
+        let sleepData = await sleepDataValue
+        let sleepSession = sleepData.session
         let overnightMetrics: OvernightMetrics
         if let sleepSession {
             overnightMetrics = OvernightMetricSelector.select(
@@ -206,6 +207,7 @@ final class HealthKitStore: ObservableObject {
         }
         var updatedSnapshot = HealthSnapshot(
             sleepDuration: sleepSession?.duration,
+            sleepStageSummary: sleepData.stageSummary,
             restingHeartRate: await restingValue,
             hrv: await hrvValue,
             overnightHRV: overnightMetrics.hrvMilliseconds,
@@ -797,33 +799,58 @@ final class HealthKitStore: ObservableObject {
         }
     }
 
-    private func latestSleepSession() async -> SleepSession? {
-        guard let type = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else { return nil }
+    private func latestSleepData() async -> (session: SleepSession?, stageSummary: SleepStageSummary?) {
+        guard let type = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else {
+            return (nil, nil)
+        }
         let end = Date()
         let start = Calendar.current.date(byAdding: .hour, value: -36, to: end) ?? end
         let predicate = HKQuery.predicateForSamples(withStart: start, end: end)
         return await withCheckedContinuation { continuation in
-            let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit,
-                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { [weak self] _, samples, error in
-                    if let error {
-                        Task { @MainActor [weak self] in
-                            self?.recordQueryError(error, context: "Sömndata")
-                        }
-                        continuation.resume(returning: nil)
-                        return
+            let query = HKSampleQuery(
+                sampleType: type,
+                predicate: predicate,
+                limit: HKObjectQueryNoLimit,
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]
+            ) { [weak self] _, samples, error in
+                if let error {
+                    Task { @MainActor [weak self] in
+                        self?.recordQueryError(error, context: "Sömndata")
                     }
-                    let asleepValues = [
-                        HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue,
-                        HKCategoryValueSleepAnalysis.asleepCore.rawValue,
-                        HKCategoryValueSleepAnalysis.asleepDeep.rawValue,
-                        HKCategoryValueSleepAnalysis.asleepREM.rawValue
-                    ]
-                    let intervals = ((samples as? [HKCategorySample]) ?? [])
-                        .filter { asleepValues.contains($0.value) }
-                        .map { SleepInterval(start: $0.startDate, end: $0.endDate) }
-                    continuation.resume(returning: SleepSessionCalculator.primarySession(intervals: intervals))
+                    continuation.resume(returning: (nil, nil))
+                    return
                 }
+
+                let stageIntervals = ((samples as? [HKCategorySample]) ?? []).compactMap { sample -> SleepStageInterval? in
+                    let stage: SleepStage
+                    switch sample.value {
+                    case HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue:
+                        stage = .unspecified
+                    case HKCategoryValueSleepAnalysis.asleepCore.rawValue:
+                        stage = .core
+                    case HKCategoryValueSleepAnalysis.asleepDeep.rawValue:
+                        stage = .deep
+                    case HKCategoryValueSleepAnalysis.asleepREM.rawValue:
+                        stage = .rem
+                    default:
+                        // In-bed and awake records are deliberately not asleep stages.
+                        return nil
+                    }
+                    return SleepStageInterval(start: sample.startDate, end: sample.endDate, stage: stage)
+                }
+                let asleepIntervals = stageIntervals.map {
+                    SleepInterval(start: $0.start, end: $0.end)
+                }
+                guard let session = SleepSessionCalculator.primarySession(intervals: asleepIntervals) else {
+                    continuation.resume(returning: (nil, nil))
+                    return
+                }
+                let sessionStages = stageIntervals.filter {
+                    $0.start < session.end && $0.end > session.start
+                }
+                let summary = SleepStageCalculator.summarize(sessionStages)
+                continuation.resume(returning: (session, summary.hasStageData ? summary : nil))
+            }
             store.execute(query)
         }
-    }
-}
+    }}

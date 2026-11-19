@@ -806,3 +806,10 @@ Efter denna körning togs överbliven, oanvänd kvällsrapport-state och rapport
 - Sammanfattningen redovisar total sömntid, respektive stadietid och täckningsgrad för specificerade stadier.
 - Fem nya tester täcker vanlig stadiefördelning, blandning av specificerad/ospecificerad sömn, dubbla sampel, ogiltiga intervall och endast ospecificerad data.
 - Detta är nu en testbar kärnmodell. HealthKitStore och gränssnittet använder ännu inte sammanfattningen; ingen stadiefördelning visas i appen förrän integration och fysisk datavalidering är genomförda.
+
+
+## 2026-11-19 – HealthKit-integration av sömnstadier
+- HealthKitStore hämtar nu sömnens kategorisampel i en gemensam fråga och använder samma sampel för val av huvudsömn och stadiesammanfattning.
+- REM, djup, kärna och ospecificerad sömn skickas till SleepStageCalculator; vaken- och i-säng-kategorier räknas inte som sovtid.
+- Sammanfattningen begränsas till överlappande sampel inom den valda huvudsömnens start- och sluttid och lagras i HealthSnapshot.
+- Ingen ny graf eller poäng visas ännu. HealthKit-data måste verifieras på fysisk iPhone innan stadiefördelningen används i användargränssnitt eller återhämtningsmodell.

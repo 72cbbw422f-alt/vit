@@ -562,3 +562,11 @@ Senaste visuella återkoppling kom från iPhone-skärmbilder 2026-11-18. Nästa 
 - [x] Lägga till tester för stadiefördelning, överlapp, dubbletter och saknad stadieinformation.
 - [ ] Koppla sammanfattningen till HealthKitStore och HealthSnapshot.
 - [ ] Verifiera HealthKit-kategorier och källkonflikter med data från fysisk iPhone.
+
+
+## Uppdatering – HealthKit-koppling för sömnstadier
+- [x] Hämta sömnstadier från samma HealthKit-fråga som används för huvudsömnen.
+- [x] Koppla REM, djup, kärna och ospecificerad sömn till SleepStageCalculator.
+- [x] Begränsa stadiesammanfattningen till den valda huvudsömnens tidsfönster.
+- [x] Lagra sammanfattningen i HealthSnapshot för kommande UI-visning.
+- [ ] Validera kategorier, källöverlapp och faktisk täckningsgrad på fysisk iPhone.
