@@ -586,7 +586,7 @@ private struct HealthOverviewView: View {
                             VStack(alignment: .leading, spacing: 11) {
                                 Label("HealthKit-diagnostik", systemImage: "stethoscope")
                                     .font(.headline).foregroundStyle(VITALPalette.cloud)
-                                Text("Antal registrerade mätningar under de senaste 30 dagarna. En nolla kan betyda att data saknas eller att läsbehörighet inte är tillgänglig.")
+                                Text("Antal registrerade mätningar under de senaste 30 dagarna. Apple Hälsa visar inte för appar om läsbehörighet nekats; noll mätningar kan därför betyda både tom datamängd och nekad åtkomst.")
                                     .font(.footnote).foregroundStyle(VITALPalette.muted)
                                     .fixedSize(horizontal: false, vertical: true)
                                 ForEach(health.dataDiagnostics) { item in
@@ -596,10 +596,14 @@ private struct HealthOverviewView: View {
                                         VStack(alignment: .trailing, spacing: 2) {
                                             Text(item.statusText)
                                                 .font(.subheadline.weight(.semibold).monospacedDigit())
-                                                .foregroundStyle(item.sampleCount == 0 ? VITALPalette.amber : VITALPalette.teal)
+                                                .foregroundStyle(item.errorMessage != nil || item.sampleCount == 0 ? VITALPalette.amber : VITALPalette.teal)
                                             if let date = item.latestDate {
                                                 Text("Senast \(date.formatted(date: .abbreviated, time: .shortened))")
                                                     .font(.caption).foregroundStyle(VITALPalette.muted)
+                                            }
+                                            if let error = item.errorMessage {
+                                                Text(error).font(.caption).foregroundStyle(VITALPalette.amber)
+                                                    .multilineTextAlignment(.trailing).frame(maxWidth: 220, alignment: .trailing)
                                             }
                                         }
                                     }
