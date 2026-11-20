@@ -280,3 +280,16 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Kvarvarande icke-blockerande Xcode-varningar: HealthKitStore använder en äldre synkron funktion med async-alternativ; orienteringskonfigurationen saknar stöd för alla interface orientations; traditionell headermap-konfiguration är föråldrad; AppIntents-metadata hoppas över eftersom ramverket inte används.
 - Ingen fysisk iPhone-installation, HealthKit-auktorisering/dataåtkomst, notisleverans eller Apple Watch-testning är utförd i denna körning.
 - Slutsats: CI, 113 tester, simulatorbygge, osignerat device archive, osignerad IPA och simulatorstart är verifierade för commit `48e23c2`. Fysisk enhetsfunktionalitet är fortsatt ej verifierad.
+
+
+## 2026-11-20 – Avveckling av kvarvarande rapport-UI och aktiv arkivhantering
+
+- Gren: `vital-3.0`.
+- Ändrade filer: `VITAL/Views/RootView.swift`, `VITAL/Health/HealthKitStore.swift`, `docs/DECISIONS.md`, `docs/BUILD_AND_TEST_LOG.md`.
+- Tog bort Rapporthistorik-länken, rapportlistan, snapshot-detaljvyn och den historiska återhämtningsgraf som byggde på gamla morgonrapporter.
+- Tog bort HealthKitStores publicerade rapporthistorik, inläsning av rapportarkivet och funktionerna som skapade morgon-/kvällssnapshots. Refresh-flödet skapar inte längre rapportposter.
+- Befintlig UserDefaults-nyckel och lagrade arkivposter raderas inte; data lämnas orörd men är inte längre exponerad i UI eller aktiv analys.
+- Bevarat aktuell återhämtning, Body Battery, baslinjer, veckojämförelser och hälsotrender.
+- Statisk kontroll: inga referenser till Rapporthistorik, ReportHistoryView, ReportSnapshotDetailView eller recoveryReports/recoveryHistoryCard kvar i RootView. Inga aktiva rapportarkiv-/skapandereferenser kvar i HealthKitStore.
+- Test/CI efter ändringen: inväntar ny GitHub Actions-körning. Fysisk iPhone-verifiering återstår.
+- Commits: RootView rapport-UI `04b91d7f1857bf24bdc59ece26b600e2dc6a9bdc`; HealthKitStore `c8d4d301ebe6954e2554ee1e3f8afd5a41aff010`; borttagning av rapportbaserad historikvy `5c83809ee303d1af4f228de9a3c50b6ea0815c9c`.
