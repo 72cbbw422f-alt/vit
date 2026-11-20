@@ -214,3 +214,10 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - Blodtryck får endast visas som par från HealthKit-blodtryckskorrelationer med både systoliskt och diastoliskt värde.
 - Saknade eller otillräckliga datapunkter ska inte fyllas ut. En ensam mätning visas som en mätning, inte som en trend.
 - Lokala äldre journaler bevaras och märks separat från Apple Hälsa-data.
+
+
+## 2026-11-20 – Sömneffektivitet vid identiska intervall
+- Ett HealthKit-registrerat intervall i sängen som täcker hela den valda sömnperioden är giltigt även när intervallens start- och sluttider är identiska.
+- Om registrerad sovtid är lika lång som tiden i sängen blir sömneffektiviteten 100 %. Beräknaren ska inte underkänna detta enbart för att intervallen är lika långa.
+- Om in-bed-intervallet inte täcker hela sömnperioden ska sömneffektivitet inte beräknas. Saknat eller otillräckligt underlag ska fortsatt ge nil.
+- CI-felet den 2026-11-19 berodde på att ett test förväntade nil vid exakt lika intervall, vilket motsade den dokumenterade täckningsregeln och beräknarens faktiska matematiska definition. Testet har ändrats för att verifiera 100 % vid exakt matchning.
