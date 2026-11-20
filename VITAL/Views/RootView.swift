@@ -44,7 +44,6 @@ private struct InsightsView: View {
                     VStack(alignment: .leading, spacing: 16) {
                         pageHeader("Insikter", subtitle: "Dina mönster över tid")
                         currentRecoveryCard
-                        recoveryHistoryCard
                         recentMetricRow
                         weeklyComparisonCard
                         baselineCard
@@ -118,46 +117,6 @@ private struct InsightsView: View {
         if score >= 80 { return "God återhämtning" }
         if score >= 55 { return "Måttlig återhämtning" }
         return "Behöver återhämtning"
-    }
-
-    private var recoveryHistoryCard: some View {
-        VITALCard {
-            VStack(alignment: .leading, spacing: 14) {
-                Label("Historisk återhämtning", systemImage: "clock.arrow.circlepath")
-                    .font(.headline).foregroundStyle(VITALPalette.cloud)
-                if recoveryReports.isEmpty {
-                    EmptyChartState(symbol: "chart.xyaxis.line", title: "Ingen trend ännu", detail: "Äldre sparade morgonvärden visas här. Den aktuella återhämtningen visas separat ovan.")
-                } else {
-                    recoveryHistoryChart
-                    Text("\(recoveryReports.count) äldre sparade morgonvärden")
-                        .font(.footnote).foregroundStyle(VITALPalette.muted)
-                }
-            }
-        }
-    }
-
-    private var recoveryHistoryChart: some View {
-        Chart {
-            ForEach(Array(recoveryReports.enumerated()), id: \.element.id) { item in
-                BarMark(
-                    x: .value("Dag", item.offset),
-                    y: .value("Återhämtning", item.element.recoveryScore ?? 0)
-                )
-                .foregroundStyle(VITALPalette.teal.gradient)
-                .cornerRadius(5)
-            }
-        }
-        .chartYScale(domain: 0...100)
-        .accessibilityLabel("Historisk återhämtning")
-        .accessibilityValue("\(recoveryReports.count) sparade morgonvärden, skala noll till hundra")
-        .chartXAxis(.hidden)
-        .chartYAxis {
-            AxisMarks(position: .leading, values: [0, 50, 100]) { _ in
-                AxisGridLine().foregroundStyle(VITALPalette.track)
-                AxisValueLabel().foregroundStyle(VITALPalette.muted)
-            }
-        }
-        .frame(height: 180)
     }
 
     private var recentMetricRow: some View {
