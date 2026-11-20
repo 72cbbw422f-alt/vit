@@ -36,9 +36,6 @@ struct RootView: View {
 
 private struct InsightsView: View {
     @EnvironmentObject private var health: HealthKitStore
-    private var recoveryReports: [DailyReportSnapshot] {
-        health.reportHistory.filter { $0.kind == .morning && $0.recoveryScore != nil }.suffix(14).map { $0 }
-    }
     var body: some View {
         NavigationStack {
             ZStack {
@@ -46,7 +43,6 @@ private struct InsightsView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
                         pageHeader("Insikter", subtitle: "Dina mönster över tid")
-                        reportHistoryLink
                         currentRecoveryCard
                         recoveryHistoryCard
                         recentMetricRow
@@ -62,35 +58,6 @@ private struct InsightsView: View {
             }
             .toolbar(.hidden, for: .navigationBar)
         }
-    }
-
-    private var reportHistoryLink: some View {
-        NavigationLink {
-            ReportHistoryView()
-        } label: {
-            HStack(spacing: 13) {
-                Image(systemName: "doc.text.magnifyingglass")
-                    .font(.vital(size: 20.5, weight: .semibold))
-                    .foregroundStyle(VITALPalette.teal)
-                    .frame(width: 44, height: 44)
-                    .background(VITALPalette.teal.opacity(0.12), in: RoundedRectangle(cornerRadius: 13))
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Rapporthistorik").font(.headline).foregroundStyle(VITALPalette.cloud)
-                    Text("\(health.reportHistory.count) sparade rapporter · frysta ögonblicksbilder")
-                        .font(.footnote).foregroundStyle(VITALPalette.muted)
-                }
-                Spacer()
-                Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(VITALPalette.muted)
-            }
-            .padding(15)
-            .background(
-                LinearGradient(colors: [VITALPalette.surfaceRaised, VITALPalette.surface], startPoint: .topLeading, endPoint: .bottomTrailing),
-                in: RoundedRectangle(cornerRadius: 20, style: .continuous)
-            )
-            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(Color.white.opacity(0.08), lineWidth: 1))
-            .shadow(color: .black.opacity(0.15), radius: 12, y: 6)
-        }
-        .buttonStyle(.plain)
     }
 
     private var currentRecoveryCard: some View {
@@ -275,143 +242,6 @@ private struct InsightsView: View {
             Spacer()
             Text("\(days) giltiga dagar").font(.subheadline.monospacedDigit()).foregroundStyle(days >= 14 ? VITALPalette.teal : VITALPalette.amber)
         }.padding(.vertical, 5)
-    }
-}
-
-private struct ReportHistoryView: View {
-    @EnvironmentObject private var health: HealthKitStore
-
-    var body: some View {
-        ZStack {
-            VITALPalette.surface.ignoresSafeArea()
-            if health.reportHistory.isEmpty {
-                ContentUnavailableView(
-                    "Inga rapporter ännu",
-                    systemImage: "doc.text",
-                    description: Text("Äldre sparade rapporter finns kvar här. VITAL skapar inte längre nya schemalagda morgon- eller kvällsrapporter.")
-                )
-                .foregroundStyle(VITALPalette.cloud)
-            } else {
-                ScrollView {
-                    LazyVStack(spacing: 11) {
-                        ForEach(health.reportHistory.sorted { $0.capturedAt > $1.capturedAt }) { report in
-                            NavigationLink {
-                                ReportSnapshotDetailView(report: report)
-                            } label: {
-                                HStack(spacing: 13) {
-                                    VStack(spacing: 4) {
-                                        Image(systemName: report.kind == .morning ? "sunrise.fill" : "moon.stars.fill")
-                                            .font(.vital(size: 18.4, weight: .semibold))
-                                        Text(report.capturedAt.formatted(.dateTime.hour().minute()))
-                                            .font(.vital(size: 14, weight: .bold, design: .rounded).monospacedDigit())
-                                    }
-                                    .foregroundStyle(report.kind == .morning ? VITALPalette.teal : VITALPalette.violet)
-                                    .frame(width: 54, height: 58)
-                                    .background((report.kind == .morning ? VITALPalette.teal : VITALPalette.violet).opacity(0.12), in: RoundedRectangle(cornerRadius: 14))
-                                    VStack(alignment: .leading, spacing: 5) {
-                                        Text(report.localDayDisplayText).font(.headline).foregroundStyle(VITALPalette.cloud)
-                                        Text(report.kind == .morning ? "Morgonrapport" : "Kvällsrapport")
-                                            .font(.footnote).foregroundStyle(VITALPalette.muted)
-                                        Text("Sparad ögonblicksbild").font(.vital(size: 14, weight: .medium)).foregroundStyle(VITALPalette.muted)
-                                    }
-                                    Spacer()
-                                    VStack(alignment: .trailing, spacing: 2) {
-                                        Text(report.recoveryScore.map(String.init) ?? "—")
-                                            .font(.vital(size: 28.1, weight: .bold, design: .rounded).monospacedDigit())
-                                            .foregroundStyle(VITALPalette.teal)
-                                        Text("ÅTERHÄMTNING").font(.vital(size: 14, weight: .heavy)).tracking(0.5).foregroundStyle(VITALPalette.muted)
-                                    }
-                                    Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(VITALPalette.muted)
-                                }
-                                .padding(13)
-                                .background(VITALPalette.surfaceRaised, in: RoundedRectangle(cornerRadius: 18))
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding(VITALSpacing.page)
-                }
-            }
-        }
-        .navigationTitle("Rapporthistorik")
-        .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
-private struct ReportSnapshotDetailView: View {
-    let report: DailyReportSnapshot
-
-    var body: some View {
-        ZStack {
-            VITALPalette.surface.ignoresSafeArea()
-            ScrollView {
-                VStack(alignment: .leading, spacing: 17) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(report.kind == .morning ? "MORGONRAPPORT" : "KVÄLLSRAPPORT")
-                            .font(.footnote.weight(.heavy)).tracking(1.3).foregroundStyle(VITALPalette.teal)
-                        Text(report.localDayDisplayText)
-                            .font(.vital(size: 32.4, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.cloud)
-                        Text("Fångad \(report.capturedAt.formatted(date: .omitted, time: .shortened))")
-                            .font(.footnote).foregroundStyle(VITALPalette.muted)
-                    }
-                    VITALCard {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 5) {
-                                Text(report.kind == .morning ? "NATTENS ÅTERHÄMTNING" : "DAGENS KROPPSBATTERI").font(.footnote.weight(.bold)).tracking(0.7).foregroundStyle(VITALPalette.muted)
-                                Text((report.kind == .morning ? report.recoveryScore : report.bodyBatteryScore).map { "\($0) / 100" } ?? "Saknar underlag")
-                                    .font(.vital(size: 34.6, weight: .bold, design: .rounded)).foregroundStyle(VITALPalette.teal)
-                            }
-                            Spacer()
-                            Image(systemName: "moon.stars.fill").font(.vital(size: 34.6)).foregroundStyle(VITALPalette.teal)
-                        }
-                        if report.kind == .morning {
-                            Divider().overlay(VITALPalette.track)
-                            reportComponent("Sömn", score: report.sleepComponentScore)
-                            reportComponent("HRV", score: report.hrvComponentScore)
-                            reportComponent("Vilopuls", score: report.restingPulseComponentScore)
-                        }
-                    }
-                    VITALCard {
-                        VStack(alignment: .leading, spacing: 13) {
-                            Text(report.kind == .morning ? "SPARADE MÄTVÄRDEN" : "DAGENS BELASTNING OCH MÄTVÄRDEN").font(.footnote.weight(.heavy)).tracking(0.8).foregroundStyle(VITALPalette.muted)
-                            if report.kind == .morning {
-                                savedMetric("Sömn", value: report.sleepDurationSeconds.map { duration in
-                                    let minutes = Int(duration / 60)
-                                    return "\(minutes / 60) h \(String(format: "%02d", minutes % 60)) min"
-                                })
-                                savedMetric("Natt-HRV", value: report.hrvMilliseconds.map { "\(Int($0.rounded())) ms" })
-                                savedMetric("Vilopuls", value: report.restingHeartRateBPM.map { "\(Int($0.rounded())) bpm" })
-                            }
-                            savedMetric("Kroppsbatteri", value: report.bodyBatteryScore.map { "\($0) / 100" })
-                            savedMetric(report.kind == .morning ? "Steg vid fångst" : "Dagens steg", value: report.steps.map { Int($0).formatted() })
-                            savedMetric(report.kind == .morning ? "Aktiv energi" : "Dagens aktiva energi", value: report.activeEnergyKcal.map { "\(Int($0.rounded())) kcal" })
-                        }
-                    }
-                    Text(report.kind == .morning ? "Det här är värdena som sparades vid morgonrapporten. De uppdateras inte när nya data kommer från Apple Hälsa." : "Kvällsrapporten visar dagens aktivitet och kroppsbatteri vid fångsttillfället. Nattens återhämtningspoäng redovisas separat i morgonrapporten.")
-                        .font(.footnote).foregroundStyle(VITALPalette.muted).padding(.horizontal, 4)
-                }
-                .padding(VITALSpacing.page).padding(.top, 12).padding(.bottom, 28)
-            }
-        }
-        .navigationTitle("Sparad rapport")
-        .navigationBarTitleDisplayMode(.inline)
-    }
-
-    private func reportComponent(_ title: String, score: Double?) -> some View {
-        HStack {
-            Text(title).foregroundStyle(VITALPalette.muted)
-            Spacer()
-            Text(score.map { "\(Int($0.rounded())) / 100" } ?? "—")
-                .font(.subheadline.weight(.semibold).monospacedDigit()).foregroundStyle(VITALPalette.cloud)
-        }
-    }
-
-    private func savedMetric(_ title: String, value: String?) -> some View {
-        HStack {
-            Text(title).foregroundStyle(VITALPalette.muted)
-            Spacer()
-            Text(value ?? "—").font(.subheadline.weight(.semibold).monospacedDigit()).foregroundStyle(value == nil ? VITALPalette.amber : VITALPalette.cloud)
-        }
     }
 }
 
