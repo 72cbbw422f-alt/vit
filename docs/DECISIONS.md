@@ -221,3 +221,13 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - Om registrerad sovtid är lika lång som tiden i sängen blir sömneffektiviteten 100 %. Beräknaren ska inte underkänna detta enbart för att intervallen är lika långa.
 - Om in-bed-intervallet inte täcker hela sömnperioden ska sömneffektivitet inte beräknas. Saknat eller otillräckligt underlag ska fortsatt ge nil.
 - CI-felet den 2026-11-19 berodde på att ett test förväntade nil vid exakt lika intervall, vilket motsade den dokumenterade täckningsregeln och beräknarens faktiska matematiska definition. Testet har ändrats för att verifiera 100 % vid exakt matchning.
+
+
+## 2026-11-20 – Slutligt borttagande av rapportfunktioner ur användarflödet
+
+- Separata morgon- och kvällsrapporter ska inte vara en del av VITALs aktiva produktupplevelse.
+- Insikter ska visa aktuell återhämtning, veckojämförelser, personliga baslinjer och faktiska hälsotrender utan länk till Rapporthistorik eller historiska återhämtningspoäng byggda från gamla rapport-snapshots.
+- HealthKitStore ska inte läsa in, skapa eller uppdatera morgon-/kvällsrapporter i den aktiva dataflödesvägen.
+- Befintlig lokal rapportarkivdata i UserDefaults lämnas orörd för att undvika destruktiv datamigrering. Den visas inte längre och används inte för aktuella beräkningar.
+- Legacy Codable-modeller och policytester kan ligga kvar tills en separat säkerhetsgranskning visar att de kan tas bort utan att påverka äldre data eller paketstruktur.
+- Den aktuella nattliga återhämtningen och Body Battery är separata, levande beräkningar och ska bevaras.
