@@ -21,10 +21,13 @@ final class SleepEfficiencyCalculatorTests: XCTestCase {
             inBedIntervals: [SleepInterval(start: date(14, 23, 15), end: date(15, 6))]))
     }
 
-    func testRejectsInvalidOrShorterThanSleepBedInterval() {
+    func testAcceptsInBedIntervalExactlyMatchingSleepDuration() {
         let session = SleepSession(start: date(14, 23), end: date(15, 6), asleepDuration: 7 * 3600)
-        XCTAssertNil(SleepEfficiencyCalculator.calculate(session: session,
-            inBedIntervals: [SleepInterval(start: date(14, 23), end: date(15, 6))]))
+        let result = SleepEfficiencyCalculator.calculate(session: session,
+            inBedIntervals: [SleepInterval(start: date(14, 23), end: date(15, 6))])
+        XCTAssertEqual(result?.inBedDuration, 7 * 3600)
+        XCTAssertEqual(result?.asleepDuration, 7 * 3600)
+        XCTAssertEqual(result?.percentage, 100)
     }
 }
 
