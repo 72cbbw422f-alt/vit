@@ -293,3 +293,21 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Statisk kontroll: inga referenser till Rapporthistorik, ReportHistoryView, ReportSnapshotDetailView eller recoveryReports/recoveryHistoryCard kvar i RootView. Inga aktiva rapportarkiv-/skapandereferenser kvar i HealthKitStore.
 - Test/CI efter ändringen: inväntar ny GitHub Actions-körning. Fysisk iPhone-verifiering återstår.
 - Commits: RootView rapport-UI `04b91d7f1857bf24bdc59ece26b600e2dc6a9bdc`; HealthKitStore `c8d4d301ebe6954e2554ee1e3f8afd5a41aff010`; borttagning av rapportbaserad historikvy `5c83809ee303d1af4f228de9a3c50b6ea0815c9c`.
+
+
+## 2026-11-20 – CI 508 verifierad efter rapportavveckling
+
+- CI: [GitHub Actions #508](https://github.com/72cbbw422f-alt/vit/actions/runs/44749499355) – **success**, job completed 2026-11-20 14:09:26 UTC.
+- Gren/commit: `vital-3.0` / `a7f570aab3b92637e2fbd1a3073482459edcbd8a`.
+- Enhetstester: **113/113 passerade**, 0 fel och 0 oväntade fel.
+- iOS Simulator-build: **BUILD SUCCEEDED**.
+- Osignerad iOS device archive: **godkänd**.
+- Appikon verifierad i arkivet; bundle identifier kontrollerad.
+- IPA paketerad och uppladdad som artefakt; device archive uppladdat.
+- Simulator-smoketest: app installerades och startades; processen förblev igång (PID 8368).
+- Nedladdade artefakter: IPA artifact ID `14634428115` (1,818,614 byte); device archive artifact ID `14634308777` (3,646,877 byte). Retention till 2026-11-27 14:04 UTC.
+- IPA inspekterad: `se.vital.health`, version 3.0, build 1, minsta iOS 17.0, iPhone/iPad, arm64 Mach-O. Ingen `_CodeSignature` eller `embedded.mobileprovision` finns – paketet är osignerat och inte direkt installerbart.
+- Signerade HealthKit-entitlements är därmed inte verifierade i IPA. FlareStore-signering måste uttryckligen bevara HealthKit capability/entitlements.
+- Byggvarningar: HealthKitStore använder äldre synkron funktion med async-alternativ; orienteringsvarning; traditionell headermap-konfiguration; AppIntents-metadata hoppas över då ramverket inte är länkat.
+- Fysisk iPhone-installation, verklig HealthKit-auktorisering/datahämtning, notiser och Apple Watch är **ej verifierade**.
+- Nytt testresultat gäller koden i commit `a7f570a`; dokumentationsuppdateringen i denna commit kan trigga en ny CI-körning.
