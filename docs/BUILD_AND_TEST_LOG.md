@@ -247,3 +247,18 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Oanvända vyer för morgon-/kvällsrapport och rapportsektionen togs bort från DashboardView. Det aktiva huvudkortet Dagens återhämtning är den enda morgonsammanfattningen i dashboarden.
 - Arkivmodellens `DailyReportKind.evening` och äldre poster behålls för att gamla lokala arkiv fortsatt ska kunna avkodas.
 - Denna städning kräver en ny CI-körning; den tidigare godkända körningen gäller commit `cc243c9`, inte den nya städningscommiten.
+
+
+## 2026-11-20 – Korrigering av testkontrakt för sömneffektivitet
+
+- Granskad gren: `vital-3.0`.
+- Föregående verifiering: Actions run 499 (`4fb4d2e`) misslyckades i `swift test`; samma fel som run 498.
+- Rotorsak: testet `testRejectsInvalidOrShorterThanSleepBedInterval` använde ett in-bed-intervall som exakt täckte sömnperioden och förväntade ändå `nil`. Beräknaren returnerade matematiskt korrekt 100 %.
+- Ändrad fil: `Tests/VITALCoreTests/SleepQualityCalculatorTests.swift`. Testet heter nu `testAcceptsInBedIntervalExactlyMatchingSleepDuration` och verifierar 7 timmars sömn, 7 timmars in-bed och 100 % effektivitet.
+- Ändrad fil: `docs/DECISIONS.md`. Kontraktet är dokumenterat: ett in-bed-intervall som täcker hela sömnperioden är giltigt även vid exakt lika start-/sluttider; ofullständig täckning ger fortsatt nil.
+- Kodfilen `VITAL/Models/SleepQualityCalculator.swift` är inte ändrad.
+- Testkörning efter ändringen: inväntar GitHub Actions.
+- Actions run 500 och 501 startades av de två efterföljande commitsen; run 501 pekar på senaste commit `5559b66`. Status vid dokumentationstillfället: queued.
+- Simulatorbygge, device archive, IPA-paketering och simulator-smoketest är ännu inte verifierade för den nya koden.
+- Berörda commits: `89d58e9` (test) och `5559b66` (beslutslogg).
+- Nästa steg: invänta senaste workflow-resultatet och granska loggen. Om testerna passerar ska hela återstående byggkedjan verifieras; om de fallerar ska det faktiska felet analyseras innan fler kodändringar görs.
