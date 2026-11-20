@@ -311,3 +311,12 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Byggvarningar: HealthKitStore använder äldre synkron funktion med async-alternativ; orienteringsvarning; traditionell headermap-konfiguration; AppIntents-metadata hoppas över då ramverket inte är länkat.
 - Fysisk iPhone-installation, verklig HealthKit-auktorisering/datahämtning, notiser och Apple Watch är **ej verifierade**.
 - Nytt testresultat gäller koden i commit `a7f570a`; dokumentationsuppdateringen i denna commit kan trigga en ny CI-körning.
+
+
+## 2026-11-20 – Manuell iPhone-kontroll efter rapportavveckling
+
+- Användaren har bekräftat i den installerade appen att morgon-/kvällsrapporterna och rapporthistoriken inte längre visas.
+- Användaren bekräftar även att HealthKit-behörigheten finns kvar efter ändringen. Detta är en manuell, användarrapporterad kontroll av att behörighetsinställningen inte försvann.
+- Status: rapport-UI **verifierat borta enligt användartest**; HealthKit-behörighetsinställning **kvar enligt användartest**.
+- Detta bevisar inte i sig att ny HealthKit-läsning fungerar eller att signerade entitlements och faktisk dataleverans fungerar. Verklig hälsodatahämtning och uppdatering av mätvärden behöver testas separat.
+- CI 509 för dokumentationscommit `f2cf7d2682a5625c0b57dfd5913e64016fb3210d` är godkänd. Gren: `vital-3.0`.
