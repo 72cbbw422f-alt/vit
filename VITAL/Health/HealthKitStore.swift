@@ -47,13 +47,9 @@ final class HealthKitStore: ObservableObject {
     @Published private(set) var authorizationRequested = false
     @Published private(set) var backgroundSleepDeliveryEnabled = false
     @Published private(set) var lastError: String?
-    @Published private(set) var morningReport: DailyReportSnapshot?
-    @Published private(set) var reportHistory: [DailyReportSnapshot] = []
     private let store = HKHealthStore()
     private let baselineCalendar = Calendar.current
     private var sleepObserverQuery: HKObserverQuery?
-    private let reportArchiveKey = "vital.dailyReportArchive.v1"
-    private var reportArchive = ReportSnapshotArchive()
     @Published private(set) var isRefreshing = false
     private var refreshRequestedAgain = false
 
@@ -100,7 +96,6 @@ final class HealthKitStore: ObservableObject {
         if let wristTemperature = HKObjectType.quantityType(forIdentifier: .appleSleepingWristTemperature) {
             readTypes.insert(wristTemperature)
         }
-        loadReportArchive()
         do {
             try await store.requestAuthorization(toShare: [], read: readTypes)
             authorizationRequested = true
@@ -273,93 +268,8 @@ final class HealthKitStore: ObservableObject {
     }
 
 
-    /// Restore frozen report history from local storage.
-    private func loadReportArchive() {
-        guard let data = UserDefaults.standard.data(forKey: reportArchiveKey),
-              let decoded = try? JSONDecoder().decode(ReportSnapshotArchive.self, from: data) else { return }
-        reportArchive = decoded
-        reportHistory = Array(decoded.snapshots.reversed())
-        morningReport = decoded.snapshot(for: Date(), kind: .morning)
-    }
-
-    /// Freeze the first eligible morning snapshot for the local wake-up day.
-    /// Missing measurements remain nil; subsequent HealthKit refreshes cannot rewrite it.
-    private func createMorningReportIfEligible(
-        from healthSnapshot: HealthSnapshot,
-        sleepSession: SleepSession?,
-        capturedAt: Date
-    ) {
-        let calendar = Calendar.current
-        let decision = MorningReportTriggerPolicy.evaluate(
-            source: .healthKitSleepUpdated,
-            eventDate: capturedAt,
-            mainSleep: sleepSession,
-            reportDay: capturedAt,
-            calendar: calendar
-        )
-        guard decision.shouldCreateSnapshot else { return }
-        guard let sleepSession else { return }
-        let day = calendar.startOfDay(for: sleepSession.end)
-        let recovery = healthSnapshot.recoveryResult
-        let candidate = DailyReportSnapshot(
-            kind: .morning,
-            localDay: day,
-            capturedAt: capturedAt,
-            recoveryScore: recovery.score,
-            sleepComponentScore: recovery.sleepComponent,
-            hrvComponentScore: recovery.hrvComponent,
-            restingPulseComponentScore: recovery.restingPulseComponent,
-            bodyBatteryScore: healthSnapshot.bodyBattery?.score,
-            sleepDurationSeconds: healthSnapshot.sleepDuration,
-            hrvMilliseconds: healthSnapshot.overnightHRV,
-            restingHeartRateBPM: healthSnapshot.overnightRestingHeartRate,
-            steps: healthSnapshot.steps,
-            activeEnergyKcal: healthSnapshot.activeEnergy
-        )
-        guard reportArchive.appendIfAbsent(candidate, calendar: calendar),
-              let data = try? JSONEncoder().encode(reportArchive) else { return }
-        UserDefaults.standard.set(data, forKey: reportArchiveKey)
-        reportHistory = Array(reportArchive.snapshots.reversed())
-        morningReport = candidate
-    }
-
-    /// Freeze the first evening snapshot after the local 21:00 threshold.
-    /// The current-day activity and body-battery values are captured once and
-    /// later HealthKit refreshes cannot rewrite the archived report.
-    private func createEveningReportIfEligible(
-        from healthSnapshot: HealthSnapshot,
-        capturedAt: Date
-    ) {
-        let calendar = Calendar.current
-        let decision = EveningReportTriggerPolicy.evaluate(
-            eventDate: capturedAt,
-            reportDay: capturedAt,
-            calendar: calendar
-        )
-        guard decision.shouldCreateSnapshot else { return }
-        let day = calendar.startOfDay(for: capturedAt)
-        let candidate = DailyReportSnapshot(
-            kind: .evening,
-            localDay: day,
-            capturedAt: capturedAt,
-            // Evening reporting is based on daytime load/body battery, not
-            // the overnight recovery score already used by the morning report.
-            recoveryScore: nil,
-            sleepComponentScore: nil,
-            hrvComponentScore: nil,
-            restingPulseComponentScore: nil,
-            bodyBatteryScore: healthSnapshot.bodyBattery?.score,
-            sleepDurationSeconds: healthSnapshot.sleepDuration,
-            hrvMilliseconds: healthSnapshot.overnightHRV,
-            restingHeartRateBPM: healthSnapshot.overnightRestingHeartRate,
-            steps: healthSnapshot.steps,
-            activeEnergyKcal: healthSnapshot.activeEnergy
-        )
-        guard reportArchive.appendIfAbsent(candidate, calendar: calendar),
-              let data = try? JSONEncoder().encode(reportArchive) else { return }
-        UserDefaults.standard.set(data, forKey: reportArchiveKey)
-        reportHistory = Array(reportArchive.snapshots.reversed())
-    }
+    // Legacy report snapshots are intentionally left untouched in UserDefaults.
+    // VITAL no longer loads, creates, or displays morning/evening reports.
 
     /// Counts recent samples per HealthKit type so an empty UI value can be
     /// investigated instead of silently appearing as a dash.
