@@ -262,3 +262,21 @@ Registrera varje byggförsök och test här. Skriv exakt miljö, resultat och ev
 - Simulatorbygge, device archive, IPA-paketering och simulator-smoketest är ännu inte verifierade för den nya koden.
 - Berörda commits: `89d58e9` (test) och `5559b66` (beslutslogg).
 - Nästa steg: invänta senaste workflow-resultatet och granska loggen. Om testerna passerar ska hela återstående byggkedjan verifieras; om de fallerar ska det faktiska felet analyseras innan fler kodändringar görs.
+
+
+## 2026-11-20 – Full CI 502 godkänd och artefakter verifierade
+
+- Gren: `vital-3.0`; commit: `48e23c20a1f1e396405f62c550f12838965b41a0`.
+- GitHub Actions run [502](https://github.com/72cbbw422f-alt/vit/actions/runs/44737348376): **success**, job `build` slutförd 2026-11-20 12:54 UTC.
+- `swift test`: **113 tester, 0 fel, 0 oväntade fel**. Alla testsviter passerade.
+- iOS Simulator target: **build godkänd**.
+- Osignerat iOS device archive: **archive godkänd**.
+- IPA-paketering och uppladdning: **godkända**.
+- Simulator-smoketest: VITAL installerades och startades; processen förblev igång (PID 7225) efter kontrollintervallet.
+- Artefakter: `VITAL-unsigned-IPA` (1 857 907 byte; artifact ID `14628989476`) och `VITAL-unsigned-device-archive` (3 766 075 byte; artifact ID `14629144199`). Båda har sju dagars retention, till 2026-11-27 cirka 12:51 UTC.
+- IPA-arkivet laddades ned och inspekterades lokalt. Innehåller `Payload/VITAL.app`, arm64 Mach-O-binär (1 498 144 byte), Info.plist och Assets.car. Metadata: bundle ID `se.vital.health`, version 3.0, build 1, minsta iOS 17.0, iPhone/iPad.
+- Signering verifierad som **saknad**: ingen `_CodeSignature` och ingen `embedded.mobileprovision`. Detta är avsiktligt; IPA:n är inte installationsklar förrän FlareStore har signerat den.
+- Källans `VITAL/VITAL.entitlements` deklarerar HealthKit och background delivery, och projektets Debug/Release-konfiguration pekar på entitlement-filen. Eftersom arkivet byggdes med `CODE_SIGNING_ALLOWED=NO` är aktiverade signerade entitlements inte verifierade i paketet. FlareStore-signeringen måste bevara/inkludera HealthKit-entitlements innan HealthKit-test på enhet.
+- Kvarvarande icke-blockerande Xcode-varningar: HealthKitStore använder en äldre synkron funktion med async-alternativ; orienteringskonfigurationen saknar stöd för alla interface orientations; traditionell headermap-konfiguration är föråldrad; AppIntents-metadata hoppas över eftersom ramverket inte används.
+- Ingen fysisk iPhone-installation, HealthKit-auktorisering/dataåtkomst, notisleverans eller Apple Watch-testning är utförd i denna körning.
+- Slutsats: CI, 113 tester, simulatorbygge, osignerat device archive, osignerad IPA och simulatorstart är verifierade för commit `48e23c2`. Fysisk enhetsfunktionalitet är fortsatt ej verifierad.
