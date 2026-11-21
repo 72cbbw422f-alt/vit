@@ -49,3 +49,32 @@ Detta är en kodinventering baserad på filinnehållet i aktuell gren. Den är i
 - Komplett repo-wide sökning: GitHub-anslutningen i denna arbetsyta gav filhämtning men inget fungerande kodsöknings-/trädlistningsgränssnitt. Inventeringen ovan är därför begränsad till direkt hämtade filer.
 - Bygg/test: inte kört i denna inventeringsinsats.
 - Fysisk iPhone: inte testad i denna insats.
+
+
+## Ytterligare beräkningsfynd (2026-11-21)
+
+### `VITAL/Models/RecoveryEngine.swift`
+- Återhämtningspoängen klipper varje komponent till 0–100 och viktar sömn 40 %, HRV 35 % och puls 25 %. Det förklarar varför maxpoäng är möjligt när alla komponenter når sina tak; det bevisar inte att 100 är rimligt för en viss natt.
+- Sömnkomponenten klipps vid 100 % av baslinjen. HRV-komponenten klipps när HRV når baslinjen. Pulskomponenten klipps när puls är lika med eller lägre än baslinjen. Modellen har därmed flera vägar till maxpoäng och saknar en särskild maxpoängs-spärr.
+- `RecoveryGuidancePolicy` använder tröskelvärdet 85 på normaliserade komponenter. Detta måste granskas tillsammans med själva poängmodellen så textrekommendationer och poäng inte säger emot varandra.
+- Filen innehåller även `SemaglutideDoseInput`, `SemaglutideLevelEstimate` och `SemaglutideLevelModel`. Dessa är läkemedelsfunktioner som ska avvecklas när alla anrop och tester inventerats.
+
+### `VITAL/Models/OvernightMetricSelector.swift`
+- Nattlig vilopuls väljs som median av vilopulssampel inom sömnperioden, men om sådana saknas används medelvärdet av vanliga pulssampel under samma sömnperiod.
+- Koden kommenterar reservvärdet som en proxy, men det lagras i samma `restingHeartRateBPM`-fält och används därefter i återhämtningsmodellen. Det riskerar att blanda faktisk HealthKit-vilopuls med beräknad genomsnittlig nattpuls.
+- HRV väljs som median av giltiga sampel inom sömnperioden. Översiktens senaste HRV och nattens HRV är separata fält. Skillnaden mellan 14 ms i Hälsa och 45 ms i Insikter kan därför bero på att vyerna visar olika fält/urval; detta måste verifieras genom att exponera värde, urvalsfönster och tidsstämpel tydligare, inte genom att anta att något av värdena är fel.
+
+### `VITAL/Models/BodyBatteryEngine.swift`
+- Pulsluckor över 15 minuter ignoreras. Dagens belastning kan därför underskattas när Apple Watch inte har täta sampel.
+- Aktiv energi multipliceras med en fast koefficient 0,025. Pulsbelastning beräknas separat; dessa koefficienter saknar i nuläget verifierad kalibrering mot användarens upplevda dagsform.
+- Återhämtningspoäng kan adderas under sammanhängande viloperioder, upp till 12 poäng/dag. Det kan motverka belastning och göra att batteriet sjunker långsamt.
+- Modellen behöver redovisa täckningsgrad och tidsluckor samt testas mot faktiska dagsdata innan koefficienter ändras.
+
+## Prioriterad teknisk risklista
+
+1. **Hög:** blandning av faktisk nattlig vilopuls och proxy från vanlig nattpuls i samma modellfält.
+2. **Hög:** återhämtningspoängens maxklippning kan ge 100 när alla komponenter når 100; modellens kalibrering behöver testas med komponentvärden och baslinjer.
+3. **Hög:** HealthKitStore kräver fortfarande vikt som en grundtyp och läser kroppssammansättning.
+4. **Hög:** aktiv vikt-, läkemedels- och progressbildsfunktionalitet finns kvar i RootView.
+5. **Medel:** kroppsbatteriet ignorerar långa pulsgap och använder fasta, ännu ej empiriskt validerade koefficienter.
+6. **Medel:** senaste HRV och nattlig HRV presenteras i olika sammanhang; värdeursprung och tidsfönster behöver bli tydliga.
