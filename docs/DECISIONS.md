@@ -231,3 +231,16 @@ Detta dokument innehåller beslut som styr produkt, design och teknik. Nya beslu
 - Befintlig lokal rapportarkivdata i UserDefaults lämnas orörd för att undvika destruktiv datamigrering. Den visas inte längre och används inte för aktuella beräkningar.
 - Legacy Codable-modeller och policytester kan ligga kvar tills en separat säkerhetsgranskning visar att de kan tas bort utan att påverka äldre data eller paketstruktur.
 - Den aktuella nattliga återhämtningen och Body Battery är separata, levande beräkningar och ska bevaras.
+
+
+## 2026-11-21 – Renodlad VITAL och teknisk grund före visuell slutbearbetning
+
+- VITAL ska fokusera på dagsform, återhämtning, kroppsbatteri, stressindikator och centrala vitala hälsomått.
+- Vikt, målvikt, viktutveckling, kroppsfett, fettfri massa/muskelmassa, läkemedelsjournal, doshistorik, läkemedelsnivåmodell, biverkningslogg, läkemedelspåminnelser och progressbilder tas bort ur produkten.
+- Kärnmått: nattlig återhämtning, dynamiskt kroppsbatteri, stressindikator, sömn, HRV, puls/vilopuls, blodtryck, andningsfrekvens, handledstemperatur som baslinjeavvikelse när tillgänglig samt aktivitet som belastningskontext.
+- Blodtryck behålls som centralt vitalt mått. Hälsomått som saknar tillräcklig datatäckning ska visas som saknade/otillräckliga.
+- Stress är inte ett direkt generellt HealthKit-mått. VITAL ska använda benämningen stressindikator/uppskattad fysiologisk belastning och kombinera HRV, puls, andningsfrekvens, sömn/återhämtning och aktivitetskontext mot personliga baslinjer. Den får inte beskrivas som kliniskt validerad eller härledas från HRV ensamt.
+- Beräkningsmotorer ska vara fristående från SwiftUI och HealthKit-frågor. UI får inte innehålla hälsomatematik.
+- Teknikfasen ska färdigställas och verifieras före samlad visuell slutbearbetning.
+- Äldre lokala journaldata får inte raderas destruktivt utan separat migreringsbeslut. Aktiva funktioner, UI, notiser, HealthKit-frågor och behörigheter ska däremot avvecklas när de inte längre behövs.
+- Full omfattning, datakontrakt, stressmodell, teststrategi och definition av tekniskt färdig finns i `docs/TECHNICAL_FOUNDATION.md`.
